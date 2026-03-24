@@ -16,6 +16,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Relationship between leaves and internal nodes: $n_0 = n_2 + 1$.
 6. [**06: Strict Binary Tree**](./06_strict_binary_tree.md)
    - Rules of $\{0, 2\}$ children and identifying "Proper" trees.
+7. [**07: Strict Tree: Height vs Nodes**](./07_strict_height_vs_nodes.md)
+   - Mathematical properties unique to strict trees ($2h+1$ rule).
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
