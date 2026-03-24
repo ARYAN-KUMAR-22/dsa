@@ -30,6 +30,61 @@ $$S = \frac{a(r^{h+1}-1)}{r-1} = \frac{1(2^{h+1}-1)}{2-1} = 2^{h+1} - 1$$
 
 ---
 
+## 📸 Visual Comparison ($h=1$ to $h=3$)
+Here is how the trees look at their absolute minimum (Skewed) and absolute maximum (Full).
+
+### 🏷️ Case: Height h = 1
+- **Min Nodes ($h+1$):** 2
+- **Max Nodes ($2^{h+1}-1$):** 3
+```mermaid
+graph TD
+    subgraph "Min (n=2)"
+        A1(( )) --- B1(( ))
+    end
+    subgraph "Max (n=3)"
+        A2(( )) --- B2(( ))
+        A2 --- C2(( ))
+    end
+```
+
+### 🏷️ Case: Height h = 2
+- **Min Nodes:** 3
+- **Max Nodes:** 7
+```mermaid
+graph TD
+    subgraph "Min (n=3)"
+        A3(( )) --- B3(( )) --- C3(( ))
+    end
+    subgraph "Max (n=7)"
+        A4(( )) --- B4(( )) --- D4(( ))
+        B4 --- E4(( ))
+        A4 --- C4(( )) --- F4(( ))
+        C4 --- G4(( ))
+    end
+```
+
+### 🏷️ Case: Height h = 3
+- **Min Nodes:** 4
+- **Max Nodes:** 15
+```mermaid
+graph TD
+    subgraph "Min (n=4)"
+        A5(( )) --- B5(( )) --- C5(( )) --- D5(( ))
+    end
+    subgraph "Max (n=15)"
+        R(( )) --- L1(( )) --- L2(( )) --- L3(( ))
+        L2 --- L4(( ))
+        L1 --- L5(( )) --- L6(( ))
+        L5 --- L7(( ))
+        R --- R1(( )) --- R2(( )) --- R3(( ))
+        R2 --- R4(( ))
+        R1 --- R5(( )) --- R6(( ))
+        R5 --- R7(( ))
+    end
+```
+
+---
+
 ## 📐 Scenario 2: If Nodes (n) are Given
 If we know how many nodes we have, what are the possible heights?
 
