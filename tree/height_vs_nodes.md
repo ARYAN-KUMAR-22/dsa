@@ -107,6 +107,61 @@ We start with the Max Nodes formula:
 
 ---
 
+## 📸 Visual Comparison (Nodes Fixed)
+What happens to the **Height** when we keep the number of nodes fixed?
+
+### 🏷️ Case: n = 3 Nodes
+- **Min Height ($\log_2(n+1)-1$):** 1 (Perfect)
+- **Max Height ($n-1$):** 2 (Skewed)
+```mermaid
+graph TD
+    subgraph "Min Height (h=1)"
+        A1(( )) --- B1(( ))
+        A1 --- C1(( ))
+    end
+    subgraph "Max Height (h=2)"
+        A2(( )) --- B2(( )) --- C2(( ))
+    end
+```
+
+### 🏷️ Case: n = 7 Nodes
+- **Min Height:** 2 (Perfect)
+- **Max Height:** 6 (Skewed)
+```mermaid
+graph TD
+    subgraph "Min Height (h=2)"
+        A3(( )) --- B3(( )) --- D3(( ))
+        B3 --- E3(( ))
+        A3 --- C3(( )) --- F3(( ))
+        C3 --- G3(( ))
+    end
+    subgraph "Max Height (h=6)"
+        N1(( )) --- N2(( )) --- N3(( )) --- N4(( )) --- N5(( )) --- N6(( )) --- N7(( ))
+    end
+```
+
+### 🏷️ Case: n = 15 Nodes
+- **Min Height:** 3 (Perfect)
+- **Max Height:** 14 (Skewed)
+```mermaid
+graph TD
+    subgraph "Min Height (h=3)"
+        R(( )) --- L1(( )) --- L2(( )) --- L3(( ))
+        L2 --- L4(( ))
+        L1 --- L5(( )) --- L6(( ))
+        L5 --- L7(( ))
+        R --- R1(( )) --- R2(( )) --- R3(( ))
+        R2 --- R4(( ))
+        R1 --- R5(( )) --- R6(( ))
+        R5 --- R7(( ))
+    end
+    subgraph "Max Height (h=14)"
+        X1(( )) --- X2(( )) --- X3(( )) --- X4(( )) --- X5(( )) --- X6(( )) --- X7(( )) --- X8(( )) --- X9(( )) --- X10(( )) --- X11(( )) --- X12(( )) --- X13(( )) --- X14(( )) --- X15(( ))
+    end
+```
+
+---
+
 ## 📊 Summary Cards (n nodes)
 
 ### Card 1: Range of Nodes
