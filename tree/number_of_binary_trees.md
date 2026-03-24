@@ -8,8 +8,10 @@ When we have **n nodes**, how many different binary trees can we build? The answ
 If all nodes are identical (just empty circles), we only care about the **shape** of the tree.
 
 **The Formula:**
-We use the **Catalan Number** to find the number of unique shapes:
-$$T(n) = \frac{1}{n+1} \binom{2n}{n}$$
+
+$$
+T(n) = \frac{1}{n+1} \binom{2n}{n}
+$$
 
 ### 🗃️ Card: Shapes for n=3
 For $n=3$ nodes, there are exactly **5** possible shapes:
@@ -92,7 +94,14 @@ $$T(n) = \sum_{i=1}^{n} T(i-1) \times T(n-i)$$
 When nodes are **labeled** (e.g., A, B, C), we multiply the number of shapes by the number of ways to "fill" them. Think of "Shapes" as the architecture and "Filling" as the people moving into the rooms.
 
 **The Formula:**
-$$\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes (Catalan)}} \times \underbrace{n!}_{\text{Filling (Factorial)}} = \frac{(2n)!}{(n+1)!}$$
+
+$$
+\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes (Catalan)}} \times \underbrace{n!}_{\text{Filling (Factorial)}} = \frac{(2n)!}{(n+1)!}
+$$
+
+> [!TIP]
+> **Shapes** = Catalan Number (Unlabeled)
+> **Filling** = Factorial (Labeled)
 
 ### 🎨 Visualizing the "Filling" (for n=3)
 Take **one shape** from our list. How many ways can we put labels A, B, and C into it?
@@ -128,7 +137,11 @@ $$T(5) = \frac{252}{6} = \mathbf{42}$$
 
 ## 📏 Concept 4: Maximum Height (Skewed Trees)
 If we only want binary trees with the **maximum possible height** (1 node per level), the formula is simpler:
-$$\text{Max Height Trees} = 2^{n-1}$$
+**The Formula:**
+
+$$
+\text{Max Height Trees} = 2^{n-1}
+$$
 
 **Quick Examples:**
 - $n=3 \rightarrow 2^2 = 4$
