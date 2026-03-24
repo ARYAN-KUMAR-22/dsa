@@ -12,6 +12,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Labeled vs. Unlabeled nodes, Catalan Numbers, and step-by-step derivations.
 4. [**04: Height vs. Nodes**](./04_height_vs_nodes.md)
    - Mathematical relationships, G.P. series derivations, and logarithmic growth.
+5. [**05: Internal & External Nodes**](./05_internal_external_nodes.md)
+   - Relationship between leaves and internal nodes: $n_0 = n_2 + 1$.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
