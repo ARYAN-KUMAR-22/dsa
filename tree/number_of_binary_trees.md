@@ -142,7 +142,7 @@ $$\text{Max Height Trees} = 2^{n-1}$$
 | Case | Formula | Description |
 | :--- | :--- | :--- |
 | **Unlabeled (Shapes)** | $T(n) = \frac{\binom{2n}{n}}{n+1}$ | Use **Catalan Number**. Only the shape matters. |
-| **Labeled (Filling)** | $\frac{(2n)!}{(n+1)!}$ | Multiplies Shapes by $n!$ for distinct nodes. |
+| **Labeled (Filling)** | $T(n) \times n! = \frac{(2n)!}{(n+1)!}$ | Multiplies Shapes by $n!$ for distinct nodes. |
 | **Recursive Approach** | $\sum_{i=1}^{n} T(i-1)T(n-i)$ | Build results using subtrees (Root Splitting). |
 | **Maximum Height** | $2^{n-1}$ | Specifically for **Skewed Trees** (1 node per level). |
 
