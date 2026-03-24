@@ -10,7 +10,7 @@ If all nodes are identical (just empty circles), we only care about the **shape*
 **The Formula:**
 
 $$
-T(n) = \frac{1}{n+1} \binom{2n}{n}
+T(n) = \frac{1}{n+1} \cdot ^{2n}C_n
 $$
 
 ### 🗃️ Card: Shapes for n=3
@@ -96,7 +96,7 @@ When nodes are **labeled** (e.g., A, B, C), we multiply the number of shapes by 
 **The Formula:**
 
 $$
-\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes (Catalan)}} \times \underbrace{n!}_{\text{Filling (Factorial)}} = \frac{(2n)!}{(n+1)!}
+\text{Total Trees} = \underbrace{\frac{^{2n}C_n}{n+1}}_{\text{Shapes (Catalan)}} \times \underbrace{n!}_{\text{Filling (Factorial)}} = \frac{(2n)!}{(n+1)!}
 $$
 
 > [!TIP]
@@ -124,11 +124,11 @@ Since we have 5 such shapes, the total is $5 \times 6 = 30$ trees.
 ## 🧮 Hand-Calculated Example: T(5)
 Let's calculate $T(5)$ manually using the Catalan formula, just as you'd do on a whiteboard:
 
-$$T(5) = \frac{\binom{10}{5}}{5+1} = \frac{\binom{10}{5}}{6}$$
+$$T(5) = \frac{^{10}C_5}{5+1} = \frac{^{10}C_5}{6}$$
 
-**Step 1: Calculate $\binom{10}{5}$**
-$$\binom{10}{5} = \frac{10 \times 9 \times 8 \times 7 \times 6}{5 \times 4 \times 3 \times 2 \times 1}$$
-$$\binom{10}{5} = \frac{30240}{120} = 252$$
+**Step 1: Calculate $^{10}C_5$**
+$$^{10}C_5 = \frac{10 \times 9 \times 8 \times 7 \times 6}{5 \times 4 \times 3 \times 2 \times 1}$$
+$$^{10}C_5 = \frac{30240}{120} = 252$$
 
 **Step 2: Divide by (n+1)**
 $$T(5) = \frac{252}{6} = \mathbf{42}$$
@@ -154,7 +154,7 @@ $$
 
 | Case | Formula | Description |
 | :--- | :--- | :--- |
-| **Unlabeled (Shapes)** | $T(n) = \frac{\binom{2n}{n}}{n+1}$ | Use **Catalan Number**. Only the shape matters. |
+| **Unlabeled (Shapes)** | $T(n) = \frac{^{2n}C_n}{n+1}$ | Use **Catalan Number**. Only the shape matters. |
 | **Labeled (Filling)** | $T(n) \times n! = \frac{(2n)!}{(n+1)!}$ | Multiplies Shapes by $n!$ for distinct nodes. |
 | **Recursive Approach** | $\sum_{i=1}^{n} T(i-1)T(n-i)$ | Build results using subtrees (Root Splitting). |
 | **Maximum Height** | $2^{n-1}$ | Specifically for **Skewed Trees** (1 node per level). |
