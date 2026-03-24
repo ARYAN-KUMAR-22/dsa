@@ -89,41 +89,55 @@ $$T(n) = \sum_{i=1}^{n} T(i-1) \times T(n-i)$$
 ---
 
 ## 📝 Concept 3: Shapes vs. Filling (Labeled Nodes)
-When nodes are **labeled** (e.g., A, B, C), we multiply the number of shapes by the number of ways to "fill" them.
+When nodes are **labeled** (e.g., A, B, C), we multiply the number of shapes by the number of ways to "fill" them. Think of "Shapes" as the architecture and "Filling" as the people moving into the rooms.
 
 **The Formula:**
-$$\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes}} \times \underbrace{n!}_{\text{Filling}} = \frac{(2n)!}{(n+1)!}$$
+$$\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes (Catalan)}} \times \underbrace{n!}_{\text{Filling (Factorial)}} = \frac{(2n)!}{(n+1)!}$$
 
-> [!TIP]
-> **Shapes** = Catalan Number (Unlabeled)
-> **Filling** = Factorial (Labeled)
+### 🎨 Visualizing the "Filling" (for n=3)
+Take **one shape** from our list. How many ways can we put labels A, B, and C into it?
+```mermaid
+graph TD
+    subgraph Arrangements
+        A1((A)) --- B1((B)) --- C1((C))
+        A2((A)) --- C2((C)) --- B2((B))
+        B3((B)) --- A3((A)) --- C3((C))
+        B4((B)) --- C4((C)) --- A4((A))
+        C5((C)) --- A5((A)) --- B5((B))
+        C6((C)) --- B6((B)) --- A6((A))
+    end
+```
+**Total permutations = $3 \times 2 \times 1 = 6$ (or $3!$)**
+Since we have 5 such shapes, the total is $5 \times 6 = 30$ trees.
 
 ---
 
-## 🧮 Advanced Calculation: T(6)
-Using the Catalan formula:
-$$T(6) = \frac{\binom{12}{6}}{7} = \frac{924}{7} = \mathbf{132}$$
+## 🧮 Hand-Calculated Example: T(5)
+Let's calculate $T(5)$ manually using the Catalan formula, just as you'd do on a whiteboard:
 
-Using the Recursive formula:
-$$T(6) = (T_0 T_5) + (T_1 T_4) + (T_2 T_3) + (T_3 T_2) + (T_4 T_1) + (T_5 T_0)$$
-$$T(6) = (1 \times 42) + (1 \times 14) + (2 \times 5) + (5 \times 2) + (14 \times 1) + (42 \times 1)$$
-$$T(6) = 42 + 14 + 10 + 10 + 14 + 42 = \mathbf{132}$$
+$$T(5) = \frac{\binom{10}{5}}{5+1} = \frac{\binom{10}{5}}{6}$$
+
+**Step 1: Calculate $\binom{10}{5}$**
+$$\binom{10}{5} = \frac{10 \times 9 \times 8 \times 7 \times 6}{5 \times 4 \times 3 \times 2 \times 1}$$
+$$\binom{10}{5} = \frac{30240}{120} = 252$$
+
+**Step 2: Divide by (n+1)**
+$$T(5) = \frac{252}{6} = \mathbf{42}$$
 
 ---
 
-## 📏 Concept 3: Maximum Height (Skewed Trees)
-If we want to know how many binary trees can be made with the **maximum possible height** (only 1 node per level), we use a simpler formula.
-
-**The Formula:**
+## 📏 Concept 4: Maximum Height (Skewed Trees)
+If we only want binary trees with the **maximum possible height** (1 node per level), the formula is simpler:
 $$\text{Max Height Trees} = 2^{n-1}$$
 
-**Example for n=3:**
-- $2^{3-1} = 2^2 = 4$
-- These are the 4 skewed shapes (Left-Left, Left-Right, Right-Left, Right-Right).
+**Quick Examples:**
+- $n=3 \rightarrow 2^2 = 4$
+- $n=4 \rightarrow 2^3 = 8$
+- $n=5 \rightarrow 2^4 = 16$
 
 ---
 
-## 💡 Pro Summary for n=3
-- **Unlabeled nodes**? ➡ 5 Shapes.
-- **Labeled nodes**? ➡ 30 Trees.
-- **Maximum height** only? ➡ 4 Skewed Trees.
+## 💡 Final Summary
+- **Unlabeled (Shapes)**: Use **Catalan Number** $T(n)$.
+- **Labeled (Filling)**: Use **$T(n) \times n!$**.
+- **Max Height**: Use **$2^{n-1}$**.
