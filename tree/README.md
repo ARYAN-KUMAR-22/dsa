@@ -18,6 +18,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Rules of $\{0, 2\}$ children and identifying "Proper" trees.
 7. [**07: Strict Tree: Height vs Nodes**](./07_strict_height_vs_nodes.md)
    - Mathematical properties unique to strict trees ($2h+1$ rule).
+8. [**08: Strict Tree: Internal vs External Nodes**](./08_strict_internal_vs_external.md)
+   - The elegant $e = i + 1$ relationship with visual proofs.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
