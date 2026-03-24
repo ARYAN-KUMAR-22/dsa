@@ -14,6 +14,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Mathematical relationships, G.P. series derivations, and logarithmic growth.
 5. [**05: Internal & External Nodes**](./05_internal_external_nodes.md)
    - Relationship between leaves and internal nodes: $n_0 = n_2 + 1$.
+6. [**06: Strict Binary Tree**](./06_strict_binary_tree.md)
+   - Rules of $\{0, 2\}$ children and identifying "Proper" trees.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
