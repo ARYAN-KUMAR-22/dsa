@@ -55,7 +55,6 @@ graph TD
     style L_Leaf fill:#fff,stroke:none
     style Level_1,Level_2,Level_3,Level_4,Level_5 fill:none,stroke:none
 ```
-```
 
 ---
 
