@@ -4,56 +4,31 @@ A **Tree** is a hierarchical data structure consisting of nodes connected by edg
 
 ---
 
-## 🌳 Visual Representation (Simplified)
+## 🌳 tree terminology
 
 ```mermaid
 graph TD
-    %% Label Arrows
-    L_Root[<b>Root</b>] --> A((A))
+    Root --> A
+    A --- B
+    A --- C
+    A --- D
+    B --- E
+    B --- F
+    D --- G
+    D --- H
+    D --- I
+    F --- J
+    F --- K
+    H --- L
+    J --- M
+    L --- N
+    L --- O
     
-    %% Tree Structure
-    A --- B((B))
-    A --- C((C))
-    A --- D((D))
-    
-    B --- E((E))
-    B --- F((F))
-    
-    D --- G((G))
-    D --- H((H))
-    D --- I((I))
-    
-    F --- J((J))
-    F --- K((K))
-    
-    H --- L((L))
-    
-    J --- M((M))
-    
-    L --- N((N))
-    L --- O((O))
-
-    %% Label for Leaf Nodes
-    L_Leaf[<b>Leaf Nodes</b>] --> C
-    L_Leaf --> E
-    L_Leaf --> G
-    L_Leaf --> I
-    L_Leaf --> K
-    L_Leaf --> M
-    L_Leaf --> N
-    L_Leaf --> O
-    
-    %% Levels (Side Labels)
-    Level_1[Level 1] --- A
-    Level_2[Level 2] --- B
-    Level_3[Level 3] --- E
-    Level_4[Level 4] --- J
-    Level_5[Level 5] --- M
-
-    %% Style (Minimal for compatibility)
-    style L_Root fill:#fdf,stroke:none
-    style L_Leaf fill:#fff,stroke:none
-    style Level_1,Level_2,Level_3,Level_4,Level_5 fill:none,stroke:none
+    Level_1 --- A
+    Level_2 --- B
+    Level_3 --- E
+    Level_4 --- J
+    Level_5 --- M
 ```
 
 ---
