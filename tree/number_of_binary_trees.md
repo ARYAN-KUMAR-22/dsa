@@ -47,18 +47,44 @@ graph TD
 
 ---
 
-## 🔄 Concept 2: The Recursive Formula
-Another way to find $T(n)$ is to build it using results from smaller trees. This is a very "pro" way to think about it!
+## 🎓 The Pro Derivation (Step-by-Step)
+How do we actually come up with these numbers? Let's derive them just like a CS professor would.
 
-**The Summation Formula:**
+### 1. Identify the Base Cases
+- **n = 0 nodes**: Only 1 possibility—an **Empty Tree**. $T(0) = 1$.
+- **n = 1 node**: Only 1 possibility—a **Root node**. $T(1) = 1$.
+- **n = 2 nodes**: Fix 1 node as root. You have 1 node left. It can go either **Left** or **Right**. $T(2) = 2$.
+
+### 2. The "Fix Root, Split Rest" Logic
+To find the number of trees for **n** nodes:
+1. Fix **1 node** as the Root.
+2. You have **n - 1** nodes left.
+3. Distribute these nodes between the **Left subtree** and **Right subtree**.
+
+### 3. Deriving T(3)
+Fix 1 root $\rightarrow$ 2 nodes left to split:
+| Case | Left Subtree | Right Subtree | Ways ($T_L \times T_R$) | Calculation |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | 0 nodes | 2 nodes | $T(0) \times T(2)$ | $1 \times 2 = 2$ |
+| **2** | 1 node | 1 node | $T(1) \times T(1)$ | $1 \times 1 = 1$ |
+| **3** | 2 nodes | 0 nodes | $T(2) \times T(0)$ | $2 \times 1 = 2$ |
+| **Total** | | | | **5** |
+
+### 4. Deriving T(4)
+Fix 1 root $\rightarrow$ 3 nodes left to split:
+| Case | Left Subtree | Right Subtree | Ways ($T_L \times T_R$) | Calculation |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | 0 nodes | 3 nodes | $T(0) \times T(3)$ | $1 \times 5 = 5$ |
+| **2** | 1 node | 2 nodes | $T(1) \times T(2)$ | $1 \times 2 = 2$ |
+| **3** | 2 nodes | 1 node | $T(2) \times T(1)$ | $2 \times 1 = 2$ |
+| **4** | 3 nodes | 0 nodes | $T(3) \times T(0)$ | $5 \times 1 = 5$ |
+| **Total** | | | | **14** |
+
+---
+
+## 🔄 The General Recursive Formula (Catalan Series)
+This pattern of "splitting and summing" is exactly what the summation formula represents:
 $$T(n) = \sum_{i=1}^{n} T(i-1) \times T(n-i)$$
-
-**How it works (for n=3):**
-To build a tree with 3 nodes, we pick 1 node as the **root**. That leaves 2 nodes to be split between the Left and Right subtrees:
-- **Case 1**: 0 nodes left, 2 nodes right $\rightarrow T(0) \times T(2) = 1 \times 2 = 2$
-- **Case 2**: 1 node left, 1 node right $\rightarrow T(1) \times T(1) = 1 \times 1 = 1$
-- **Case 3**: 2 nodes left, 0 nodes right $\rightarrow T(2) \times T(0) = 2 \times 1 = 2$
-- **Total**: $2 + 1 + 2 = \mathbf{5}$
 
 ---
 
