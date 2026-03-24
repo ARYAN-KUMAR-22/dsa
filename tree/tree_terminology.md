@@ -4,62 +4,70 @@ A **Tree** is a hierarchical data structure consisting of nodes connected by edg
 
 ---
 
-## 🌳 Visual Representation (Tree Concepts)
+## 🌳 Visual Representation (As per your Image)
 
 ```mermaid
 graph TD
-    %% Node Definitions with Labels
-    Root((Node A<br/><b>Root</b>)) --> B((Node B<br/><b>Parent</b>))
-    Root --> C((Node C))
+    %% Level 1
+    A((A)) --- B((B))
+    A --- C((C))
+    A --- D((D))
     
-    B --> D((Node D<br/><b>Leaf</b>))
-    B --> E((Node E<br/><b>Parent</b>))
+    %% Level 2 to 3
+    B --- E((E))
+    B --- F((F))
     
-    C --> F((Node F<br/><b>Leaf</b>))
+    D --- G((G))
+    D --- H((H))
+    D --- I((I))
     
-    E --> G((Node G<br/><b>Leaf</b>))
-    E --> H((Node H<br/><b>Leaf</b>))
+    %% Level 3 to 4
+    F --- J((J))
+    F --- K((K))
+    
+    H --- L((L))
+    
+    %% Level 4 to 5
+    J --- M((M))
+    
+    L --- N((N))
+    L --- O((O))
 
-    %% Connections for Siblings
-    B -.- S1[<b>Siblings</b>] -.- C
-    G -.- S2[<b>Siblings</b>] -.- H
-
-    %% Level Indicators (Subgraphs)
-    subgraph L0 [Level 0]
-        Root
+    %% Level Indicators (Subgraphs for alignment)
+    subgraph Level1 [Level 1]
+        A
     end
-    subgraph L1 [Level 1]
+    subgraph Level2 [Level 2]
         B
         C
-    end
-    subgraph L2 [Level 2]
         D
+    end
+    subgraph Level3 [Level 3]
         E
         F
-    end
-    subgraph L3 [Level 3]
         G
         H
+        I
+    end
+    subgraph Level4 [Level 4]
+        J
+        K
+        L
+    end
+    subgraph Level5 [Level 5]
+        M
+        N
+        O
     end
 
-    %% Styling
-    style Root fill:#FFD700,stroke:#333,stroke-width:4px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style F fill:#90EE90,stroke:#333,stroke-width:2px
-    style G fill:#90EE90,stroke:#333,stroke-width:2px
-    style H fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    
-    %% Legend
-    subgraph Legend [Diagram Legend]
-        direction LR
-        K1((Root)) --- K2((Parent)) --- K3((Leaf))
-        style K1 fill:#FFD700
-        style K2 fill:#87CEEB
-        style K3 fill:#90EE90
-    end
+    %% Legend & Styling
+    style A fill:#fdf,stroke:#333Internal Node (Root)
+    style B,D,F,H,J,L fill:#fdf,stroke:#333Internal Node
+    style C,E,G,I,K,M,N,O fill:#fff,stroke:#333Leaf Node (External)
+
+    %% Annotations
+    A -- "Root" --> A
+```
 ```
 
 ---
