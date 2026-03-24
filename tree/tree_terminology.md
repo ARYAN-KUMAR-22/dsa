@@ -4,23 +4,62 @@ A **Tree** is a hierarchical data structure consisting of nodes connected by edg
 
 ---
 
-## 🌳 Visual Representation (Mermaid Diagram)
+## 🌳 Visual Representation (Tree Concepts)
 
 ```mermaid
 graph TD
-    A((Root: A)) --> B((B))
-    A --> C((C))
-    B --> D((Leaf: D))
-    B --> E((E))
-    C --> F((Leaf: F))
-    E --> G((Leaf: G))
-    E --> H((Leaf: H))
+    %% Node Definitions with Labels
+    Root((Node A<br/><b>Root</b>)) --> B((Node B<br/><b>Parent</b>))
+    Root --> C((Node C))
+    
+    B --> D((Node D<br/><b>Leaf</b>))
+    B --> E((Node E<br/><b>Parent</b>))
+    
+    C --> F((Node F<br/><b>Leaf</b>))
+    
+    E --> G((Node G<br/><b>Leaf</b>))
+    E --> H((Node H<br/><b>Leaf</b>))
 
-    style A fill:#f9f,stroke:#333,stroke-width:4px
-    style D fill:#ccf,stroke:#333,stroke-width:2px
-    style F fill:#ccf,stroke:#333,stroke-width:2px
-    style G fill:#ccf,stroke:#333,stroke-width:2px
-    style H fill:#ccf,stroke:#333,stroke-width:2px
+    %% Connections for Siblings
+    B -.- S1[<b>Siblings</b>] -.- C
+    G -.- S2[<b>Siblings</b>] -.- H
+
+    %% Level Indicators (Subgraphs)
+    subgraph L0 [Level 0]
+        Root
+    end
+    subgraph L1 [Level 1]
+        B
+        C
+    end
+    subgraph L2 [Level 2]
+        D
+        E
+        F
+    end
+    subgraph L3 [Level 3]
+        G
+        H
+    end
+
+    %% Styling
+    style Root fill:#FFD700,stroke:#333,stroke-width:4px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style C fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#90EE90,stroke:#333,stroke-width:2px
+    style F fill:#90EE90,stroke:#333,stroke-width:2px
+    style G fill:#90EE90,stroke:#333,stroke-width:2px
+    style H fill:#90EE90,stroke:#333,stroke-width:2px
+    style E fill:#87CEEB,stroke:#333,stroke-width:2px
+    
+    %% Legend
+    subgraph Legend [Diagram Legend]
+        direction LR
+        K1((Root)) --- K2((Parent)) --- K3((Leaf))
+        style K1 fill:#FFD700
+        style K2 fill:#87CEEB
+        style K3 fill:#90EE90
+    end
 ```
 
 ---
