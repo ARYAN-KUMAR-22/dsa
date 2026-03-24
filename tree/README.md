@@ -20,6 +20,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Mathematical properties unique to strict trees ($2h+1$ rule).
 8. [**08: Strict Tree: Internal vs External Nodes**](./08_strict_internal_vs_external.md)
    - The elegant $e = i + 1$ relationship with visual proofs.
+9. [**09: m-ary Trees**](./09_m_ary_trees.md)
+   - Generalizing to $m$ children and $e = (m-1)i + 1$ formula.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
