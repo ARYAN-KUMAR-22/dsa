@@ -8,27 +8,32 @@ A **Tree** is a hierarchical data structure consisting of nodes connected by edg
 
 ```mermaid
 graph TD
-    Root --> A
-    A --- B
-    A --- C
-    A --- D
-    B --- E
-    B --- F
-    D --- G
-    D --- H
-    D --- I
-    F --- J
-    F --- K
-    H --- L
-    J --- M
-    L --- N
-    L --- O
+    %% Node Definitions with labels
+    Root --> A((A))
+    Child --> B((B))
+    Leaf --> M((M))
     
-    Level_1 --- A
-    Level_2 --- B
-    Level_3 --- E
-    Level_4 --- J
-    Level_5 --- M
+    %% Tree Structure
+    A --- B
+    A --- C((C))
+    A --- D((D))
+    
+    B --- E((E))
+    B --- F((F))
+    
+    D --- G((G))
+    D --- H((H))
+    D --- I((I))
+    
+    F --- J((J))
+    F --- K((K))
+    
+    H --- L((L))
+    
+    J --- M
+    
+    L --- N((N))
+    L --- O((O))
 ```
 
 ---
