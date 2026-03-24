@@ -47,19 +47,74 @@ graph TD
     R5 --- R7(( ))
 ```
 
+### 🏷️ Case: Height h = 4
+- **Min Nodes ($2h+1$):** 9
+- **Max Nodes:** 31 (Perfect)
+```mermaid
+graph TD
+    subgraph "Min (n=9)"
+        A1(( )) --- B1(( ))
+        A1 --- C1(( ))
+        B1 --- D1(( ))
+        B1 --- E1(( ))
+        D1 --- F1(( ))
+        D1 --- G1(( ))
+        F1 --- H1(( ))
+        F1 --- I1(( ))
+    end
+```
+
+---
+
+## 🛑 The "Odd Nodes" Rule
+In a Strict Binary Tree, the total number of nodes (**n**) must **always be ODD**.
+- **Reason:** The formula $n = 2h + 1$ (for min nodes) and the fact that adding any internal node adds exactly **2 children** means you start with 1 (root) and keep adding 2.
+- **Example:** You can have a strict tree with 7, 9, or 31 nodes, but **never 8 or 10 nodes**.
+
 ---
 
 ## 📐 Scenario 2: If Nodes (n) are Given
 If we know the count of nodes, what height range is possible?
 
 ### 1. Minimum Height ($h_{min}$)
-Same as a general binary tree (happens when the tree is full/perfect).
+Happens when the tree is packed perfectly.
 - **Formula:** $h = \log_2(n+1) - 1$
+- **Example ($n=31$):** $h = \log_2(32) - 1 = 4$.
 
 ### 2. Maximum Height ($h_{max}$)
-Since each level must have at least 2 nodes (to stay strict), the tree cannot be as tall as a simple skewed tree.
+Happens when the tree is as "thin" as possible while remaining strict.
 - **Formula:** $h = \frac{n-1}{2}$
-- **Derivation**: From $n = 2h + 1 \Rightarrow n - 1 = 2h \Rightarrow h = \frac{n-1}{2}$.
+- **Example ($n=9$):** $h = \frac{9-1}{2} = 4$.
+
+---
+
+## 📸 Visual Comparison (Nodes Fixed: n = 9)
+
+### ✅ Min Height (h=3)
+```mermaid
+graph TD
+    A2(( )) --- B2(( ))
+    A2 --- C2(( ))
+    B2 --- D2(( ))
+    B2 --- E2(( ))
+    C2 --- F2(( ))
+    C2 --- G2(( ))
+    D2 --- H2(( ))
+    D2 --- I2(( ))
+```
+
+### ✅ Max Height (h=4)
+```mermaid
+graph TD
+    A3(( )) --- B3(( ))
+    A3 --- C3(( ))
+    B3 --- D3(( ))
+    B3 --- E3(( ))
+    D3 --- F3(( ))
+    D3 --- G3(( ))
+    F3 --- H3(( ))
+    F3 --- I3(( ))
+```
 
 ---
 
