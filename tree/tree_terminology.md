@@ -61,9 +61,22 @@ graph TD
     end
 
     %% Legend & Styling
-    style A fill:#fdf,stroke:#333Internal Node (Root)
-    style B,D,F,H,J,L fill:#fdf,stroke:#333Internal Node
-    style C,E,G,I,K,M,N,O fill:#fff,stroke:#333Leaf Node (External)
+    style A fill:#fdf,stroke:#333 %% Internal Node (Root)
+    style B fill:#fdf,stroke:#333 %% Internal Node
+    style D fill:#fdf,stroke:#333 %% Internal Node
+    style F fill:#fdf,stroke:#333 %% Internal Node
+    style H fill:#fdf,stroke:#333 %% Internal Node
+    style J fill:#fdf,stroke:#333 %% Internal Node
+    style L fill:#fdf,stroke:#333 %% Internal Node
+    
+    style C fill:#fff,stroke:#333 %% Leaf Node
+    style E fill:#fff,stroke:#333 %% Leaf Node
+    style G fill:#fff,stroke:#333 %% Leaf Node
+    style I fill:#fff,stroke:#333 %% Leaf Node
+    style K fill:#fff,stroke:#333 %% Leaf Node
+    style M fill:#fff,stroke:#333 %% Leaf Node
+    style N fill:#fff,stroke:#333 %% Leaf Node
+    style O fill:#fff,stroke:#333 %% Leaf Node
 
     %% Annotations
     A -- "Root" --> A
