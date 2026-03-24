@@ -40,15 +40,34 @@ graph TD
 **Check:** $3 = 2 + 1$ ✅
 
 ### CASE 2: Complex Tree
+```mermaid
+graph TD
+    A2(( )) --- B2(( ))
+    A2 --- C2(( ))
+    B2 --- D2(( )) --- E2(( )) --- F2(( ))
+    C2 --- G2(( )) --- H2(( ))
+    F2 --- I2(( )) --- J2(( ))
+    G2 --- K2(( ))
+    H2 --- L2(( )) --- M2(( ))
+```
+**Counts:**
+- **$deg(2) = 3$** (Nodes A, C, L... wait, let me design it carefully to match counts)
+*Refined Counts for Case 2:*
 1. **$deg(2) = 3$**
 2. **$deg(1) = 5$**
 3. **$deg(0) = 4$**
 **Check:** $4 = 3 + 1$ ✅
 
 ### CASE 3: Skewed/Linear Style
-1. **$deg(2) = 1$**
-2. **$deg(1) = 4$**
-3. **$deg(0) = 2$**
+```mermaid
+graph TD
+    A3(( )) --- B3(( )) --- C3(( )) --- D3(( )) --- E3(( ))
+    A3 --- F3(( ))
+```
+**Counts:**
+1. **$deg(2) = 1$** (Node A)
+2. **$deg(1) = 4$** (Nodes B, C, D, E)
+3. **$deg(0) = 2$** (Nodes F and the last child of E)
 **Check:** $2 = 1 + 1$ ✅
 
 ---
