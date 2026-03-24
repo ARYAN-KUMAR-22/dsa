@@ -37,24 +37,51 @@ graph TD
 **Quick Results Table:**
 | Nodes (n) | Number of Shapes $T(n)$ |
 | :--- | :--- |
+| **0** | **1** (Empty Tree) |
 | **1** | 1 |
 | **2** | 2 |
 | **3** | **5** |
 | **4** | **14** |
 | **5** | **42** |
+| **6** | **132** |
 
 ---
 
-## 🏷️ Concept 2: Labeled Nodes (Names Matter)
-If nodes are distinct (e.g., labeled A, B, C), each shape can have **n!** (n factorial) different arrangements of labels.
+## 🔄 Concept 2: The Recursive Formula
+Another way to find $T(n)$ is to build it using results from smaller trees. This is a very "pro" way to think about it!
+
+**The Summation Formula:**
+$$T(n) = \sum_{i=1}^{n} T(i-1) \times T(n-i)$$
+
+**How it works (for n=3):**
+To build a tree with 3 nodes, we pick 1 node as the **root**. That leaves 2 nodes to be split between the Left and Right subtrees:
+- **Case 1**: 0 nodes left, 2 nodes right $\rightarrow T(0) \times T(2) = 1 \times 2 = 2$
+- **Case 2**: 1 node left, 1 node right $\rightarrow T(1) \times T(1) = 1 \times 1 = 1$
+- **Case 3**: 2 nodes left, 0 nodes right $\rightarrow T(2) \times T(0) = 2 \times 1 = 2$
+- **Total**: $2 + 1 + 2 = \mathbf{5}$
+
+---
+
+## 📝 Concept 3: Shapes vs. Filling (Labeled Nodes)
+When nodes are **labeled** (e.g., A, B, C), we multiply the number of shapes by the number of ways to "fill" them.
 
 **The Formula:**
-$$\text{Total Trees} = T(n) \times n! = \frac{(2n)!}{(n+1)!}$$
+$$\text{Total Trees} = \underbrace{\frac{\binom{2n}{n}}{n+1}}_{\text{Shapes}} \times \underbrace{n!}_{\text{Filling}} = \frac{(2n)!}{(n+1)!}$$
 
-**Example for n=3:**
-- Shapes = 5
-- Permutations ($3!$) = 6
-- **Total = 5 × 6 = 30 Binary Trees**
+> [!TIP]
+> **Shapes** = Catalan Number (Unlabeled)
+> **Filling** = Factorial (Labeled)
+
+---
+
+## 🧮 Advanced Calculation: T(6)
+Using the Catalan formula:
+$$T(6) = \frac{\binom{12}{6}}{7} = \frac{924}{7} = \mathbf{132}$$
+
+Using the Recursive formula:
+$$T(6) = (T_0 T_5) + (T_1 T_4) + (T_2 T_3) + (T_3 T_2) + (T_4 T_1) + (T_5 T_0)$$
+$$T(6) = (1 \times 42) + (1 \times 14) + (2 \times 5) + (5 \times 2) + (14 \times 1) + (42 \times 1)$$
+$$T(6) = 42 + 14 + 10 + 10 + 14 + 42 = \mathbf{132}$$
 
 ---
 
