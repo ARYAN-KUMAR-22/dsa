@@ -4,16 +4,18 @@ A **Tree** is a hierarchical data structure consisting of nodes connected by edg
 
 ---
 
-## 🌳 Visual Representation (As per your Image)
+## 🌳 Visual Representation (Simplified)
 
 ```mermaid
 graph TD
-    %% Level 1
-    A((A)) --- B((B))
+    %% Label Arrows
+    L_Root[<b>Root</b>] --> A((A))
+    
+    %% Tree Structure
+    A --- B((B))
     A --- C((C))
     A --- D((D))
     
-    %% Level 2 to 3
     B --- E((E))
     B --- F((F))
     
@@ -21,65 +23,37 @@ graph TD
     D --- H((H))
     D --- I((I))
     
-    %% Level 3 to 4
     F --- J((J))
     F --- K((K))
     
     H --- L((L))
     
-    %% Level 4 to 5
     J --- M((M))
     
     L --- N((N))
     L --- O((O))
 
-    %% Level Indicators (Subgraphs for alignment)
-    subgraph Level1 [Level 1]
-        A
-    end
-    subgraph Level2 [Level 2]
-        B
-        C
-        D
-    end
-    subgraph Level3 [Level 3]
-        E
-        F
-        G
-        H
-        I
-    end
-    subgraph Level4 [Level 4]
-        J
-        K
-        L
-    end
-    subgraph Level5 [Level 5]
-        M
-        N
-        O
-    end
-
-    %% Legend & Styling
-    style A fill:#fdf,stroke:#333
-    style B fill:#fdf,stroke:#333
-    style D fill:#fdf,stroke:#333
-    style F fill:#fdf,stroke:#333
-    style H fill:#fdf,stroke:#333
-    style J fill:#fdf,stroke:#333
-    style L fill:#fdf,stroke:#333
+    %% Label for Leaf Nodes
+    L_Leaf[<b>Leaf Nodes</b>] --> C
+    L_Leaf --> E
+    L_Leaf --> G
+    L_Leaf --> I
+    L_Leaf --> K
+    L_Leaf --> M
+    L_Leaf --> N
+    L_Leaf --> O
     
-    style C fill:#fff,stroke:#333
-    style E fill:#fff,stroke:#333
-    style G fill:#fff,stroke:#333
-    style I fill:#fff,stroke:#333
-    style K fill:#fff,stroke:#333
-    style M fill:#fff,stroke:#333
-    style N fill:#fff,stroke:#333
-    style O fill:#fff,stroke:#333
+    %% Levels (Side Labels)
+    Level_1[Level 1] --- A
+    Level_2[Level 2] --- B
+    Level_3[Level 3] --- E
+    Level_4[Level 4] --- J
+    Level_5[Level 5] --- M
 
-    %% Annotations
-    A -- "Root" --> A
+    %% Style (Minimal for compatibility)
+    style L_Root fill:#fdf,stroke:none
+    style L_Leaf fill:#fff,stroke:none
+    style Level_1,Level_2,Level_3,Level_4,Level_5 fill:none,stroke:none
 ```
 ```
 
