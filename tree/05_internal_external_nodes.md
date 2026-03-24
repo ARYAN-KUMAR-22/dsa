@@ -23,52 +23,52 @@ The number of leaves **does not depend on $n_1$**. No matter how many nodes with
 ## 📸 Whiteboard Examples (Step-by-Step)
 Let's recreate the three cases from the whiteboard to prove the formula.
 
-### CASE 1: Simple Tree
+### CASE 1: Standard Tree
+- **Logic**: 2 forks ($n_2$), 2 straight paths ($n_1$), and 3 leaves ($n_0$).
 ```mermaid
 graph TD
-    A(( )) --- B(( ))
-    A --- C(( ))
-    B --- D(( )) --- E(( ))
-    C --- F(( )) --- G(( ))
+    A1(( )) --- B1(( ))
+    A1 --- C1(( ))
+    B1 --- D1(( ))
+    B1 --- E1(( ))
+    C1 --- F1(( )) --- G1(( ))
 ```
 **Counts:**
-- **$deg(2)$**: 2 (Nodes A and D/F... wait, let me check the image exactly)
-*Actually, let's follow the image's counts directly:*
-1. **$deg(2) = 2$**
-2. **$deg(1) = 2$**
-3. **$deg(0) = 3$**
-**Check:** $3 = 2 + 1$ ✅
+- **$deg(2) = 2$** (Nodes A1, B1)
+- **$deg(1) = 2$** (Nodes C1, F1)
+- **$deg(0) = 3$** (Nodes D1, E1, G1)
+**Check:** $n_0 = n_2 + 1 \Rightarrow 3 = 2 + 1$ ✅
 
 ### CASE 2: Complex Tree
+- **Logic**: 3 forks ($n_2$), 5 straight paths ($n_1$), and 4 leaves ($n_0$).
 ```mermaid
 graph TD
     A2(( )) --- B2(( ))
     A2 --- C2(( ))
-    B2 --- D2(( )) --- E2(( )) --- F2(( ))
-    C2 --- G2(( )) --- H2(( ))
-    F2 --- I2(( )) --- J2(( ))
-    G2 --- K2(( ))
-    H2 --- L2(( )) --- M2(( ))
+    B2 --- D2(( ))
+    B2 --- E2(( ))
+    C2 --- F2(( ))
+    C2 --- G2(( ))
+    D2 --- H2(( )) --- I2(( )) --- J2(( )) --- K2(( )) --- L2(( ))
 ```
 **Counts:**
-- **$deg(2) = 3$** (Nodes A, C, L... wait, let me design it carefully to match counts)
-*Refined Counts for Case 2:*
-1. **$deg(2) = 3$**
-2. **$deg(1) = 5$**
-3. **$deg(0) = 4$**
-**Check:** $4 = 3 + 1$ ✅
+- **$deg(2) = 3$** (Nodes A2, B2, C2)
+- **$deg(1) = 5$** (Nodes D2, H2, I2, J2, K2)
+- **$deg(0) = 4$** (Nodes E2, F2, G2, L2)
+**Check:** $n_0 = n_2 + 1 \Rightarrow 4 = 3 + 1$ ✅
 
-### CASE 3: Skewed/Linear Style
+### CASE 3: Skewed Combination
+- **Logic**: 1 fork ($n_2$), 4 straight paths ($n_1$), and 2 leaves ($n_0$).
 ```mermaid
 graph TD
-    A3(( )) --- B3(( )) --- C3(( )) --- D3(( )) --- E3(( ))
-    A3 --- F3(( ))
+    A3(( )) --- B3(( )) --- D3(( )) --- E3(( )) --- F3(( )) --- G3(( ))
+    A3 --- C3(( ))
 ```
 **Counts:**
-1. **$deg(2) = 1$** (Node A)
-2. **$deg(1) = 4$** (Nodes B, C, D, E)
-3. **$deg(0) = 2$** (Nodes F and the last child of E)
-**Check:** $2 = 1 + 1$ ✅
+- **$deg(2) = 1$** (Node A3)
+- **$deg(1) = 4$** (Nodes B3, D3, E3, F3)
+- **$deg(0) = 2$** (Nodes G3, C3)
+**Check:** $n_0 = n_2 + 1 \Rightarrow 2 = 1 + 1$ ✅
 
 ---
 
