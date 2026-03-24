@@ -61,22 +61,22 @@ graph TD
     end
 
     %% Legend & Styling
-    style A fill:#fdf,stroke:#333 %% Internal Node (Root)
-    style B fill:#fdf,stroke:#333 %% Internal Node
-    style D fill:#fdf,stroke:#333 %% Internal Node
-    style F fill:#fdf,stroke:#333 %% Internal Node
-    style H fill:#fdf,stroke:#333 %% Internal Node
-    style J fill:#fdf,stroke:#333 %% Internal Node
-    style L fill:#fdf,stroke:#333 %% Internal Node
+    style A fill:#fdf,stroke:#333
+    style B fill:#fdf,stroke:#333
+    style D fill:#fdf,stroke:#333
+    style F fill:#fdf,stroke:#333
+    style H fill:#fdf,stroke:#333
+    style J fill:#fdf,stroke:#333
+    style L fill:#fdf,stroke:#333
     
-    style C fill:#fff,stroke:#333 %% Leaf Node
-    style E fill:#fff,stroke:#333 %% Leaf Node
-    style G fill:#fff,stroke:#333 %% Leaf Node
-    style I fill:#fff,stroke:#333 %% Leaf Node
-    style K fill:#fff,stroke:#333 %% Leaf Node
-    style M fill:#fff,stroke:#333 %% Leaf Node
-    style N fill:#fff,stroke:#333 %% Leaf Node
-    style O fill:#fff,stroke:#333 %% Leaf Node
+    style C fill:#fff,stroke:#333
+    style E fill:#fff,stroke:#333
+    style G fill:#fff,stroke:#333
+    style I fill:#fff,stroke:#333
+    style K fill:#fff,stroke:#333
+    style M fill:#fff,stroke:#333
+    style N fill:#fff,stroke:#333
+    style O fill:#fff,stroke:#333
 
     %% Annotations
     A -- "Root" --> A
