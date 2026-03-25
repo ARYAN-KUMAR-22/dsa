@@ -22,6 +22,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - The elegant $e = i + 1$ relationship with visual proofs.
 9. [**09: m-ary Trees**](./09_m_ary_trees.md)
    - Generalizing to $m$ children and $e = (m-1)i + 1$ formula.
+10. [**10: Array Representation of Binary Tree**](./10_array_representation.md)
+    - Sequential storage, child mapping formulas ($2i, 2i+1$).
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
