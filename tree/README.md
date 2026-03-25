@@ -32,6 +32,10 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Resolving naming conflicts between different DSA textbooks.
 14. [**14: Mastering Tree Traversals**](./14_tree_traversals.md)
     - Pre-order, In-order, Post-order, and Level Order explained.
+15. [**15: Level Order Traversal (Implementation)**](./15_level_order_traversal.md)
+    - Queue-based BFS algorithm and C++ code.
+16. [**16: Generating a Tree from Traversal**](./16_generate_tree_from_traversal.md)
+    - Building a tree from Level Order or Pre+In pairs.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
