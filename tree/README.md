@@ -30,6 +30,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Visual differences and array storage characteristics (The "Gap" Rule).
 13. [**13: Strict vs. Complete (Terminology)**](./13_strict_vs_complete_terminology.md)
     - Resolving naming conflicts between different DSA textbooks.
+14. [**14: Mastering Tree Traversals**](./14_tree_traversals.md)
+    - Pre-order, In-order, Post-order, and Level Order explained.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
