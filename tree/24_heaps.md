@@ -1,466 +1,525 @@
-# 📚 Heaps - Priority Magic!
+# 📚 Heaps: Priority Queues & Efficient Sorting
 
-## 🧒 Imagine a Ticket Queue (For 5-Year-Olds)
-
-Imagine a **special queue where important people go first**:
-- Emergency patient? 🚑 Goes to FRONT!
-- Regular patient? Waits in line
-- VIP? Also goes to FRONT!
-- Anyone can join, but PRIORITY matters!
-
-**Heap** = Clever queue that prioritizes = **Smart line!** ⏭️
-
----
-
-## What is a Heap?
-
-### Simple Definition
-
-A **Heap** is a **complete binary tree** where:
-- Every parent is **smaller** (min-heap) or **larger** (max-heap) than children
-- Complete = all levels full except last
-- Perfect for efficiently getting min/max
-- Used in priority queues, sorting (heapsort), Dijkstra's algorithm
-
-### Types of Heaps
-
-#### Min-Heap: Parent < Children
-```
-       1 (smallest at top!)
-      / \
-     3   5
-    / \ /
-   7  9 8
-```
-**Root = minimum value**
-
-#### Max-Heap: Parent > Children
-```
-       9 (largest at top!)
-      / \
-     7   5
-    / \ /
-   1  3 4
-```
-**Root = maximum value**
+## 📋 Table of Contents
+1. [Introduction](#introduction)
+2. [Heap Properties](#heap-properties)
+3. [Max Heap vs Min Heap](#max-heap-vs-min-heap)
+4. [Array Representation](#array-representation)
+5. [Heap Operations](#heap-operations)
+6. [Heapify](#heapify)
+7. [Heap Sort](#heap-sort)
+8. [Priority Queue](#priority-queue)
+9. [Code Examples](#code-examples)
+10. [Applications](#applications)
 
 ---
 
-## Why Not Use Sorted Array?
+## Introduction
 
-| Operation | Sorted Array | Heap |
-|-----------|:---:|:---:|
-| **Get min** | O(1) | O(1) |
-| **Add element** | O(n) insert + sort | O(log n) |
-| **Remove min** | O(n) shift | O(log n) |
-| **Heavy insert/remove** | Slow! | Fast! |
+A **Heap** is a complete binary tree that satisfies the **heap property**, typically used to efficiently implement priority queues and sorting algorithms.
 
-**Heap wins for dynamic data!**
+### Key Characteristics
+- **Complete Binary Tree**: All levels except possibly the last are completely filled
+- **Heap Property**: Parent-child ordering (either max or min)
+- **Array-Based**: Efficiently stored sequentially
+- **Time Efficient**: O(log n) insertion/deletion, O(1) peek
+
+### Real-World Applications
+- **Priority Queues**: Task scheduling, Dijkstra's algorithm
+- **Heap Sort**: O(n log n) sorting algorithm
+- **Median Finding**: Using min-max heaps
+- **Huffman Coding**: Building optimal prefix codes
+- **Load Balancing**: Distributing tasks by priority
+- **Stream Processing**: Finding k largest/smallest elements
 
 ---
 
-## Heaps in Array Form
+## Heap Properties
 
-### Why Store in Array?
+### Definition
+A binary tree is a **max heap** if:
+$$\text{parent} \geq \text{left\_child} \text{ AND } \text{parent} \geq \text{right\_child}$$
 
-**Complete tree property** = perfect for arrays!
+A binary tree is a **min heap** if:
+$$\text{parent} \leq \text{left\_child} \text{ AND } \text{parent} \leq \text{right\_child}$$
+
+### Properties
+1. **Complete Binary Tree**: Height = $\lfloor \log_2(n) \rfloor + 1$
+2. **Parent-Child Ordering**: Immediate parent-child only (not global sorted)
+3. **Efficient Storage**: Array representation with index formulas
+
+### Counterexample - NOT a heap
+```
+        10
+       /  \
+      9    20      ✗ Not a max heap!
+     /            (20 > 10)
+    8
+```
+
+---
+
+## Max Heap vs Min Heap
+
+### Max Heap
+```
+          50
+        /    \
+      40      30
+     / \      / \
+    10  20   5   15
+
+Property: Parent ≥ Children
+Use: Find maximum element efficiently
+```
+
+### Min Heap
+```
+          5
+        /    \
+      10      15
+     / \      / \
+    20  30   40  50
+
+Property: Parent ≤ Children
+Use: Find minimum element efficiently (Priority queues)
+```
+
+### Comparison
+
+| Property | Max Heap | Min Heap |
+|----------|----------|----------|
+| Root | Maximum | Minimum |
+| Insertion | O(log n) | O(log n) |
+| Extract Max/Min | O(log n) | O(log n) |
+| Peek | O(1) | O(1) |
+| Use Case | Priority queues (highest first) | Priority queues (lowest first) |
+
+---
+
+## Array Representation
+
+### Index Formulas
+For a node at index $i$ (0-indexed):
+
+$$\text{Parent}(i) = \left\lfloor \frac{i-1}{2} \right\rfloor$$
+$$\text{Left Child}(i) = 2i + 1$$
+$$\text{Right Child}(i) = 2i + 2$$
+
+### Visual Example
 
 ```
-Tree structure:        Array:
-       1              [1, 3, 5, 7, 9, 8, ...]
-      / \              0  1  2  3 4  5
-     3   5
-    / \ /
-   7  9 8
+Heap Tree:          Array Representation:
+        50          Index: 0  1  2  3  4  5  6
+       /  \         Array: [50, 40, 30, 10, 20, 5, 15]
+      40  30
+     / \ / \
+    10 20 5 15
 
 Index relationships:
-- Parent of i: (i-1)/2
-- Left child of i: 2*i+1
-- Right child of i: 2*i+2
-```
-
-### Array to Tree Mapping
-
-```cpp
-// For 0-based indexing
-int parent(int i) { return (i - 1) / 2; }
-int leftChild(int i) { return 2 * i + 1; }
-int rightChild(int i) { return 2 * i + 2; }
+- Node 0 (50): children at 1 (40), 2 (30)
+- Node 1 (40): children at 3 (10), 4 (20)
+- Node 2 (30): children at 5 (5), 6 (15)
+- Node 3 (10): parent at (3-1)/2 = 1 (40) ✓
 ```
 
 ---
 
 ## Heap Operations
 
-### Operation 1: Insert (Add Element)
+### 1. Insert (Build Heap)
 
-**Strategy**: Add at end, then "bubble up"
-
-```
-Insert 2 into min-heap:
-
-Before:
-       1
-      / \
-     3   5
-    / \
-   7   9
-
-Add 2 at end:
-       1
-      / \
-     3   5
-    / \ /
-   7   9 2
-
-Bubble up (2 < 3):
-       1
-      / \
-     2   5
-    / \ /
-   7  9 3
-
-Done! 2 < parent, stop.
-```
-
-#### C++ Implementation
-
+**Algorithm: "Bubble Up"**
 ```cpp
-void insertMinHeap(vector<int>& heap, int value) {
-    heap.push_back(value);  // Add at end
+void insert(vector<int>& heap, int value) {
+    heap.push_back(value);
+    int index = heap.size() - 1;
     
-    int i = heap.size() - 1;
-    
-    // Bubble up while smaller than parent
-    while (i > 0 && heap[i] < heap[(i - 1) / 2]) {
-        swap(heap[i], heap[(i - 1) / 2]);
-        i = (i - 1) / 2;
+    // Bubble up: compare with parent and swap if needed
+    while (index > 0) {
+        int parent = (index - 1) / 2;
+        if (heap[index] > heap[parent]) {
+            swap(heap[index], heap[parent]);
+            index = parent;
+        } else {
+            break;
+        }
     }
 }
 ```
 
-**Time**: O(log n) - at most go up height
+**Time Complexity**: O(log n)
 
----
+### 2. Extract Max (Remove Root for Max Heap)
 
-### Operation 2: Remove Min (Extract Top)
-
-**Strategy**: Remove root, move last to top, "bubble down"
-
-```
-Remove min from:
-       1
-      / \
-     3   5
-    / \ /
-   7  9 2
-
-Move last (2) to top, remove:
-       2
-      / \
-     3   5
-    / \
-   7   9
-
-Bubble down (2 > 3, compare with smaller child):
-       3
-      / \
-     2   5
-    / \
-   7   9
-
-Check again (2 < 7,9), done!
-```
-
-#### C++ Implementation
-
+**Algorithm: "Bubble Down" / "Heapify"**
 ```cpp
-int removeMinHeap(vector<int>& heap) {
+int extractMax(vector<int>& heap) {
     if (heap.empty()) return -1;
     
-    int min_val = heap[0];
+    int max = heap[0];
     heap[0] = heap.back();
     heap.pop_back();
     
-    int i = 0;
+    // Bubble down: compare with children and swap with larger
+    int index = 0;
     while (true) {
-        int smallest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
+        int largest = index;
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
         
-        // Find smallest among parent and children
-        if (left < heap.size() && heap[left] < heap[smallest]) {
-            smallest = left;
+        if (left < heap.size() && heap[left] > heap[largest])
+            largest = left;
+        if (right < heap.size() && heap[right] > heap[largest])
+            largest = right;
+        
+        if (largest != index) {
+            swap(heap[index], heap[largest]);
+            index = largest;
+        } else {
+            break;
         }
-        if (right < heap.size() && heap[right] < heap[smallest]) {
-            smallest = right;
-        }
-        
-        // If parent is smallest, stop
-        if (smallest == i) break;
-        
-        swap(heap[i], heap[smallest]);
-        i = smallest;
     }
     
-    return min_val;
+    return max;
 }
 ```
 
-**Time**: O(log n)
+**Time Complexity**: O(log n)
 
----
-
-### Operation 3: Heapify (Build Heap from Array)
-
-**Naive way**: Insert each element = O(n log n)
-
-**Smart way**: Start from bottom, bubble down = O(n)!
+### 3. Peek (Get Max without removal)
 
 ```cpp
-void heapify(vector<int>& arr) {
+int peek(const vector<int>& heap) {
+    return heap.empty() ? -1 : heap[0];
+}
+```
+
+**Time Complexity**: O(1)
+
+---
+
+## Heapify
+
+### Build Heap from Array
+
+**Naive approach**: Insert each element - O(n log n)
+
+**Optimal approach**: Heapify bottom-up - O(n)
+
+```cpp
+void buildHeap(vector<int>& arr) {
     int n = arr.size();
     
-    // Start from last non-leaf node
-    for (int i = (n / 2) - 1; i >= 0; i--) {
-        bubbleDown(arr, i);
+    // Start from last non-leaf node and heapify downward
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapifyDown(arr, i);
     }
 }
 
-void bubbleDown(vector<int>& heap, int i) {
-    while (true) {
-        int smallest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
-        
-        if (left < heap.size() && heap[left] < heap[smallest]) {
-            smallest = left;
-        }
-        if (right < heap.size() && heap[right] < heap[smallest]) {
-            smallest = right;
-        }
-        
-        if (smallest == i) break;
-        
-        swap(heap[i], heap[smallest]);
-        i = smallest;
+void heapifyDown(vector<int>& heap, int index) {
+    int largest = index;
+    int left = 2 * index + 1;
+    int right = 2 * index + 2;
+    
+    if (left < heap.size() && heap[left] > heap[largest])
+        largest = left;
+    if (right < heap.size() && heap[right] > heap[largest])
+        largest = right;
+    
+    if (largest != index) {
+        swap(heap[index], heap[largest]);
+        heapifyDown(heap, largest);
     }
 }
 ```
 
-**Time**: O(n) - amazing!
+**Time Complexity Analysis**:
+- Nodes at height $h$: $2^h$
+- Work per node: $h$ comparisons
+- Total: $\sum_{h=0}^{\log n} 2^h \cdot (\log n - h) = O(n)$
+
+### Why O(n) not O(n log n)?
+Most nodes are near leaves (height 0-1), so do minimal work. Few nodes at top do log n work but are few in number.
 
 ---
 
-## Complete Heap Implementation
+## Heap Sort
+
+### Algorithm
+1. Build max heap from array - O(n)
+2. Extract max n times - O(n log n)
+
+```cpp
+void heapSort(vector<int>& arr) {
+    int n = arr.size();
+    
+    // Build max heap
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapifyDown(arr, i, n);
+    
+    // Extract elements one by one
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i]);
+        heapifyDown(arr, 0, i);
+    }
+}
+
+void heapifyDown(vector<int>& arr, int index, int size) {
+    int largest = index;
+    int left = 2 * index + 1;
+    int right = 2 * index + 2;
+    
+    if (left < size && arr[left] > arr[largest])
+        largest = left;
+    if (right < size && arr[right] > arr[largest])
+        largest = right;
+    
+    if (largest != index) {
+        swap(arr[index], arr[largest]);
+        heapifyDown(arr, largest, size);
+    }
+}
+```
+
+**Time Complexity**: O(n log n)  
+**Space Complexity**: O(1) - in-place
+
+### Heap Sort Example
+```
+Initial: [3, 2, 1, 6, 0, 5]
+
+After heapify: [6, 3, 5, 2, 0, 1] (max heap)
+
+Extraction:
+Step 1: Swap 6↔1 → [1, 3, 5, 2, 0, | 6] → Heapify
+        Result: [5, 3, 1, 2, 0, | 6]
+Step 2: Swap 5↔0 → [0, 3, 1, 2, | 5, 6] → Heapify
+        Result: [3, 2, 1, 0, | 5, 6]
+...
+Final: [0, 1, 2, 3, 5, 6] ✓ Sorted!
+```
+
+---
+
+## Priority Queue
+
+### Implementation using Max Heap
+
+```cpp
+class MaxPriorityQueue {
+private:
+    vector<int> heap;
+    
+public:
+    void push(int value) {
+        heap.push_back(value);
+        int index = heap.size() - 1;
+        
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (heap[index] > heap[parent]) {
+                swap(heap[index], heap[parent]);
+                index = parent;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    int top() {
+        return heap.empty() ? -1 : heap[0];
+    }
+    
+    void pop() {
+        if (heap.empty()) return;
+        
+        heap[0] = heap.back();
+        heap.pop_back();
+        
+        int index = 0;
+        while (true) {
+            int largest = index;
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+            
+            if (left < heap.size() && heap[left] > heap[largest])
+                largest = left;
+            if (right < heap.size() && heap[right] > heap[largest])
+                largest = right;
+            
+            if (largest != index) {
+                swap(heap[index], heap[largest]);
+                index = largest;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    bool empty() {
+        return heap.empty();
+    }
+};
+```
+
+---
+
+## Code Examples
+
+### Complete Max Heap Implementation
 
 ```cpp
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
-
-class MinHeap {
-private:
-    vector<int> heap;
-    
-    int parent(int i) { return (i - 1) / 2; }
-    int leftChild(int i) { return 2 * i + 1; }
-    int rightChild(int i) { return 2 * i + 2; }
-    
-    void bubbleUp(int i) {
-        while (i > 0 && heap[i] < heap[parent(i)]) {
-            swap(heap[i], heap[parent(i)]);
-            i = parent(i);
-        }
-    }
-    
-    void bubbleDown(int i) {
-        while (true) {
-            int smallest = i;
-            int left = leftChild(i);
-            int right = rightChild(i);
-            
-            if (left < heap.size() && heap[left] < heap[smallest]) {
-                smallest = left;
-            }
-            if (right < heap.size() && heap[right] < heap[smallest]) {
-                smallest = right;
-            }
-            
-            if (smallest == i) break;
-            
-            swap(heap[i], heap[smallest]);
-            i = smallest;
-        }
-    }
-    
-public:
-    void insert(int value) {
-        heap.push_back(value);
-        bubbleUp(heap.size() - 1);
-    }
-    
-    int extractMin() {
-        if (heap.empty()) return -1;
-        
-        int min_val = heap[0];
-        heap[0] = heap.back();
-        heap.pop_back();
-        
-        if (!heap.empty()) {
-            bubbleDown(0);
-        }
-        
-        return min_val;
-    }
-    
-    int peekMin() {
-        return heap.empty() ? -1 : heap[0];
-    }
-    
-    void heapify(vector<int>& arr) {
-        heap = arr;
-        for (int i = (heap.size() / 2) - 1; i >= 0; i--) {
-            bubbleDown(i);
-        }
-    }
-    
-    void print() {
-        for (int val : heap) {
-            cout << val << " ";
-        }
-        cout << endl;
-    }
-    
-    int size() { return heap.size(); }
-};
 
 class MaxHeap {
 private:
     vector<int> heap;
     
-    int parent(int i) { return (i - 1) / 2; }
-    int leftChild(int i) { return 2 * i + 1; }
-    int rightChild(int i) { return 2 * i + 2; }
-    
-    void bubbleUp(int i) {
-        while (i > 0 && heap[i] > heap[parent(i)]) {
-            swap(heap[i], heap[parent(i)]);
-            i = parent(i);
+    void heapifyUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (heap[index] > heap[parent]) {
+                swap(heap[index], heap[parent]);
+                index = parent;
+            } else {
+                break;
+            }
         }
     }
     
-    void bubbleDown(int i) {
+    void heapifyDown(int index) {
         while (true) {
-            int largest = i;
-            int left = leftChild(i);
-            int right = rightChild(i);
+            int largest = index;
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
             
-            if (left < heap.size() && heap[left] > heap[largest]) {
+            if (left < heap.size() && heap[left] > heap[largest])
                 largest = left;
-            }
-            if (right < heap.size() && heap[right] > heap[largest]) {
+            if (right < heap.size() && heap[right] > heap[largest])
                 largest = right;
+            
+            if (largest != index) {
+                swap(heap[index], heap[largest]);
+                index = largest;
+            } else {
+                break;
             }
-            
-            if (largest == i) break;
-            
-            swap(heap[i], heap[largest]);
-            i = largest;
         }
     }
     
 public:
     void insert(int value) {
         heap.push_back(value);
-        bubbleUp(heap.size() - 1);
+        heapifyUp(heap.size() - 1);
+    }
+    
+    int getMax() {
+        if (heap.empty()) return -1;
+        return heap[0];
     }
     
     int extractMax() {
         if (heap.empty()) return -1;
         
-        int max_val = heap[0];
+        int max = heap[0];
         heap[0] = heap.back();
         heap.pop_back();
         
-        if (!heap.empty()) {
-            bubbleDown(0);
-        }
+        if (!heap.empty())
+            heapifyDown(0);
         
-        return max_val;
+        return max;
     }
     
-    int peekMax() {
-        return heap.empty() ? -1 : heap[0];
-    }
-    
-    void print() {
-        for (int val : heap) {
-            cout << val << " ";
+    void buildHeap(vector<int>& arr) {
+        heap = arr;
+        int n = heap.size();
+        for (int i = n / 2 - 1; i >= 0; i--) {
+            heapifyDown(i);
         }
+    }
+    
+    void display() {
+        for (int val : heap)
+            cout << val << " ";
         cout << endl;
     }
 };
 
-// Main program
 int main() {
-    MinHeap minHeap;
+    MaxHeap heap;
     
-    cout << "=== Min-Heap Operations ===\n" << endl;
+    // Insert elements
+    heap.insert(10);
+    heap.insert(5);
+    heap.insert(20);
+    heap.insert(2);
+    heap.insert(8);
     
-    vector<int> values = {50, 30, 70, 20, 40, 60, 80};
-    cout << "Inserting: ";
-    for (int val : values) {
-        cout << val << " ";
-        minHeap.insert(val);
+    cout << "Heap after insertions: ";
+    heap.display();  // Output: 20 10 8 2 5
+    
+    cout << "Max element: " << heap.getMax() << endl;  // 20
+    
+    cout << "Extracting max: " << heap.extractMax() << endl;  // 20
+    cout << "Heap after extraction: ";
+    heap.display();  // Output: 10 5 8 2
+    
+    // Build heap from array
+    vector<int> arr = {3, 1, 4, 1, 5, 9, 2, 6};
+    heap.buildHeap(arr);
+    cout << "Heap from array: ";
+    heap.display();  // Output: 9 6 5 1 1 3 2 4
+    
+    return 0;
+}
+```
+
+### Heap Sort Implementation
+
+```cpp
+void heapSort(vector<int>& arr) {
+    int n = arr.size();
+    
+    // Build max heap
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapifyDown(arr, i, n);
     }
     
-    cout << "\n\nHeap (array form): ";
-    minHeap.print();
-    
-    cout << "Min element: " << minHeap.peekMin() << endl;
-    
-    cout << "\nExtracting min elements:\n";
-    while (minHeap.size() > 0) {
-        cout << minHeap.extractMin() << " ";
+    // Extract elements
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i]);
+        heapifyDown(arr, 0, i);
     }
-    cout << "\n(Notice: sorted order!)\n" << endl;
+}
+
+void heapifyDown(vector<int>& arr, int index, int size) {
+    int largest = index;
+    int left = 2 * index + 1;
+    int right = 2 * index + 2;
     
-    // Max-Heap example
-    cout << "\n=== Max-Heap Operations ===\n" << endl;
+    if (left < size && arr[left] > arr[largest])
+        largest = left;
+    if (right < size && arr[right] > arr[largest])
+        largest = right;
     
-    MaxHeap maxHeap;
-    cout << "Inserting: ";
-    for (int val : values) {
-        cout << val << " ";
-        maxHeap.insert(val);
+    if (largest != index) {
+        swap(arr[index], arr[largest]);
+        heapifyDown(arr, largest, size);
     }
+}
+
+int main() {
+    vector<int> arr = {5, 3, 8, 1, 2};
+    heapSort(arr);
     
-    cout << "\n\nHeap (array form): ";
-    maxHeap.print();
-    
-    cout << "Max element: " << maxHeap.peekMax() << endl;
-    
-    cout << "\nExtracting max elements:\n";
-    while (maxHeap.size() > 0) {
-        cout << maxHeap.extractMax() << " ";
-    }
-    cout << "\n(Reverse sorted!)\n" << endl;
-    
-    // Heapify example
-    cout << "\n=== Heapify (Build heap from array) ===\n" << endl;
-    
-    MinHeap heapifiedHeap;
-    vector<int> arr = {64, 34, 25, 12, 22, 11, 90};
-    cout << "Original array: ";
-    for (int x : arr) cout << x << " ";
+    cout << "Sorted array: ";
+    for (int x : arr)
+        cout << x << " ";  // Output: 1 2 3 5 8
     cout << endl;
-    
-    heapifiedHeap.heapify(arr);
-    cout << "Heapified: ";
-    heapifiedHeap.print();
-    cout << "(Heap property achieved in O(n)!)" << endl;
     
     return 0;
 }
@@ -468,233 +527,63 @@ int main() {
 
 ---
 
-## Priority Queue (Built on Heap!)
+## Applications
 
-### C++ STL Priority Queue
+### 1. Dijkstra's Algorithm
+Uses min-heap to efficiently select node with minimum distance.
 
-```cpp
-#include <queue>
-#include <vector>
+### 2. Huffman Coding
+Builds optimal binary tree for data compression using min-heap.
 
-// Max-Heap by default
-priority_queue<int> maxPQ;
-maxPQ.push(50);
-maxPQ.push(30);
-cout << maxPQ.top();  // 50 (max)
+### 3. Heap Sort
+General-purpose sorting: O(n log n), O(1) space.
 
-// Min-Heap
-priority_queue<int, vector<int>, greater<int>> minPQ;
-minPQ.push(50);
-minPQ.push(30);
-cout << minPQ.top();  // 30 (min)
-```
+### 4. Median in Stream
+Use min-heap and max-heap to track median of streaming elements.
 
----
+### 5. K Largest Elements
+Use min-heap of size k to find k largest elements in O(n log k).
 
-## Heap Sort
-
-**Use heap to sort!**
-
-```cpp
-void heapSort(vector<int>& arr) {
-    int n = arr.size();
-    
-    // Build heap - O(n)
-    for (int i = (n / 2) - 1; i >= 0; i--) {
-        bubbleDown(arr, i, n);
-    }
-    
-    // Extract one by one - O(n log n)
-    for (int i = n - 1; i > 0; i--) {
-        swap(arr[0], arr[i]);
-        bubbleDown(arr, 0, i);
-    }
-}
-```
-
-**Time**: O(n log n) - same as quicksort/mergesort
-**Space**: O(1) - in-place!
-
----
-
-## Heap Properties & Analysis
-
-| Property | Value |
-|----------|-------|
-| **Height** | O(log n) |
-| **Insert** | O(log n) |
-| **Remove** | O(log n) |
-| **Peek** | O(1) |
-| **Heapify** | O(n) |
-| **Sort** | O(n log n) |
-| **Space** | O(n) |
-
----
-
-## Real-World Applications
-
-### 1. **Priority Queues** ⭐⭐⭐
-```cpp
-// Task scheduling
-priority_queue<Task> taskQueue;
-taskQueue.push({priority: 10, task: "urgent"});
-```
-
-### 2. **Dijkstra's Algorithm**
-Efficient shortest path using min-heap
-
-### 3. **Prim's Algorithm**
-Minimum spanning tree uses heap
-
-### 4. **Heap Sort**
-Efficient O(n log n) sorting
-
-### 5. **Median Finding**
-Two heaps (min + max) to track median
-
-### 6. **Top K Elements**
-Min-heap of size K to find top K
-
----
-
-## 🎯 LeetCode Problems
-
-### Problem 1: Kth Largest Element
-**Link**: [LeetCode 215 - Kth Largest Element in Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
-
-**Difficulty**: Medium
-
-**Solution**: Min-heap of size K
-
-```cpp
-int findKthLargest(vector<int>& nums, int k) {
-    priority_queue<int, vector<int>, greater<int>> minHeap;
-    
-    for (int num : nums) {
-        minHeap.push(num);
-        if (minHeap.size() > k) {
-            minHeap.pop();
-        }
-    }
-    
-    return minHeap.top();
-}
-```
-
----
-
-### Problem 2: Merge K Sorted Lists
-**Link**: [LeetCode 23 - Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
-
-**Difficulty**: Hard
-
-**Use**: Min-heap to always get smallest next node
-
----
-
-### Problem 3: Top K Frequent Elements
-**Link**: [LeetCode 347 - Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
-
-**Difficulty**: Medium
-
-**Solution**: Min-heap + frequency map
-
-```cpp
-vector<int> topKFrequent(vector<int>& nums, int k) {
-    unordered_map<int, int> freq;
-    for (int num : nums) freq[num]++;
-    
-    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> minHeap;
-    
-    for (auto& p : freq) {
-        minHeap.push({p.second, p.first});
-        if (minHeap.size() > k) {
-            minHeap.pop();
-        }
-    }
-    
-    vector<int> result;
-    while (!minHeap.empty()) {
-        result.push_back(minHeap.top().second);
-        minHeap.pop();
-    }
-    return result;
-}
-```
-
----
-
-### Problem 4: Find Median from Data Stream
-**Link**: [LeetCode 295 - Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
-
-**Difficulty**: Hard
-
-**Solution**: Max-heap (left) + Min-heap (right)
-
----
-
-## Min-Heap vs Max-Heap
-
-| Use Case | Type |
-|----------|:---:|
-| **Kth largest** | Min-heap |
-| **Kth smallest** | Max-heap |
-| **Priority queue (high priority first)** | Max-heap |
-| **Priority queue (low priority first)** | Min-heap |
-| **Sorting ascending** | Min-heap |
-| **Sorting descending** | Max-heap |
-
----
-
-## Complete Heap vs Other Data Structures
-
-| Feature | Array | Linked List | BST | Heap |
-|---------|:---:|:---:|:---:|:---:|
-| **Get min** | O(n) | O(n) | O(log n) | O(1) |
-| **Insert** | O(n) | O(1) | O(log n) | O(log n) |
-| **Remove min** | O(n) | O(1) | O(log n) | O(log n) |
-| **Space** | O(n) | O(n) | O(n) | O(n) |
-| **Ordered** | Can be | No | Yes | Partial |
-
-**Heap is optimal for min/max + insert/remove!**
+### 6. Task Scheduling
+Process tasks by priority using heap.
 
 ---
 
 ## Key Takeaways
 
-1. **Complete binary tree** = perfect for arrays
-2. **Heap property**: parent < children (min) or parent > children (max)
-3. **O(log n) insert/remove** - better than sorted array
-4. **Array mapping**: parent(i) = (i-1)/2, left(i) = 2i+1
-5. **Heapify**: O(n) to build from array
-6. **Priority queues** use heaps internally
-7. **Heap sort**: O(n log n) in-place
+✅ **Heap is a complete binary tree** - Efficient array representation  
+✅ **O(log n) insertion/deletion** - Heapify operations efficient  
+✅ **O(n) build heap** - Better than inserting n times  
+✅ **O(n log n) sorting** - Heap sort optimal comparison sort  
+✅ **O(1) space** - Can sort in-place  
+✅ **Priority queues** - Natural application of heaps  
+
+| Operation | Time |
+|-----------|------|
+| Insert | O(log n) |
+| Extract Max | O(log n) |
+| Peek Max | O(1) |
+| Build Heap | O(n) |
+| Heap Sort | O(n log n) |
 
 ---
 
-## Interview Tips
+## Practice Problems
 
-**Common Questions:**
-1. "Implement min-heap"
-2. "Find Kth largest/smallest"
-3. "Merge K sorted lists"
-4. "Top K elements"
-5. "Heap sort"
-
-**Key Points to Mention:**
-- "I'd use a heap for efficient min/max extraction"
-- "O(log n) per operation - better than array"
-- "Can build heap in O(n) time"
-- "Priority queues are implemented with heaps"
+1. **LeetCode 215**: Kth Largest Element - Use heap to find kth largest
+2. **LeetCode 295**: Find Median from Data Stream - Use two heaps
+3. **LeetCode 347**: Top K Frequent Elements - Heap with frequency
+4. **LeetCode 703**: Kth Largest in Stream - Min-heap of size k
+5. **LeetCode 253**: Meeting Rooms II - Min-heap for intervals
 
 ---
 
-## Practice Path
+## Next Steps
 
-**Level 1**: Understand heap structure & properties
-**Level 2**: Implement insert & extract operations
-**Level 3**: Build heap from array (heapify)
-**Level 4**: Solve LeetCode 215, 347
-**Level 5**: LeetCode 23, 295 (complex problems)
+1. **Implement min-heap** - All operations with min property
+2. **Solve heap problems** - Practice with LeetCode problems
+3. **Learn heapsort** - Implement and understand trade-offs
+4. **Priority queue usage** - Dijkstra, Prim's algorithms
+5. **Advanced heaps** - Fibonacci heap, binomial heap
 
-Heaps are one of the **most practically useful** data structures in computer science! 🏆
+**Remember**: Heaps are fundamental to efficient algorithms! 🎯
