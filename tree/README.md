@@ -36,6 +36,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Queue-based BFS with step-by-step simulation and C++ code.
 16. [**16: Generate Tree from Traversals**](./16_generate_tree_from_traversal.md)
     - Reconstructing a unique binary tree from In+Pre or In+Post sequences.
+17. [**17: Binary Tree Operations**](./17_binary_tree_operations.md)
+    - Recursive algorithms for Height, Total Count, and Leaf Count.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
