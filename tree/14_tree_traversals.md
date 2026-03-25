@@ -35,13 +35,17 @@ Preorder traversal processes the node before visiting its children. This is usef
 
 ### Simple Example (3-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    
+    style A fill:#ff6b6b
+    style B fill:#4ecdc4
+    style C fill:#4ecdc4
 ```
-      A
-     / \
-    B   C
 
-Preorder: A, B, C
-```
+**Preorder**: A, B, C
 
 **Execution Steps**:
 1. Visit A → Output: A
@@ -51,15 +55,25 @@ Preorder: A, B, C
 
 ### Complex Example (6-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    B --> D(["D"])
+    B --> E(["E"])
+    C --> F(["F"])
+    C --> G(["G"])
+    
+    style A fill:#ff6b6b
+    style B fill:#ff6b6b
+    style C fill:#ff6b6b
+    style D fill:#4ecdc4
+    style E fill:#4ecdc4
+    style F fill:#4ecdc4
+    style G fill:#4ecdc4
 ```
-           A
-          / \
-         B   C
-        / \ / \
-       D  E F  G
 
-Preorder: A, B, D, E, C, F, G
-```
+**Preorder**: A, B, D, E, C, F, G
 
 **Execution Steps**:
 1. Visit A → Output: A
@@ -81,28 +95,28 @@ Preorder: A, B, D, E, C, F, G
      - No children, backtrack
 4. **Result**: A, B, D, E, C, F, G
 
-### ASCII Visualization with Arrows
+### Visual Graph - Preorder Execution
 
+```mermaid
+graph TD
+    A(["1: A"]) --> B(["2: B"])
+    A --> C(["5: C"])
+    B --> D(["3: D"])
+    B --> E(["4: E"])
+    C --> F(["6: F"])
+    C --> G(["7: G"])
+    
+    style A fill:#ff6b6b
+    style B fill:#ff6b6b
+    style C fill:#ff6b6b
+    style D fill:#4ecdc4
+    style E fill:#4ecdc4
+    style F fill:#4ecdc4
+    style G fill:#4ecdc4
 ```
-        ┌─────────┐
-        │    A    │ ← 1
-        └───┬─────┘
-            │
-        ┌───┴──────┐
-        │          │
-    ┌───▼──┐   ┌───▼──┐
-    │  B   │←2 │  C   │←5
-    └───┬──┘   └───┬──┘
-        │          │
-    ┌───┴───┐  ┌───┴───┐
-    │       │  │       │
- ┌──▼┐ ┌───▼─┤┌──▼┐ ┌──▼──┐
- │ D │←3│ E  │←4│ F │←6│ G  │←7
- └────┘ └────┘  └────┘ └─────┘
 
-Execution Order: A(1) → B(2) → D(3) → E(4) → C(5) → F(6) → G(7)
-Output: A, B, D, E, C, F, G
-```
+**Execution Order**: A(1) → B(2) → D(3) → E(4) → C(5) → F(6) → G(7)
+**Output**: A, B, D, E, C, F, G
 
 ### Pseudocode
 
@@ -152,13 +166,17 @@ Inorder traversal processes the node between its children. This is useful for:
 
 ### Simple Example (3-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    
+    style A fill:#ffe66d
+    style B fill:#ffe66d
+    style C fill:#ffe66d
 ```
-      A
-     / \
-    B   C
 
-Inorder: B, A, C
-```
+**Inorder**: B, A, C
 
 **Execution Steps**:
 1. Go to left subtree (B) → Output: B
@@ -168,15 +186,25 @@ Inorder: B, A, C
 
 ### Complex Example (6-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    B --> D(["D"])
+    B --> E(["E"])
+    C --> F(["F"])
+    C --> G(["G"])
+    
+    style A fill:#ffe66d
+    style B fill:#ffe66d
+    style C fill:#ffe66d
+    style D fill:#ffe66d
+    style E fill:#ffe66d
+    style F fill:#ffe66d
+    style G fill:#ffe66d
 ```
-           A
-          / \
-         B   C
-        / \ / \
-       D  E F  G
 
-Inorder: D, B, E, A, F, C, G
-```
+**Inorder**: D, B, E, A, F, C, G
 
 **Execution Steps**:
 1. Go to left subtree of A (B)
@@ -197,28 +225,28 @@ Inorder: D, B, E, A, F, C, G
      - Visit G → Output: G
 4. **Result**: D, B, E, A, F, C, G
 
-### ASCII Visualization with Arrows
+### Visual Graph - Inorder Execution
 
+```mermaid
+graph TD
+    A(["5: A"]) --> B(["2: B"])
+    A --> C(["7: C"])
+    B --> D(["1: D"])
+    B --> E(["3: E"])
+    C --> F(["6: F"])
+    C --> G(["8: G"])
+    
+    style D fill:#ffe66d
+    style B fill:#ffe66d
+    style E fill:#ffe66d
+    style A fill:#95e1d3
+    style F fill:#ffe66d
+    style C fill:#95e1d3
+    style G fill:#ffe66d
 ```
-        ┌─────────┐
-        │    A    │ ← 5
-        └───┬─────┘
-            │
-        ┌───┴──────┐
-        │          │
-    ┌───▼──┐   ┌───▼──┐
-    │  B   │←2 │  C   │←7
-    └───┬──┘   └───┬──┘
-        │          │
-    ┌───┴───┐  ┌───┴───┐
-    │       │  │       │
- ┌──▼┐ ┌───▼─┤┌──▼┐ ┌──▼──┐
- │ D │←1│ E  │←3│ F │←6│ G  │←8
- └────┘ └────┘  └────┘ └─────┘
 
-Execution Order: D(1) → B(2) → E(3) → A(4) → F(5) → C(6) → G(7)
-Output: D, B, E, A, F, C, G
-```
+**Execution Order**: D(1) → B(2) → E(3) → A(4) → F(5) → C(6) → G(7)
+**Output**: D, B, E, A, F, C, G
 
 ### Pseudocode
 
@@ -268,13 +296,17 @@ Postorder traversal processes the node after visiting its children. This is usef
 
 ### Simple Example (3-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    
+    style A fill:#c7ceea
+    style B fill:#c7ceea
+    style C fill:#c7ceea
 ```
-      A
-     / \
-    B   C
 
-Postorder: B, C, A
-```
+**Postorder**: B, C, A
 
 **Execution Steps**:
 1. Go to left subtree (B) → Output: B
@@ -284,15 +316,25 @@ Postorder: B, C, A
 
 ### Complex Example (6-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    B --> D(["D"])
+    B --> E(["E"])
+    C --> F(["F"])
+    C --> G(["G"])
+    
+    style A fill:#c7ceea
+    style B fill:#c7ceea
+    style C fill:#c7ceea
+    style D fill:#c7ceea
+    style E fill:#c7ceea
+    style F fill:#c7ceea
+    style G fill:#c7ceea
 ```
-           A
-          / \
-         B   C
-        / \ / \
-       D  E F  G
 
-Postorder: D, E, B, F, G, C, A
-```
+**Postorder**: D, E, B, F, G, C, A
 
 **Execution Steps**:
 1. Go to left subtree of A (B)
@@ -310,28 +352,28 @@ Postorder: D, E, B, F, G, C, A
 3. Visit A → Output: A
 4. **Result**: D, E, B, F, G, C, A
 
-### ASCII Visualization with Arrows
+### Visual Graph - Postorder Execution
 
+```mermaid
+graph TD
+    A(["7: A"]) --> B(["3: B"])
+    A --> C(["6: C"])
+    B --> D(["1: D"])
+    B --> E(["2: E"])
+    C --> F(["4: F"])
+    C --> G(["5: G"])
+    
+    style D fill:#c7ceea
+    style E fill:#c7ceea
+    style B fill:#c7ceea
+    style F fill:#c7ceea
+    style G fill:#c7ceea
+    style C fill:#c7ceea
+    style A fill:#ffb3ba
 ```
-        ┌─────────┐
-        │    A    │ ← 7
-        └───┬─────┘
-            │
-        ┌───┴──────┐
-        │          │
-    ┌───▼──┐   ┌───▼──┐
-    │  B   │←3 │  C   │←6
-    └───┬──┘   └───┬──┘
-        │          │
-    ┌───┴───┐  ┌───┴───┐
-    │       │  │       │
- ┌──▼┐ ┌───▼─┤┌──▼┐ ┌──▼──┐
- │ D │←1│ E  │←2│ F │←4│ G  │←5
- └────┘ └────┘  └────┘ └─────┘
 
-Execution Order: D(1) → E(2) → B(3) → F(4) → G(5) → C(6) → A(7)
-Output: D, E, B, F, G, C, A
-```
+**Execution Order**: D(1) → E(2) → B(3) → F(4) → G(5) → C(6) → A(7)
+**Output**: D, E, B, F, G, C, A
 
 ### Pseudocode
 
@@ -388,16 +430,20 @@ Level order traversal explores nodes at each depth level completely before movin
 
 ### Simple Example (3-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    
+    style A fill:#a8dadc
+    style B fill:#457b9d
+    style C fill:#457b9d
 ```
-      A
-     / \
-    B   C
 
-Level Order: A, B, C
+**Level Order**: A, B, C
 
 Level 0: A
 Level 1: B, C
-```
 
 **Execution Steps**:
 1. Process Level 0: Visit A → Output: A
@@ -406,19 +452,29 @@ Level 1: B, C
 
 ### Complex Example (6-node tree)
 
+```mermaid
+graph TD
+    A(["A"]) --> B(["B"])
+    A --> C(["C"])
+    B --> D(["D"])
+    B --> E(["E"])
+    C --> F(["F"])
+    C --> G(["G"])
+    
+    style A fill:#a8dadc
+    style B fill:#457b9d
+    style C fill:#457b9d
+    style D fill:#f1faee
+    style E fill:#f1faee
+    style F fill:#f1faee
+    style G fill:#f1faee
 ```
-           A
-          / \
-         B   C
-        / \ / \
-       D  E F  G
 
-Level Order: A, B, C, D, E, F, G
+**Level Order**: A, B, C, D, E, F, G
 
 Level 0: A
 Level 1: B, C
 Level 2: D, E, F, G
-```
 
 **Execution Steps**:
 1. Process Level 0: Visit A → Output: A
@@ -426,36 +482,32 @@ Level 2: D, E, F, G
 3. Process Level 2: Visit D, E, F, G → Output: D, E, F, G
 4. **Result**: A, B, C, D, E, F, G
 
-### ASCII Visualization (Queue-based)
+### Visual Graph - Level Order Execution
 
+```mermaid
+graph TD
+    A(["Level 0: A"]) --> B(["Level 1: B"])
+    A --> C(["Level 1: C"])
+    B --> D(["Level 2: D"])
+    B --> E(["Level 2: E"])
+    C --> F(["Level 2: F"])
+    C --> G(["Level 2: G"])
+    
+    style A fill:#a8dadc
+    style B fill:#457b9d
+    style C fill:#457b9d
+    style D fill:#f1faee
+    style E fill:#f1faee
+    style F fill:#f1faee
+    style G fill:#f1faee
 ```
-        ┌─────────┐
-        │    A    │ ← 1
-        └───┬─────┘
-            │
-        ┌───┴──────┐
-        │          │
-    ┌───▼──┐   ┌───▼──┐
-    │  B   │←2 │  C   │←3
-    └───┬──┘   └───┬──┘
-        │          │
-    ┌───┴───┐  ┌───┴───┐
-    │       │  │       │
- ┌──▼┐ ┌───▼─┤┌──▼┐ ┌──▼──┐
- │ D │←4│ E  │←5│ F │←6│ G  │←7
- └────┘ └────┘  └────┘ └─────┘
 
-Execution Order (Queue Process):
-Enqueue A → Dequeue A → Output: A
-Enqueue B, C → Dequeue B → Output: B
-Dequeue C → Output: C
-Enqueue D, E → Dequeue D → Output: D
-Dequeue E → Output: E
-Enqueue F, G → Dequeue F → Output: F
-Dequeue G → Output: G
+**Execution Order (Queue Process)**:
+- Dequeue A → Output: A
+- Dequeue B, C → Output: B, C  
+- Dequeue D, E, F, G → Output: D, E, F, G
 
-Output: A, B, C, D, E, F, G
-```
+**Output**: A, B, C, D, E, F, G
 
 ### Pseudocode
 
