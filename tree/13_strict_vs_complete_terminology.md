@@ -1,25 +1,27 @@
-# 📚 Strict vs. Complete (The Terminology Paradox)
+# 📚 Strictly vs. Complete (The Terminology Paradox)
 
-The terms **"Strict"** and **"Complete"** are among the most confused names in Data Structures. Different authors use these words to mean completely different things. Let's clear the air using visual and mathematical proofs.
+The terms **"Strictly Binary Tree"** and **"Complete Binary Tree"** are often swapped depending on which textbook you read. This module clears up the confusion using the "Gap Rule" and degree-based rules.
 
 ---
 
-## 🎭 The Naming Conflict
-| Concept | Common Name | Alternative Name (Sahni/Others) |
+## 🎭 The Naming Conflict (The Rosetta Stone)
+Different authors use different names for the same concepts. Use this table as your "Rosetta Stone":
+
+| If the rule is... | Standard Name | Common Alternative |
 | :--- | :--- | :--- |
-| **{0, 2} Children Only** | Strict / Proper | **Full** or **Complete** |
-| **No Gaps in Array** | **Complete** | **Almost Complete** |
+| **Degree is {0, 2}** | **Strictly Binary** | Proper / Full / **Complete** |
+| **No Gaps in Array** | **Complete** | **Almost Complete** / Nearly Complete |
+| **All Levels Full** | **Perfect Binary** | Full / Complete |
 
-> [!IMPORTANT]
-> To avoid confusion, always check if your examiner means the **$\{0, 2\}$ property** or the **Array Mapping property**.
+> [!WARNING]
+> **Paradox Alert:** In some exams, "Complete" means $\{0, 2\}$. In others, "Complete" means "No Gaps in Array". Always check the context!
 
 ---
 
-## 📂 Concept 1: The $\{0, 2\}$ Rule (Strict/Proper)
-A tree where every node has either **0 or 2 children**. It has nothing to do with how the nodes are arranged in memory.
+## 📂 Case A: Strictly Binary but NOT Complete
+A tree where every node has **0 or 2 children** (Strictly Binary), but it is NOT filled left-to-right (NOT Complete).
 
-### 📸 Visual: Strict but NOT Complete
-This tree follows the $\{0, 2\}$ rule but has **gaps** in its array representation.
+### 📸 Visual Mapping
 ```mermaid
 graph TD
     A1((A)) --- B1((B))
@@ -27,37 +29,41 @@ graph TD
     C1 --- D1((D))
     C1 --- E1((E))
 ```
-**Array:** `[A, B, C, -, -, D, E]` (Gaps at index 4, 5. **NOT Complete** ❌)
+
+**Array Representation ($T$):**
+| Index | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+| :---: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| **Node** | **A** | **B** | **C** | **-** | **-** | **D** | **E** |
+
+- **Why Strictly Binary?** Every internal node (A, C) has exactly 2 kids. Node B is a leaf (0 kids). ✅
+- **Why NOT Complete?** There are **gaps at index 4 and 5**. A complete tree must have no empty slots between the first and last element. ❌
 
 ---
 
-## 📂 Concept 2: The Array Mapping Rule (Complete)
-A tree that is filled level-by-level from left-to-right. It has no gaps in memory but might violate the $\{0, 2\}$ rule.
+## 📂 Case B: Complete but NOT Strictly Binary
+A tree that is filled left-to-right (Complete), but has a node with only **1 child** (NOT Strictly Binary).
 
-### 📸 Visual: Complete but NOT Strict
-This tree has **no gaps** in its array, but **Node B** has only **1 child**, violating the $\{0, 2\}$ rule.
+### 📸 Visual Mapping
 ```mermaid
 graph TD
     A2((A)) --- B2((B))
     A2 --- C2((C))
     B2 --- D2((D))
 ```
-**Array:** `[A, B, C, D]` (No Gaps. **Complete** ✅ but **NOT Strict** ❌)
+
+**Array Representation ($T$):**
+| Index | 1 | 2 | 3 | 4 |
+| :---: | :-: | :-: | :-: | :-: |
+| **Node** | **A** | **B** | **C** | **D** |
+
+- **Why Complete?** No gaps in the array! $T[1]$ to $T[4]$ are all filled. ✅
+- **Why NOT Strictly Binary?** **Node B has only 1 child (D)**. A strictly binary tree forbids degree-1 nodes. ❌
 
 ---
 
-## 🏁 The "Rosetta Stone" Table
-Use this table to translate between different textbook terminologies:
-
-| Your Goal | Term to use (Standard) | Term to use (Alternative) |
+## 💡 Summary Comparison
+| Property | Strictly Binary | Complete Binary |
 | :--- | :--- | :--- |
-| Every node has 0 or 2 kids | **Strict Binary Tree** | Proper / Full / Complete |
-| No gaps in the array | **Complete Binary Tree** | Almost / Nearly Complete |
-| Every level is 100% full | **Perfect Binary Tree** | Full / Max Nodes |
-
----
-
-## 💡 Summary
-- **Strictness** is about the **degree** of nodes ($\{0, 2\}$).
-- **Completeness** is about the **position** of nodes (Array mapping).
-- A **Perfect** tree is both Strict AND Complete!
+| **Focus** | Node Degree (Children count) | Node Position (Array index) |
+| **Constraint** | No nodes with 1 child | No gaps in the array |
+| **Memory** | Can be sparse (wasteful) | Always dense (efficient) |
