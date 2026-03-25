@@ -38,6 +38,14 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Reconstructing a unique binary tree from In+Pre or In+Post sequences.
 17. [**17: Binary Tree Operations**](./17_binary_tree_operations.md)
     - Recursive algorithms for Height, Total Count, and Leaf Count.
+18. [**18: 2-3 Trees**](./18_2_3_trees.md)
+    - Properties, search, insert (split/promote), and delete with colored visuals.
+19. [**19: 2-3-4 Trees**](./19_2_3_4_trees.md)
+    - Top-down splitting, 4-node handling, and equivalence to Red-Black Trees.
+20. [**20: Red-Black Trees**](./20_red_black_trees.md)
+    - 5 rules, rotations, insert fix-up cases, and C++ implementation.
+21. [**21: Comparison — Balanced Trees**](./21_comparison_balanced_trees.md)
+    - Side-by-side differences, equivalence mapping, and use-case guide.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
