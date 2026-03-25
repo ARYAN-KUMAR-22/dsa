@@ -24,6 +24,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
    - Generalizing to $m$ children and $e = (m-1)i + 1$ formula.
 10. [**10: Array Representation of Binary Tree**](./10_array_representation.md)
     - Sequential storage, child mapping formulas ($2i, 2i+1$).
+11. [**11: Linked Representation of Binary Tree**](./11_linked_representation.md)
+    - Pointer-based storage, node structure, and the $n+1$ NULL rule.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
