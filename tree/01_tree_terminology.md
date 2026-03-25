@@ -24,7 +24,7 @@ A **Node** is a container that holds:
 **Visual Example**:
 ```mermaid
 graph TD
-    Node["🟦 Node<br/>Data: 42<br/>Left: —<br/>Right: —"]
+    Node((🟦 Node<br/>Data: 42<br/>Left: —<br/>Right: —))
 ```
 
 **Real-World Examples**:
@@ -114,10 +114,10 @@ A **Parent** is any node that has one or more child nodes.
 **Visual Example** - Corporate Hierarchy:
 ```mermaid
 graph TD
-    P["👔 PARENT<br/>Manager John<br/>Manages 3 people"]
-    C1["👤 Child #1: Alice"]
-    C2["👤 Child #2: Bob"]
-    C3["👤 Child #3: Carol"]
+    P((👔 PARENT<br/>Manager John<br/>Manages 3 people))
+    C1((👤 Child #1: Alice))
+    C2((👤 Child #2: Bob))
+    C3((👤 Child #3: Carol))
     
     P --- C1
     P --- C2
@@ -153,10 +153,10 @@ A **Child** is any node that has a parent node (all nodes except the root).
 **Visual Example** - File System:
 ```mermaid
 graph TD
-    P["📁 Folder: Documents"]
-    C1["📄 Child: Resume.pdf"]
-    C2["📄 Child: CoverLetter.doc"]
-    C3["📁 Child: Projects"]
+    P((📁 Folder: Documents))
+    C1((📄 Child: Resume.pdf))
+    C2((📄 Child: CoverLetter.doc))
+    C3((📁 Child: Projects))
     
     P --- C1
     P --- C2
@@ -181,10 +181,10 @@ Number of Child Nodes = Total Nodes - 1
 **Visual Example** - Family Tree:
 ```mermaid
 graph TD
-    P("👨 Parent: Mr. Smith")
-    S1["👧 Sibling 1: Alice"]
-    S2["👦 Sibling 2: Bob"]  
-    S3["👧 Sibling 3: Carol"]
+    P((👨 Parent: Mr. Smith))
+    S1((👧 Sibling 1: Alice))
+    S2((👦 Sibling 2: Bob))
+    S3((👧 Sibling 3: Carol))
     
     P --- S1
     P --- S2
@@ -224,12 +224,12 @@ $$\text{Leaf Node} \iff \text{Degree}(\text{Node}) = 0$$
 **Visual Example**:
 ```mermaid
 graph TD
-    A["A<br/>(Degree=2)"]
-    B["B<br/>(Degree=2)"]
-    C["C<br/>(Degree=1)"]
-    D["🍃 D<br/>(LEAF)"]
-    E["🍃 E<br/>(LEAF)"]
-    F["🍃 F<br/>(LEAF)"]
+    A((A<br/>(Degree=2)))
+    B((B<br/>(Degree=2)))
+    C((C<br/>(Degree=1)))
+    D((🍃 D<br/>(LEAF)))
+    E((🍃 E<br/>(LEAF)))
+    F((🍃 F<br/>(LEAF)))
     
     A --- B
     A --- C
@@ -265,13 +265,13 @@ $$\text{Internal Node} \iff \text{Degree}(\text{Node}) \geq 1$$
 **Visual Example**:
 ```mermaid
 graph TD
-    A["🔴 A<br/>(INTERNAL)<br/>Degree=2"]
-    B["🔴 B<br/>(INTERNAL)<br/>Degree=2"]
-    C["🔴 C<br/>(INTERNAL)<br/>Degree=2"]
-    D["L (Leaf)"]
-    E["L (Leaf)"]
-    F["L (Leaf)"]
-    G["L (Leaf)"]
+    A((🔴 A<br/>(INTERNAL)<br/>Degree=2))
+    B((🔴 B<br/>(INTERNAL)<br/>Degree=2))
+    C((🔴 C<br/>(INTERNAL)<br/>Degree=2))
+    D((L (Leaf)))
+    E((L (Leaf)))
+    F((L (Leaf)))
+    G((L (Leaf)))
     
     A --- B
     A --- C
@@ -309,12 +309,12 @@ Ancestors of X = All nodes Y where:
 **Visual Example**:
 ```mermaid
 graph TD
-    A["🔴 A<br/>(ANCESTOR<br/>of D)"]
-    B["🔴 B<br/>(ANCESTOR<br/>of D)"]
-    C["🔴 C<br/>(ANCESTOR<br/>of D)"]
-    D["D<br/>(TARGET)"]
-    E["E"]
-    F["F"]
+    A((🔴 A<br/>(ANCESTOR<br/>of D)))
+    B((🔴 B<br/>(ANCESTOR<br/>of D)))
+    C((🔴 C<br/>(ANCESTOR<br/>of D)))
+    D((D<br/>(TARGET)))
+    E((E))
+    F((F))
     
     A --- B
     A --- E
@@ -351,12 +351,12 @@ Descendants of X = All nodes Y where:
 **Visual Example**:
 ```mermaid
 graph TD
-    A["A<br/>(BASE NODE)"]
-    B["B<br/>(DESCENDANT)"]
-    C["C<br/>(DESCENDANT)"]
-    D["D<br/>(DESCENDANT)"]
-    E["E<br/>(DESCENDANT)"]
-    F["F<br/>(DESCENDANT)"]
+    A((A<br/>(BASE NODE)))
+    B((B<br/>(DESCENDANT)))
+    C((C<br/>(DESCENDANT)))
+    D((D<br/>(DESCENDANT)))
+    E((E<br/>(DESCENDANT)))
+    F((F<br/>(DESCENDANT)))
     
     A --- B
     A --- C
@@ -394,10 +394,10 @@ $$\text{Degree}(n) = \text{Number of children of node } n$$
 **Example 1 - High Degree**:
 ```mermaid
 graph TD
-    A["A<br/>Degree = 3<br/>(3 children)"]
-    B["B"]
-    C["C"]
-    D["D"]
+    A((A<br/>Degree = 3<br/>(3 children)))
+    B((B))
+    C((C))
+    D((D))
     
     A --- B
     A --- C
@@ -409,9 +409,9 @@ graph TD
 **Example 2 - Medium Degree**:
 ```mermaid
 graph TD
-    B["B<br/>Degree = 2<br/>(2 children)"]
-    D["D"]
-    E["E"]
+    B((B<br/>Degree = 2<br/>(2 children)))
+    D((D))
+    E((E))
     
     B --- D
     B --- E
@@ -422,7 +422,7 @@ graph TD
 **Example 3 - Zero Degree (Leaf)**:
 ```mermaid
 graph TD
-    L["Leaf Node<br/>Degree = 0<br/>(no children)"]
+    L((Leaf Node<br/>Degree = 0<br/>(no children)))
     
     style L fill:#90ee90,stroke:#000,stroke-width:2px
 ```
@@ -442,13 +442,13 @@ $$\text{Degree}(\text{Tree}) = \max(\text{Degree}(n_1), \text{Degree}(n_2), ...,
 **Visual Example with Calculation**:
 ```mermaid
 graph TD
-    A["A (Degree=2)"]
-    B["B (Degree=3)⭐"]
-    C["C (Degree=1)"]
-    D["D (Degree=0)"]
-    E["E (Degree=0)"]
-    F["F (Degree=0)"]
-    G["G (Degree=0)"]
+    A((A (Degree=2)))
+    B((B (Degree=3)⭐))
+    C((C (Degree=1)))
+    D((D (Degree=0)))
+    E((E (Degree=0)))
+    F((F (Degree=0)))
+    G((G (Degree=0)))
     
     A --- B
     A --- C
@@ -485,13 +485,13 @@ $$\text{Level}(n) = \text{Number of edges from root to } n$$
 **Visual Example with Level Coloring**:
 ```mermaid
 graph TD
-    A["A<br/>Level 0"]
-    B["B<br/>Level 1"]
-    C["C<br/>Level 1"]
-    D["D<br/>Level 2"]
-    E["E<br/>Level 2"]
-    F["F<br/>Level 2"]
-    G["G<br/>Level 3"]
+    A((A<br/>Level 0))
+    B((B<br/>Level 1))
+    C((C<br/>Level 1))
+    D((D<br/>Level 2))
+    E((E<br/>Level 2))
+    F((F<br/>Level 2))
+    G((G<br/>Level 3))
     
     A --- B
     A --- C
@@ -532,12 +532,12 @@ $$\text{Depth}(n) = \text{Level}(n) = \text{Number of edges from root to } n$$
 **Visual Example**:
 ```mermaid
 graph TD
-    A["A<br/>Depth = 0"]
-    B["B<br/>Depth = 1"]
-    C["C<br/>Depth = 1"]
-    D["D<br/>Depth = 2"]
-    E["E<br/>Depth = 2"]
-    F["F<br/>Depth = 3"]
+    A((A<br/>Depth = 0))
+    B((B<br/>Depth = 1))
+    C((C<br/>Depth = 1))
+    D((D<br/>Depth = 2))
+    E((E<br/>Depth = 2))
+    F((F<br/>Depth = 3))
     
     A --- B
     A --- C
@@ -574,13 +574,13 @@ $$\text{Height}(n) = \begin{cases}
 **Visual Example with Calculations**:
 ```mermaid
 graph TD
-    A["A<br/>Height = 3"]
-    B["B<br/>Height = 2"]
-    C["C<br/>Height = 1"]
-    D["D<br/>Height = 1"]
-    E["E (Leaf)<br/>Height = 0"]
-    F["F (Leaf)<br/>Height = 0"]
-    G["G (Leaf)<br/>Height = 0"]
+    A((A<br/>Height = 3))
+    B((B<br/>Height = 2))
+    C((C<br/>Height = 1))
+    D((D<br/>Height = 1))
+    E((E (Leaf)<br/>Height = 0))
+    F((F (Leaf)<br/>Height = 0))
+    G((G (Leaf)<br/>Height = 0))
     
     A --- B
     A --- C
@@ -622,11 +622,11 @@ $$\text{Height}(\text{Tree}) = \text{Height}(\text{Root})$$
 **Example 1 - Balanced Tree**:
 ```mermaid
 graph TD
-    A["A"]
-    B["B"]
-    C["C"]
-    D["D"]
-    E["E"]
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    E((E))
     
     A --- B
     A --- C
@@ -643,11 +643,11 @@ graph TD
 **Example 2 - Skewed Tree (Worst Case)**:
 ```mermaid
 graph TD
-    A["A"]
-    B["B"]
-    C["C"]
-    D["D"]
-    E["E"]
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    E((E))
     
     A --- B
     B --- C
@@ -665,7 +665,7 @@ graph TD
 **Example 3 - Single Node Tree**:
 ```mermaid
 graph TD
-    A["A<br/>(Single node)"]
+    A((A<br/>(Single node)))
 ```
 **Calculation**: Height(A) = 0, **Height(Tree) = 0**
 
@@ -692,12 +692,12 @@ Subtree rooted at X includes:
 **Visual Example - Multiple Subtrees Highlighted**:
 ```mermaid
 graph TD
-    A["A"]
-    B["B"]
-    C["C"]
-    D["D"]
-    E["E"]
-    F["F"]
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    E((E))
+    F((F))
     
     A --- B
     A --- C
@@ -735,12 +735,12 @@ A **Path** is a sequence of nodes and edges connecting a node with a (usually di
 **Visual Example - Multiple Complete Paths**:
 ```mermaid
 graph TD
-    A["A"]
-    B["B"]
-    C["C"]
-    D["D"]
-    E["E"]
-    F["F"]
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    E((E))
+    F((F))
     
     A --- B
     A --- C
@@ -782,21 +782,21 @@ A **Forest** is a collection of **multiple disjoint trees** (trees that don't co
 ```mermaid
 graph TD
     subgraph T1["🌲 Tree 1"]
-        A["A"]
-        B["B"]
-        C["C"]
+        A((A))
+        B((B))
+        C((C))
         A --- B
         A --- C
     end
     
     subgraph T2["🌲 Tree 2"]
-        D["D"]
-        E["E"]
+        D((D))
+        E((E))
         D --- E
     end
     
     subgraph T3["🌲 Tree 3"]
-        F["F"]
+        F((F))
     end
 ```
 
