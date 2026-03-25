@@ -97,7 +97,22 @@ struct Node {
 
 ---
 
-## ⚖️ 5. Internal vs. External Nodes (Strict)
+## 📐 5. Scenario 2: If Nodes (n) are Given
+If we know the total number of nodes, what height range is possible?
+
+### 1. Minimum Height ($h_{min}$)
+Happens when the tree is packed "maximally" (Perfect m-ary tree).
+- **Formula:** $h = \log_m [n(m-1) + 1] - 1$
+- **Example ($n=13, m=3$):** $h = \log_3[13(2)+1]-1 = \log_3(27)-1 = 3-1 = 2$.
+
+### 2. Maximum Height ($h_{max}$)
+Happens when the tree is "thinnest" (Strict zig-zag m-ary tree).
+- **Formula:** $h = \frac{n-1}{m}$
+- **Example ($n=7, m=3$):** $h = \frac{7-1}{3} = \frac{6}{3} = 2$.
+
+---
+
+## ⚖️ 6. Internal vs. External Nodes (Strict)
 In a strict m-ary tree, the number of leaves ($e$) and internal nodes ($i$) satisfy:
 
 **$$e = (m-1)i + 1$$**
@@ -105,8 +120,11 @@ In a strict m-ary tree, the number of leaves ($e$) and internal nodes ($i$) sati
 ---
 
 ## 📊 Summary Card
-| Feature | General m-ary | Strict m-ary |
-| :--- | :--- | :--- |
-| **Allowed children** | $\{0, 1, \dots, m\}$ | $\{0, m\}$ |
-| **Max Nodes** | $\frac{m^{h+1}-1}{m-1}$ | $\frac{m^{h+1}-1}{m-1}$ |
-| **Internal Nodes** | - | $i = \frac{n-1}{m}$ |
+| Property | Formula |
+| :--- | :--- |
+| **Max Nodes (fixed h)** | $n = \frac{m^{h+1}-1}{m-1}$ |
+| **Min Nodes (fixed h)** | $n = m \cdot h + 1$ |
+| **Min Height (fixed n)** | $h = \log_m[n(m-1)+1] - 1$ |
+| **Max Height (fixed n)** | $h = \frac{n-1}{m}$ |
+| **Leaves (fixed i)** | $e = (m-1)i + 1$ |
+| **Internal Nodes (fixed n)** | $i = \frac{n-1}{m}$ |
