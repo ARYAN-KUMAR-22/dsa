@@ -21,6 +21,332 @@ Build nodes one by one and link them together
 
 ---
 
+## Understanding Nodes: A Beginner's Guide
+
+### What is a Node?
+
+Think of a **Node** like a box that contains:
+1. **Data** - The value you want to store (like a number)
+2. **Left Pointer** - A direction/address to another box on the left
+3. **Right Pointer** - A direction/address to another box on the right
+
+### Real-World Analogy
+
+Imagine a family tree where each person is a box:
+- Inside the box: The person's name (data)
+- Arrow pointing left: Link to left child
+- Arrow pointing right: Link to right child
+
+---
+
+## Node Structure Implementation
+
+### C Implementation (Step-by-Step)
+
+**Define the Node Structure**:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;           // The actual value stored
+    struct Node* left;  // Address of left child
+    struct Node* right; // Address of right child
+};
+```
+
+**Create a Function for New Nodes**:
+
+```c
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+```
+
+**Insert into Binary Search Tree**:
+
+```c
+struct Node* insertBST(struct Node* node, int value) {
+    if (node == NULL) {
+        return createNode(value);
+    }
+    
+    if (value < node->data) {
+        node->left = insertBST(node->left, value);
+    } 
+    else if (value > node->data) {
+        node->right = insertBST(node->right, value);
+    }
+    
+    return node;
+}
+```
+
+**Print Tree (In-Order)**:
+
+```c
+void printInOrder(struct Node* node) {
+    if (node == NULL) return;
+    printInOrder(node->left);
+    printf("%d ", node->data);
+    printInOrder(node->right);
+}
+```
+
+**Delete Tree (Clean Up Memory)**:
+
+```c
+void deleteTree(struct Node* node) {
+    if (node == NULL) return;
+    deleteTree(node->left);
+    deleteTree(node->right);
+    free(node);
+}
+```
+
+**Complete C Program**:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+struct Node* insertBST(struct Node* node, int value) {
+    if (node == NULL) {
+        return createNode(value);
+    }
+    
+    if (value < node->data) {
+        node->left = insertBST(node->left, value);
+    } 
+    else if (value > node->data) {
+        node->right = insertBST(node->right, value);
+    }
+    
+    return node;
+}
+
+void printInOrder(struct Node* node) {
+    if (node == NULL) return;
+    printInOrder(node->left);
+    printf("%d ", node->data);
+    printInOrder(node->right);
+}
+
+void deleteTree(struct Node* node) {
+    if (node == NULL) return;
+    deleteTree(node->left);
+    deleteTree(node->right);
+    free(node);
+}
+
+int main() {
+    struct Node* root = NULL;
+    root = insertBST(root, 5);
+    root = insertBST(root, 3);
+    root = insertBST(root, 7);
+    root = insertBST(root, 2);
+    root = insertBST(root, 4);
+    
+    printf("Tree (in-order): ");
+    printInOrder(root);
+    printf("\n");
+    
+    deleteTree(root);
+    return 0;
+}
+```
+
+### C++ Implementation (Cleaner Style)
+
+**Define Node with Constructor**:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+    
+    Node(int val) : data(val), left(NULL), right(NULL) {}
+};
+```
+
+**Create BST Class**:
+
+```cpp
+class BinarySearchTree {
+private:
+    Node* root;
+    
+    Node* insertHelper(Node* node, int value) {
+        if (node == NULL) {
+            return new Node(value);
+        }
+        
+        if (value < node->data) {
+            node->left = insertHelper(node->left, value);
+        } 
+        else if (value > node->data) {
+            node->right = insertHelper(node->right, value);
+        }
+        
+        return node;
+    }
+    
+    void printHelper(Node* node) {
+        if (node == NULL) return;
+        printHelper(node->left);
+        cout << node->data << " ";
+        printHelper(node->right);
+    }
+    
+    void deleteHelper(Node* node) {
+        if (node == NULL) return;
+        deleteHelper(node->left);
+        deleteHelper(node->right);
+        delete node;
+    }
+    
+public:
+    BinarySearchTree() : root(NULL) {}
+    
+    void insert(int value) {
+        root = insertHelper(root, value);
+    }
+    
+    void print() {
+        printHelper(root);
+        cout << endl;
+    }
+    
+    ~BinarySearchTree() {
+        deleteHelper(root);
+    }
+};
+```
+
+**Complete C++ Program**:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+    
+    Node(int val) : data(val), left(NULL), right(NULL) {}
+};
+
+class BinarySearchTree {
+private:
+    Node* root;
+    
+    Node* insertHelper(Node* node, int value) {
+        if (node == NULL) {
+            return new Node(value);
+        }
+        
+        if (value < node->data) {
+            node->left = insertHelper(node->left, value);
+        } 
+        else if (value > node->data) {
+            node->right = insertHelper(node->right, value);
+        }
+        
+        return node;
+    }
+    
+    void printHelper(Node* node) {
+        if (node == NULL) return;
+        printHelper(node->left);
+        cout << node->data << " ";
+        printHelper(node->right);
+    }
+    
+    void deleteHelper(Node* node) {
+        if (node == NULL) return;
+        deleteHelper(node->left);
+        deleteHelper(node->right);
+        delete node;
+    }
+    
+public:
+    BinarySearchTree() : root(NULL) {}
+    
+    void insert(int value) {
+        root = insertHelper(root, value);
+    }
+    
+    void print() {
+        printHelper(root);
+        cout << endl;
+    }
+    
+    ~BinarySearchTree() {
+        deleteHelper(root);
+    }
+};
+
+int main() {
+    BinarySearchTree tree;
+    tree.insert(5);
+    tree.insert(3);
+    tree.insert(7);
+    tree.insert(2);
+    tree.insert(4);
+    tree.insert(6);
+    tree.insert(8);
+    
+    cout << "Binary Search Tree (in-order): ";
+    tree.print();
+    
+    return 0;
+}
+```
+
+### C vs C++ Comparison
+
+| Operation | C | C++ |
+|:---|:---:|:---:|
+| Create Node | `malloc(sizeof(Node))` | `new Node(val)` |
+| Delete Node | `free(node)` | `delete node` |
+| Insert | `root = insertBST(root, 5)` | `tree.insert(5)` |
+| Null Check | `if (x == NULL)` | `if (x == NULL)` |
+
+### Key Concepts for Beginners
+
+1. **Pointer** = Address of a box in memory
+2. **NULL** = "Nothing" or "empty"
+3. **malloc/new** = Create memory
+4. **free/delete** = Return memory
+5. **Recursion** = Function calling itself
+6. **Base Case** = Stopping condition
+
+---
+
 ## Manual Node Creation
 
 ### Node Structure Definition
