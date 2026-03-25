@@ -26,6 +26,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Sequential storage, child mapping formulas ($2i, 2i+1$).
 11. [**11: Linked Representation of Binary Tree**](./11_linked_representation.md)
     - Pointer-based storage, node structure, and the $n+1$ NULL rule.
+12. [**12: Full vs Complete Binary Tree**](./12_full_vs_complete_binary_tree.md)
+    - Visual differences and array storage characteristics (The "Gap" Rule).
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
