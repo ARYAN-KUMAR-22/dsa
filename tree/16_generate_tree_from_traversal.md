@@ -1,71 +1,147 @@
-# 🏗️ Generating a Tree from Traversal
+# 🔧 Generating a Tree from Traversals
 
-Reconstructing a binary tree from its traversal data is a fundamental problem in tree algorithms.
+A single traversal sequence alone **cannot** uniquely define a binary tree. However, combining **two traversal sequences** is sufficient — as long as one of them is **In-order**.
 
 ---
 
-## 🌊 1. From Level Order (Iterative)
-This is the most intuitive method. We use a **Queue** to track which node's children we are currently creating.
+## ⚠️ The Key Rule
+| Given Traversals | Can reconstruct unique tree? |
+| :--- | :---: |
+| **In-order + Pre-order** | ✅ Yes |
+| **In-order + Post-order** | ✅ Yes |
+| **Pre-order + Post-order** | ❌ No (ambiguous for non-full trees) |
 
-### **The Algorithm (Iterative):**
-1.  Create the **Root** node and push it to a Queue.
-2.  While the Queue is not empty:
-    -   Pop a node `p`.
-    -   Ask for left child data. If it's valid (not `-1`), create a new node, link it as `p->lchild`, and push it to the Queue.
-    -   Ask for right child data. If it's valid (not `-1`), create a new node, link it as `p->rchild`, and push it to the Queue.
+> [!IMPORTANT]
+> **In-order is mandatory** for unique tree reconstruction. The reason: In-order tells us the **structural split** (what's left vs. right of root), while Pre/Post tells us the **root** of each subtree.
 
-### **C++ Implementation:**
+---
+
+## 🌳 Method 1: Using In-order + Pre-order
+
+### How It Works:
+1. The **first element** of Pre-order is the **root**.
+2. Find this root in the **In-order** sequence — everything to the left is the **left subtree**, everything to the right is the **right subtree**.
+3. **Recursively repeat** for each subtree.
+
+### 📸 Example
+- **Pre-order:** `A, B, D, E, C, F, G`
+- **In-order:** `D, B, E, A, F, C, G`
+
+**Step-by-step:**
+
+| Step | Root | Left (In-order) | Right (In-order) |
+| :--- | :--- | :--- | :--- |
+| 1 | **A** (Pre[0]) | `D, B, E` | `F, C, G` |
+| 2 | **B** (Pre[1]) | `D` | `E` |
+| 3 | **D** (leaf) | — | — |
+| 4 | **E** (leaf) | — | — |
+| 5 | **C** (Pre[5]) | `F` | `G` |
+| 6 | **F** (leaf) | — | — |
+| 7 | **G** (leaf) | — | — |
+
+**Reconstructed Tree:**
+```mermaid
+graph TD
+    A((A)) --- B((B))
+    A --- C((C))
+    B --- D((D))
+    B --- E((E))
+    C --- F((F))
+    C --- G((G))
+```
+
+---
+
+## 🌳 Method 2: Using In-order + Post-order
+
+### How It Works:
+1. The **last element** of Post-order is the **root**.
+2. Find this root in the **In-order** sequence — left side is left subtree, right side is right subtree.
+3. **Recursively repeat**, always taking the last element of the current Post-order slice.
+
+### 📸 Example
+- **Post-order:** `D, E, B, F, G, C, A`
+- **In-order:** `D, B, E, A, F, C, G`
+
+| Step | Root | Left (In-order) | Right (In-order) |
+| :--- | :--- | :--- | :--- |
+| 1 | **A** (Post[-1]) | `D, B, E` | `F, C, G` |
+| 2 | **B** (Post[-2]... yes B) | `D` | `E` |
+| 3 | **C** (Post[-2] of right) | `F` | `G` |
+> Result is the **same tree** as above ✅
+
+---
+
+## 💻 C++ Implementation (In-order + Pre-order)
+
 ```cpp
-Node* CreateFromLevelOrder() {
-    std::queue<Node*> q;
-    int x;
-    std::cout << "Enter root value: ";
-    std::cin >> x;
-    Node *root = new Node{nullptr, x, nullptr};
-    q.push(root);
+#include <iostream>
+#include <string>
+using namespace std;
 
-    while (!q.empty()) {
-        Node *p = q.front(); q.pop();
+struct Node {
+    char data;
+    Node *lchild, *rchild;
+};
 
-        // Left Child
-        std::cout << "Enter left child of " << p->data << " (-1 for NULL): ";
-        std::cin >> x;
-        if (x != -1) {
-            p->lchild = new Node{nullptr, x, nullptr};
-            q.push(p->lchild);
-        }
+// Create a new node
+Node* createNode(char val) {
+    Node* n = new Node();
+    n->data = val;
+    n->lchild = n->rchild = nullptr;
+    return n;
+}
 
-        // Right Child
-        std::cout << "Enter right child of " << p->data << " (-1 for NULL): ";
-        std::cin >> x;
-        if (x != -1) {
-            p->rchild = new Node{nullptr, x, nullptr};
-            q.push(p->rchild);
-        }
-    }
+// Find index of value in array between l and r
+int search(char in[], int l, int r, char val) {
+    for (int i = l; i <= r; i++)
+        if (in[i] == val) return i;
+    return -1;
+}
+
+// Build tree from In-order + Pre-order sequences
+Node* buildTree(char pre[], char in[], int inStart, int inEnd, int &preIndex) {
+    if (inStart > inEnd) return nullptr;
+
+    // Current root is the next element in pre-order
+    char rootVal = pre[preIndex++];
+    Node* root = createNode(rootVal);
+
+    // Find this root in in-order to split subtrees
+    int inIndex = search(in, inStart, inEnd, rootVal);
+
+    // Recurse on left and right subtrees
+    root->lchild = buildTree(pre, in, inStart, inIndex - 1, preIndex);
+    root->rchild = buildTree(pre, in, inIndex + 1, inEnd, preIndex);
+
     return root;
+}
+
+// In-order printing to verify
+void inorder(Node* root) {
+    if (root) {
+        inorder(root->lchild);
+        cout << root->data << " ";
+        inorder(root->rchild);
+    }
+}
+
+int main() {
+    char pre[] = {'A', 'B', 'D', 'E', 'C', 'F', 'G'};
+    char in[]  = {'D', 'B', 'E', 'A', 'F', 'C', 'G'};
+    int n = 7, preIndex = 0;
+
+    Node* root = buildTree(pre, in, 0, n - 1, preIndex);
+    cout << "In-order of reconstructed tree: ";
+    inorder(root); // Should print: D B E A F C G
+    return 0;
 }
 ```
 
 ---
 
-## 🎯 2. From Pre-order + In-order (Recursive)
-You cannot reconstruct a unique tree from only one DFS traversal (Pre, In, or Post). You need a pair, and one of them **MUST** be In-order.
-
-### **Why In-order?**
--   **Pre-order** tells us which node is the **Root** (the first element).
--   **In-order** tells us which nodes are on the **Left** and **Right** of that root.
-
-### **Recursive Strategy:**
-1.  Pick the next root from **Pre-order**.
-2.  Find its index in **In-order**.
-3.  All elements to the left of that index in In-order form the **Left Subtree**.
-4.  All elements to the right form the **Right Subtree**.
-5.  Recurse.
-
----
-
-## ⚖️ Summary of Uniqueness
--   **Pre + In**: ✅ Unique Tree
--   **Post + In**: ✅ Unique Tree
--   **Pre + Post**: ❌ NOT Unique (multiple trees can have same Pre/Post)
+## 📊 Complexity
+| Property | Complexity |
+| :--- | :--- |
+| **Time** | $O(n^2)$ naive (linear search). $O(n \log n)$ with hash map |
+| **Space** | $O(h)$ for recursion stack, where $h$ is tree height |

@@ -1,58 +1,90 @@
-# 🌊 Level Order Traversal (BFS)
+# 🌊 Level Order Traversal (Breadth-First Search)
 
-**Level Order Traversal** (or Breadth First Search) visits nodes level-by-level, starting from the root and moving from left to right at each level.
+**Level Order Traversal** visits every node in the tree level by level, from left to right. It is a **Breadth-First Search (BFS)** strategy, fundamentally different from the DFS-based Pre/In/Post-order traversals.
 
 ---
 
-## 🛠️ The Queue Algorithm
-To visit nodes level-by-level, we use a **Queue** data structure.
+## 💡 Why a Queue?
+DFS traversals use a **Stack** (via recursion). Level Order requires visiting neighbours before going deeper, so we use a **Queue (FIFO)**.
 
-### **The Logic:**
-1.  **Initialize**: Create an empty Queue and push the Root node into it.
-2.  **Loop**: While the Queue is not empty:
-    -   **Pop** a node `p` from the Queue.
-    -   **Print/Visit** the data in node `p`.
-    -   **Push** the left child of `p` (if any) into the Queue.
-    -   **Push** the right child of `p` (if any) into the Queue.
+### The Algorithm:
+1. **Enqueue** the root.
+2. While the queue is not empty:
+   a. **Dequeue** the front node and **visit it**.
+   b. **Enqueue** its **left child** (if it exists).
+   c. **Enqueue** its **right child** (if it exists).
+
+---
+
+## 📸 Visual Dry Run
+```mermaid
+graph TD
+    A((A)) --- B((B))
+    A --- C((C))
+    B --- D((D))
+    B --- E((E))
+    C --- F((F))
+```
+
+### Step-by-Step Queue Simulation:
+| Step | Action | Queue State (Front → Back) | Visited |
+| :---: | :--- | :--- | :--- |
+| 1 | Enqueue Root | `[A]` | — |
+| 2 | Dequeue A, Enqueue B, C | `[B, C]` | A |
+| 3 | Dequeue B, Enqueue D, E | `[C, D, E]` | A, B |
+| 4 | Dequeue C, Enqueue F | `[D, E, F]` | A, B, C |
+| 5 | Dequeue D (no children) | `[E, F]` | A, B, C, D |
+| 6 | Dequeue E (no children) | `[F]` | A, B, C, D, E |
+| 7 | Dequeue F (no children) | `[]` | A, B, C, D, E, F |
+
+**Result:** `A → B → C → D → E → F` ✅
 
 ---
 
 ## 💻 C++ Implementation
-This implementation uses a standard `std::queue` for simplicity.
 
 ```cpp
 #include <iostream>
 #include <queue>
+using namespace std;
 
 struct Node {
-    Node *lchild;
     int data;
-    Node *rchild;
+    Node *lchild, *rchild;
 };
 
-void LevelOrder(Node *root) {
-    if (root == nullptr) return;
+// Level Order Traversal using a Queue
+void levelorder(Node *root) {
+    if (!root) return;
 
-    std::queue<Node*> q;
-    q.push(root);
+    queue<Node*> q;
+    q.push(root);     // Enqueue the root
 
     while (!q.empty()) {
-        Node *p = q.front();
+        Node *curr = q.front();
         q.pop();
 
-        std::cout << p->data << " "; // Visit Node
+        cout << curr->data << " "; // Visit
 
-        if (p->lchild) q.push(p->lchild); // Enqueue Left
-        if (p->rchild) q.push(p->rchild); // Enqueue Right
+        if (curr->lchild) q.push(curr->lchild); // Enqueue left
+        if (curr->rchild) q.push(curr->rchild); // Enqueue right
     }
 }
 ```
 
-### 📸 Dry Run Example
-For a tree: `A -> B, C; B -> D, E`
-1.  Queue: `[A]` $\rightarrow$ Pop A, Print **A**. Enqueue B, C.
-2.  Queue: `[B, C]` $\rightarrow$ Pop B, Print **B**. Enqueue D, E.
-3.  Queue: `[C, D, E]` $\rightarrow$ Pop C, Print **C**.
-4.  Queue: `[D, E]` $\rightarrow$ Pop D, Print **D**.
-5.  Queue: `[E]` $\rightarrow$ Pop E, Print **E**.
-**Result**: `A B C D E` ✅
+---
+
+## 📊 Time and Space Complexity
+| Property | Complexity |
+| :--- | :--- |
+| **Time** | $O(n)$ – Every node is enqueued and dequeued exactly once |
+| **Space** | $O(w)$ – Where $w$ is the **maximum width** of the tree (worst case: $O(n)$ for a complete tree) |
+
+---
+
+## 🆚 DFS vs. BFS Comparison
+| Feature | DFS (Pre/In/Post) | BFS (Level Order) |
+| :--- | :--- | :--- |
+| **Data Structure** | Stack (implicit/recursion) | Queue (explicit) |
+| **Explores** | Branch by branch (depth first) | Level by level |
+| **Use Case** | Searching paths, expression trees | Shortest path, serialisation |
