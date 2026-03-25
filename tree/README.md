@@ -28,6 +28,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Pointer-based storage, node structure, and the $n+1$ NULL rule.
 12. [**12: Full vs Complete Binary Tree**](./12_full_vs_complete_binary_tree.md)
     - Visual differences and array storage characteristics (The "Gap" Rule).
+13. [**13: Strict vs. Complete (Terminology)**](./13_strict_vs_complete_terminology.md)
+    - Resolving naming conflicts between different DSA textbooks.
 
 ---
 *Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
