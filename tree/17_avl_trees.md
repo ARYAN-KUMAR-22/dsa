@@ -930,24 +930,266 @@ TreeNode* build(vector<int>& nums, int left, int right) {
 
 ---
 
-## Key Takeaways About AVL Trees
+## 🗑️ Deletion in AVL Trees
 
-1. **Self-Balancing**: Maintains height ≈ log n automatically
-2. **4 Rotation Types**: LL, RR, LR, RL (handle unbalance)
-3. **Balance Factor**: left_height - right_height (must be -1, 0, +1)
-4. **Every Op is O(log n)**: Guaranteed! (No worst case O(n))
-5. **More Complex**: Than BST but guarantees performance
-6. **Real World**: Databases, file systems use AVL concepts
-7. **Trade-off**: Extra space for height tracking, rotation overhead
+Deletion is the trickiest AVL operation. After removing a node (just like regular BST deletion), you must **walk back up the tree** and rebalance every ancestor that became unbalanced.
+
+### Deletion Steps (3 Phases)
+
+```
+Phase 1: Find and remove the node (BST deletion rules)
+  - Leaf node   → just delete
+  - One child   → replace with child
+  - Two children → replace with in-order successor, then delete successor
+
+Phase 2: Walk UP the path from the deleted node to the root
+
+Phase 3: At each ancestor, check BF. If |BF| = 2, rebalance with the correct rotation.
+         Unlike insertion (max 1 rotation), deletion can require O(log n) rotations.
+```
+
+### The 4 Cases on Deletion (same as insertion)
+
+| Situation | Condition | Fix |
+|:---|:---|:---|
+| **Left-Left** | BF = +2, left child BF ≥ 0 | Right Rotation at node |
+| **Left-Right** | BF = +2, left child BF = -1 | Left on child, then Right on node |
+| **Right-Right** | BF = -2, right child BF ≤ 0 | Left Rotation at node |
+| **Right-Left** | BF = -2, right child BF = +1 | Right on child, then Left on node |
+
+### Worked Example – Delete 30
+
+**Before deletion** of node `30`:
+
+```mermaid
+graph TD
+    50((50 BF=0)) --> 30((30 BF=0))
+    50 --> 70((70 BF=0))
+    30 --> 20((20 BF=0))
+    30 --> 40((40 BF=0))
+    70 --> 60((60 BF=0))
+    70 --> 80((80 BF=0))
+
+    style 30 fill:#e74c3c
+    style 50 fill:#6c63ff
+    style 70 fill:#6c63ff
+```
+
+**Step 1**: Delete 30. It has 2 children → replace with **in-order successor = 40**.
+
+```mermaid
+graph TD
+    50((50 BF=1)) --> 40((40 BF=1))
+    50 --> 70((70 BF=0))
+    40 --> 20((20 BF=0))
+    40 --> INV[ ]
+    70 --> 60((60 BF=0))
+    70 --> 80((80 BF=0))
+
+    style 40 fill:#f1c40f
+    style INV fill:none,stroke:none
+```
+
+**Step 2**: Walk up. BF(50) = height(left) - height(right) = 2 - 2 = 0. ✅ Balanced! No rotation needed here.
+
+> **Key insight**: deletion requires checking all the way up to root because the height decrease propagates upward.
+
+### Deletion C++ Code
+
+```cpp
+Node* deleteNode(Node* node, int value) {
+    // Phase 1: Standard BST deletion
+    if (node == NULL) return NULL;
+
+    if (value < node->data)
+        node->left = deleteNode(node->left, value);
+    else if (value > node->data)
+        node->right = deleteNode(node->right, value);
+    else {
+        // Found the node to delete
+        if (node->left == NULL || node->right == NULL) {
+            Node* temp = node->left ? node->left : node->right;
+            if (temp == NULL) {       // No child
+                delete node;
+                return NULL;
+            } else {                  // One child
+                *node = *temp;
+                delete temp;
+            }
+        } else {
+            // Two children: get in-order successor (smallest in right subtree)
+            Node* successor = node->right;
+            while (successor->left != NULL)
+                successor = successor->left;
+            node->data = successor->data;  // Copy successor's value
+            node->right = deleteNode(node->right, successor->data);
+        }
+    }
+
+    // Phase 2: Update height
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    // Phase 3: Rebalance if needed
+    int bf = height(node->left) - height(node->right);
+
+    // Left-Left Case
+    if (bf > 1 && getBalanceFactor(node->left) >= 0)
+        return rightRotate(node);
+
+    // Left-Right Case
+    if (bf > 1 && getBalanceFactor(node->left) < 0) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Right-Right Case
+    if (bf < -1 && getBalanceFactor(node->right) <= 0)
+        return leftRotate(node);
+
+    // Right-Left Case
+    if (bf < -1 && getBalanceFactor(node->right) > 0) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+```
+
+> 💡 **Deletion vs Insertion**: Insertion triggers **at most 1** structural rotation. Deletion can trigger rotations at **every ancestor** up to the root — O(log n) rotations in the worst case.
 
 ---
 
-## Practice Path for AVL Trees
+## ⏱️ Time & Space Complexity – Deep Dive
 
-**Level 1**: Understand rotations visually
-**Level 2**: Implement insertion with rotations
-**Level 3**: Implement deletion with rebalancing
-**Level 4**: LeetCode problems (110, 543)
-**Level 5**: Compare with Red-Black trees
+### Why is height always O(log n)?
 
-Now create more LeetCode-focused practical problems!
+The **Fibonacci Tree** argument proves it:
+
+The **minimum** number of nodes `N(h)` in an AVL tree of height `h` satisfies:
+
+```
+N(h) = N(h-1) + N(h-2) + 1
+
+This is exactly the Fibonacci recurrence!
+
+N(h) ≈ φʰ / √5   where φ = 1.618... (Golden Ratio)
+
+Solving for h given n nodes:
+  n ≥ N(h) ≈ φʰ / √5
+  φʰ ≤ n·√5
+  h ≤ log_φ(n·√5)
+  h ≤ 1.44 · log₂(n)     ← This is the key bound!
+```
+
+So height is **at most 1.44 × log₂(n)** — always logarithmic! 🎯
+
+### Complete Complexity Table
+
+| Operation | Best Case | Average Case | Worst Case | Reason |
+|:---|:---:|:---:|:---:|:---|
+| **Search** | O(1) | O(log n) | O(log n) | Tree height bounded |
+| **Insert** | O(log n) | O(log n) | O(log n) | BST path + ≤2 rotations |
+| **Delete** | O(log n) | O(log n) | O(log n) | BST path + O(log n) rotations |
+| **Space** | O(n) | O(n) | O(n) | One node per element |
+| **Rotation** | O(1) | O(1) | O(1) | Just pointer swaps |
+
+> 🔑 **The magic**: Rotations themselves are O(1) operations (just pointer changes). The tree guarantees O(log n) height, so the traversal path is O(log n). Together: **every operation is O(log n).**
+
+---
+
+## ⚖️ AVL vs BST vs Red-Black Tree
+
+| Property | Plain BST | AVL Tree | Red-Black Tree |
+|:---|:---:|:---:|:---:|
+| **Search** | O(n) worst | **O(log n)** | **O(log n)** |
+| **Insert** | O(n) worst | **O(log n)** | **O(log n)** |
+| **Delete** | O(n) worst | **O(log n)** | **O(log n)** |
+| **Balance Condition** | None | Strict: BF ∈ {-1,0,1} | Loose: by color |
+| **Max Height** | Up to n | ≤ 1.44·log₂(n) | ≤ 2·log₂(n+1) |
+| **Rotations on Insert** | 0 | At most **2** | At most 2 |
+| **Rotations on Delete** | 0 | Up to **O(log n)** | At most **3** |
+| **Search Speed** | ❌ Slow (skewed) | ✅ Faster (shorter tree) | ✅ Fast |
+| **Update Speed** | ❌ Slow | 🟡 Slower than RB | ✅ Faster |
+| **Extra Storage** | None | 1 int (height) | 1 bit (color) |
+| **Best for** | Random inserts | **Read-heavy** apps | **Write-heavy** apps |
+| **Used in** | Teaching | Databases, file systems | Linux kernel, Java TreeMap |
+
+### When to choose AVL over Red-Black?
+
+```
+Choose AVL when:
+  ✅ Many more reads (lookups) than writes
+  ✅ Need strictly bounded height (e.g., real-time systems)
+  ✅ Predictable worst-case search time matters most
+
+Choose Red-Black when:
+  ✅ Many inserts/deletes (like OS schedulers)
+  ✅ Write performance is the bottleneck
+  ✅ Slightly longer height is acceptable
+```
+
+---
+
+## 🌍 Real-World Applications
+
+### 1. Database Indexing
+Databases like **SQLite** use B-trees (a generalization of AVL). The same balancing principle ensures that even with millions of records, a lookup takes at most log₂(n) disk reads.
+
+### 2. In-Memory Sorted Maps
+Languages with sorted maps use self-balancing trees:
+- **C++ `std::map` / `std::set`** → Red-Black trees under the hood
+- **Java `TreeMap` / `TreeSet`** → Red-Black trees
+- **Python `sortedcontainers`** → B-tree approach
+
+### 3. File System Management
+The ext4 file system uses a hash-tree (htree), which is inspired by AVL principles for fast directory lookup.
+
+### 4. Virtual Memory / Interval Trees
+Operating systems use AVL-based **interval trees** to manage memory segments — quickly finding which virtual memory region contains a given address.
+
+### 5. Computational Geometry
+AVL trees power **segment trees** and **range queries** used in 2D/3D geometry algorithms (sweep line algorithms, nearest-neighbor searches).
+
+---
+
+## 🎯 Key Takeaways About AVL Trees
+
+1. **Self-Balancing**: Automatically maintains height ≤ 1.44·log₂(n) — never degrades like a BST
+2. **Balance Factor (BF)**: `BF = height(left) - height(right)` — must stay in {-1, 0, +1}
+3. **4 Rotation Cases**: LL→Right Rotate, RR→Left Rotate, LR→Double (L+R), RL→Double (R+L)
+4. **Insert**: Triggers at most **1 structural rotation** (single or double)
+5. **Delete**: Can trigger up to **O(log n) rotations** — the main cost difference from insertion
+6. **All Ops are O(log n)**: Guaranteed by the Fibonacci tree height bound
+7. **Trade-off vs Red-Black**: AVL has stricter balance (faster search) but more rotation work on writes
+8. **Real World**: Databases, OS memory management, geometry algorithms all exploit this balance guarantee
+
+---
+
+## 🎬 Interactive Animation
+
+Open the companion animation file to **see AVL rotations live**:
+
+👉 [**avl_animation.html**](./avl_animation.html) ← Open in browser!
+
+**What you can do in the animation:**
+- **Insert** your own values and watch the tree balance itself in real-time
+- **Delete** nodes and see rebalancing propagate upward
+- **Search** for values with highlighted traversal
+- **Rotation demos**: Click through LL, RR, LR, RL cases step-by-step
+- **Height vs Nodes chart**: Visual comparison of min/max node counts
+- **Comparison table**: AVL vs BST vs Red-Black at a glance
+
+---
+
+## 🏋️ Practice Path for AVL Trees
+
+| Level | Goal | Task |
+|:---:|:---|:---|
+| 1 | Understand balance factor | Manually compute BF for a given tree |
+| 2 | Visualize rotations | Trace through all 4 rotation types on paper |
+| 3 | Code insertion | Implement AVL insert from scratch |
+| 4 | Code deletion | Implement AVL delete (harder!) |
+| 5 | LeetCode | Problems 110, 543, 108 |
+| 6 | Proofs | Prove height = O(log n) using Fibonacci argument |
+| 7 | Compare | Benchmark AVL vs Red-Black on insert-heavy vs search-heavy workloads |
