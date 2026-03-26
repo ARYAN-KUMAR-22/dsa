@@ -367,14 +367,25 @@ Path to unbalanced node: `30 -> 20 -> 10 -> 5 -> 4`.
 graph TD
     30((30<br>BF=2)) --> 20((20<br>BF=1))
     30 --> 40((40<br>BF=-1))
+    
     20 --> 10((10<br>BF=1))
     20 --> 25((25<br>BF=-1))
+    
     10 --> 5((5<br>BF=1))
     10 --> 15((15<br>BF=0))
+    
     5 --> 4((4<br>BF=0))
+    5 ~~~ inv5[ ]
+    
+    40 ~~~ inv40[ ]
     40 --> 50((50<br>BF=0))
+    
+    25 ~~~ inv25[ ]
     25 --> 28((28<br>BF=0))
     
+    style inv5 fill:none,stroke:none,color:none
+    style inv40 fill:none,stroke:none,color:none
+    style inv25 fill:none,stroke:none,color:none
     style 30 fill:#ffcccc
     style 4 fill:#a8eda6
 ```
@@ -384,16 +395,25 @@ graph TD
 graph TD
     20_new((20<br>BF=0)) --> 10_new((10<br>BF=1))
     20_new --> 30_new((30<br>BF=0))
+    
     10_new --> 5_new((5<br>BF=1))
     10_new --> 15_new((15<br>BF=0))
+    
     5_new --> 4_new((4<br>BF=0))
+    5_new ~~~ inv5_new[ ]
     
     30_new --> 25_new((25<br>BF=-1))
     30_new --> 40_new((40<br>BF=-1))
     
+    25_new ~~~ inv25_new[ ]
     25_new --> 28_new((28<br>BF=0))
+    
+    40_new ~~~ inv40_new[ ]
     40_new --> 50_new((50<br>BF=0))
     
+    style inv5_new fill:none,stroke:none,color:none
+    style inv25_new fill:none,stroke:none,color:none
+    style inv40_new fill:none,stroke:none,color:none
     style 25_new fill:#ffe66d
 ```
 
@@ -437,14 +457,25 @@ Let's insert `27`. Node `40` becomes unbalanced (BF = `2`), while its left child
 graph TD
     40((40<br>BF=2)) --> 20((20<br>BF=-1))
     40 --> 50((50<br>BF=-1))
+    
     20 --> 10((10<br>BF=1))
     20 --> 30((30<br>BF=1))
+    
     10 --> 5((5<br>BF=0))
+    10 ~~~ inv10[ ]
+    
     30 --> 25((25<br>BF=-1))
     30 --> 36((36<br>BF=0))
+    
+    25 ~~~ inv25[ ]
     25 --> 27((27<br>BF=0))
+    
+    50 ~~~ inv50[ ]
     50 --> 60((60<br>BF=0))
     
+    style inv10 fill:none,stroke:none,color:none
+    style inv25 fill:none,stroke:none,color:none
+    style inv50 fill:none,stroke:none,color:none
     style 40 fill:#ffcccc
     style 20 fill:#ffcccc
     style 27 fill:#a8eda6
@@ -458,13 +489,22 @@ graph TD
     
     20_new --> 10_new((10<br>BF=1))
     20_new --> 25_new((25<br>BF=-1))
+    
     10_new --> 5_new((5<br>BF=0))
+    10_new ~~~ inv10_new[ ]
+    
+    25_new ~~~ inv25_new[ ]
     25_new --> 27_new((27<br>BF=0))
     
     40_new --> 36_new((36<br>BF=0))
     40_new --> 50_new((50<br>BF=-1))
+    
+    50_new ~~~ inv50_new[ ]
     50_new --> 60_new((60<br>BF=0))
     
+    style inv10_new fill:none,stroke:none,color:none
+    style inv25_new fill:none,stroke:none,color:none
+    style inv50_new fill:none,stroke:none,color:none
     style 30_new fill:#4ecdc4
 ```
 
