@@ -769,6 +769,68 @@ int main() {
 
 ---
 
+## 📊 Height vs Nodes Analysis
+
+Understanding the relationship between the height ($h$) of an AVL tree and the number of nodes ($n$) is crucial for analyzing its bounds and edge-case structures. 
+*(Note: In this analysis, height $h$ is defined as the number of levels. An empty tree has $h=0$, and a single-node tree has $h=1$.)*
+
+### 1. If Height ($h$) is given, find Nodes ($n$):
+
+*   **Maximum Nodes ($n_{max}$):** 
+    This occurs when the AVL tree is a **perfect binary tree** (perfectly filled at every level).
+    **Formula:** $n_{max} = 2^h - 1$
+
+*   **Minimum Nodes ($n_{min}$):** 
+    This occurs when the AVL tree is as sparse as possible while maintaining the AVL property. These boundary trees are also known as **Fibonacci Trees**.
+    **Recurrence Relation:**
+    $$N(h) = \begin{cases} 
+      0 & \text{if } h = 0 \\
+      1 & \text{if } h = 1 \\
+      N(h-2) + N(h-1) + 1 & \text{otherwise}
+   \end{cases}$$
+
+    **Lookup Table for Minimum Nodes N(h):**
+    
+    | Height ($h$) | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+    | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+    | **Nodes $N(h)$** | 1 | 2 | 4 | 7 | 12 | 20 | 33 |
+
+    *(Example: For $h=4$, the minimum nodes required is $N(4) = N(2) + N(3) + 1 = 2 + 4 + 1 = 7$.)*
+
+    **Minimum Nodes Tree Shape Example (Fibonacci Trees):**
+    ```mermaid
+    graph TD
+        subgraph "h = 3 (N = 4)"
+            C1(( )) --> C2(( ))
+            C1 --> C3(( ))
+            C3 --> C4(( ))
+            C3 ~~~ invC[ ]
+            style invC fill:none,stroke:none,color:none
+        end
+        
+        subgraph "h = 2 (N = 2)"
+            B1(( )) --> invB[ ]
+            B1 --> B2(( ))
+            style invB fill:none,stroke:none,color:none
+        end
+        
+        subgraph "h = 1 (N = 1)"
+            A1(( ))
+        end
+    ```
+
+### 2. If Nodes ($n$) are given, find Height ($h$):
+
+*   **Minimum Height ($h_{min}$):** 
+    This occurs when the tree is packed as tightly as possible (perfectly balanced).
+    **Formula:** $h_{min} = \lfloor \log_2(n + 1) \rfloor$
+
+*   **Maximum Height ($h_{max}$):** 
+    This occurs when the tree is as sparse as possible. To find the exact maximum height for a given $n$, we generally "**Look in the Table**" above in reverse. 
+    *(For example, if you are given $n=15$ nodes, you look at the table. $N(5) = 12$ and $N(6) = 20$. Since 15 is between 12 and 20, the maximum possible height is $h=5$, because you don't have enough nodes to construct a tree of height 6.)* The absolute upper bound is strictly $h \approx 1.44 \log_2(n)$.
+
+---
+
 ## Comparison: BST vs AVL
 
 | Property | BST | AVL |
