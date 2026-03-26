@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Heap – Interactive Visualizer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1e2438;
+      --border: #2a3050;
+      --accent: #10b981;
+      --accent2: #34d399;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --yellow: #f1c40f;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --panel: #12161f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #001a0f, #0d1117);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .mode-row {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tbtn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .78rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all .2s;
+    }
+
+    .tbtn.active {
+      background: var(--accent);
+      color: #0d1117;
+      border-color: var(--accent);
+    }
+
+    .speed-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-left: 10px;
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 280px;
+      min-width: 280px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .ph {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pd {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.8)
+      }
+    }
+
+    .ps {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pst {
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 7px 14px 4px;
+    }
+
+    .step-box {
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 90px;
+    }
+
+    .si {
+      display: flex;
+      gap: 8px;
+      font-size: .76rem;
+      line-height: 1.5;
+    }
+
+    .sn {
+      font-family: 'Fira Code', monospace;
+      font-size: .66rem;
+      color: var(--accent2);
+      min-width: 18px;
+    }
+
+    .si.done .st {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .si.done .sn {
+      color: var(--green);
+    }
+
+    .si.active .st {
+      color: var(--yellow);
+      font-weight: 600;
+    }
+
+    .si.pending .st {
+      color: #3a4060;
+    }
+
+    .arr-wrap {
+      padding: 8px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 55px;
+    }
+
+    .ac {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: .71rem;
+      transition: all .3s;
+      text-align: center;
+      min-width: 34px;
+    }
+
+    .ac.hl {
+      background: var(--accent);
+      color: #0d1117;
+      border-color: var(--accent);
+    }
+
+    .ac.sw {
+      background: var(--yellow);
+      color: #0d1117;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .le {
+      font-family: 'Fira Code', monospace;
+      font-size: .71rem;
+      line-height: 1.55;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+    }
+
+    .le.info {
+      color: #60a5fa;
+      border-color: #60a5fa;
+      background: #60a5fa08;
+    }
+
+    .le.success {
+      color: var(--green);
+      border-color: var(--green);
+      background: #2ecc7108;
+    }
+
+    .le.warn {
+      color: var(--yellow);
+      border-color: var(--yellow);
+      background: #f1c40f08;
+    }
+
+    .le.error {
+      color: var(--red);
+      border-color: var(--red);
+      background: #e74c3c08;
+    }
+
+    .le .ts {
+      color: #3a4060;
+      margin-right: 5px;
+    }
+
+    .right-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 20px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all .2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      background: var(--card);
+    }
+
+    .tp {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .tp.active {
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .controls input[type=number] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 7px;
+      font-size: .9rem;
+      width: 90px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all .18s;
+    }
+
+    .bp {
+      background: var(--accent);
+      color: #0d1117;
+    }
+
+    .bp:hover {
+      filter: brightness(1.1);
+    }
+
+    .bd {
+      background: var(--red);
+      color: white;
+    }
+
+    .bn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .bs {
+      background: var(--green);
+      color: #0d1117;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .sc .l {
+      font-size: .64rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .sc .v {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .cw {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .tg {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .tc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .tc h3 {
+      font-size: .9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .tc p,
+    .tc li {
+      font-size: .81rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .tc ul {
+      padding-left: 14px;
+    }
+
+    .tc code {
+      background: var(--bg);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: .77rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .81rem;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--accent);
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .good {
+      color: var(--green);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div style="font-size:1.6rem">🏔️</div>
+    <div>
+      <h1>Heap <span>Visualizer</span></h1>
+      <p>Min &amp; Max Heap — insert, extract, heapify-up/down animations</p>
+    </div>
+    <div class="mode-row">
+      <button class="tbtn active" onclick="setMode('min',this)">Min Heap</button>
+      <button class="tbtn" onclick="setMode('max',this)">Max Heap</button>
+      <div class="speed-label">Speed:<input type="range" id="spd" min="1" max="10" value="5" style="width:70px"></div>
+    </div>
+  </header>
+  <div class="app-body">
+    <div class="left-panel">
+      <div class="ph">
+        <div class="pd"></div>Debug Panel
+      </div>
+      <div class="ps" style="flex-shrink:0">
+        <div class="pst">⚡ Current Operation</div>
+        <div class="step-box" id="stepBox">
+          <div class="si pending">
+            <div class="sn">–</div>
+            <div class="st">Idle…</div>
+          </div>
+        </div>
+      </div>
+      <div class="ps" style="flex-shrink:0">
+        <div class="pst">📦 Array (1-indexed)</div>
+        <div class="arr-wrap" id="arrWrap"><span style="color:#3a4060;font-size:.73rem">empty</span></div>
+      </div>
+      <div class="ps" style="flex:1;overflow:hidden">
+        <div class="pst">📋 Process Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </div>
+    </div>
+
+    <div class="right-content">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('th',this)">🏔️ Heap Ops</button>
+        <button class="tab-btn" onclick="showTab('tt',this)">📚 Theory</button>
+      </nav>
+      <div id="th" class="tp active">
+        <div class="controls">
+          <input type="number" id="iv" placeholder="Value" min="1" max="999" />
+          <button class="btn bp" onclick="doInsert()">Insert</button>
+          <button class="btn bd" onclick="doExtract()">Extract Root</button>
+          <button class="btn bn" onclick="doReset()">Reset</button>
+          <button class="btn bs" onclick="doRand()">Random</button>
+        </div>
+        <div class="stats-row">
+          <div class="sc">
+            <div class="l">Size</div>
+            <div class="v" id="s-size">0</div>
+          </div>
+          <div class="sc">
+            <div class="l">Root</div>
+            <div class="v" id="s-root">–</div>
+          </div>
+          <div class="sc">
+            <div class="l">Height</div>
+            <div class="v" id="s-h">0</div>
+          </div>
+          <div class="sc">
+            <div class="l">Mode</div>
+            <div class="v" id="s-m" style="font-size:.88rem">MIN</div>
+          </div>
+        </div>
+        <div class="cw"><canvas id="hc" height="370"></canvas></div>
+      </div>
+      <div id="tt" class="tp">
+        <div class="tg">
+          <div class="tc">
+            <h3>Heap Properties</h3>
+            <ul>
+              <li><strong>Complete Binary Tree</strong>: filled left to right</li>
+              <li><strong>Min Heap</strong>: Parent ≤ Children</li>
+              <li><strong>Max Heap</strong>: Parent ≥ Children</li>
+              <li>Stored as an array (index 1..n)</li>
+            </ul>
+          </div>
+          <div class="tc">
+            <h3>Array Index Rules</h3>
+            <ul>
+              <li>Root at index <code>1</code></li>
+              <li>Parent of i: <code>⌊i/2⌋</code></li>
+              <li>Left child: <code>2i</code></li>
+              <li>Right child: <code>2i+1</code></li>
+            </ul>
+          </div>
+          <div class="tc">
+            <h3>Complexity</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Op</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Insert</td>
+                  <td class="good">O(log n)</td>
+                </tr>
+                <tr>
+                  <td>Extract</td>
+                  <td class="good">O(log n)</td>
+                </tr>
+                <tr>
+                  <td>Peek root</td>
+                  <td class="good">O(1)</td>
+                </tr>
+                <tr>
+                  <td>Build heap</td>
+                  <td class="good">O(n)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tc">
+            <h3>Applications</h3>
+            <ul>
+              <li>Priority Queues (Dijkstra, A*)</li>
+              <li>Heap Sort O(n log n)</li>
+              <li>OS Task Scheduling</li>
+              <li>Median of stream (two heaps)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let H = [null]; let mode = 'min'; let hlIdx = -1; let swPair = [];
+
+    function cmp(a, b) { return mode === 'min' ? a < b : a > b; }
+    function sw(i, j) { let t = H[i]; H[i] = H[j]; H[j] = t; }
+    function heapH() { return H.length > 1 ? Math.floor(Math.log2(H.length - 1)) + 1 : 0; }
+
+    async function hUp(i) {
+      const p = Math.floor(i / 2);
+      if (p >= 1 && cmp(H[i], H[p])) {
+        log(`↑ Swap ${H[i]} ↔ ${H[p]} (parent)`, 'warn');
+        swPair = [i, p]; updArr(); await slp(); sw(i, p); swPair = []; await hUp(p);
+      }
+    }
+    async function hDown(i) {
+      const n = H.length - 1; let t = i, l = 2 * i, r = 2 * i + 1;
+      if (l <= n && cmp(H[l], H[t])) t = l; if (r <= n && cmp(H[r], H[t])) t = r;
+      if (t !== i) { log(`↓ Swap ${H[i]} ↔ ${H[t]} (child)`, 'warn'); swPair = [i, t]; updArr(); await slp(); sw(i, t); swPair = []; await hDown(t); }
+    }
+
+    // draw
+    function draw() {
+      const cvs = document.getElementById('hc'); cvs.width = cvs.clientWidth || 780;
+      const ctx = cvs.getContext('2d'), W = cvs.width, Ht = cvs.height;
+      ctx.clearRect(0, 0, W, Ht);
+      if (H.length <= 1) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Heap is empty — insert values!', W / 2, Ht / 2); updStats(); return; }
+      const h = heapH(), pos = [];
+      for (let i = 1; i < H.length; i++) {
+        const d = Math.floor(Math.log2(i)), pir = i - Math.pow(2, d), nr = Math.pow(2, d);
+        pos[i] = { x: (W / (nr + 1)) * (pir + 1), y: 50 + d * (Ht - 90) / Math.max(h, 1) };
+      }
+      for (let i = 2; i < H.length; i++) { const p = Math.floor(i / 2); if (!pos[p]) continue; ctx.beginPath(); ctx.moveTo(pos[p].x, pos[p].y); ctx.lineTo(pos[i].x, pos[i].y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      for (let i = 1; i < H.length; i++) {
+        if (!pos[i]) continue; const { x, y } = pos[i], r = 22;
+        let col = swPair.includes(i) ? '#f1c40f' : (hlIdx === i ? '#2ecc71' : '#10b981');
+        ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+        ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(H[i], x, y);
+        ctx.fillStyle = '#8892b0'; ctx.font = '9px Fira Code'; ctx.fillText(`[${i}]`, x, y + r + 11);
+      }
+      updStats();
+    }
+    let raf; function loop() { draw(); raf = requestAnimationFrame(loop); }
+
+    function updStats() { document.getElementById('s-size').textContent = H.length - 1; document.getElementById('s-root').textContent = H.length > 1 ? H[1] : '–'; document.getElementById('s-h').textContent = heapH(); document.getElementById('s-m').textContent = mode.toUpperCase(); }
+    function updArr() {
+      const d = document.getElementById('arrWrap'); d.innerHTML = '';
+      if (H.length === 1) { d.innerHTML = '<span style="color:#3a4060;font-size:.73rem">empty</span>'; return; }
+      for (let i = 1; i < H.length; i++) { const c = document.createElement('div'); c.className = 'ac' + (swPair.includes(i) ? ' sw' : (hlIdx === i ? ' hl' : '')); c.textContent = H[i]; d.appendChild(c); }
+    }
+
+    function log(msg, t = 'info') { const b = document.getElementById('logBox'), d = document.createElement('div'); d.className = 'le ' + t; const now = new Date(); d.innerHTML = `<span class='ts'>[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]</span>${msg}`; b.prepend(d); }
+    function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const el = document.createElement('div'); el.className = 'si ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); el.innerHTML = `<div class="sn">${i + 1}.</div><div class="st">${s}</div>`; b.appendChild(el); }); }
+    function clrSteps() { document.getElementById('stepBox').innerHTML = '<div class="si pending"><div class="sn">–</div><div class="st">Idle…</div></div>'; }
+    function spd() { return Math.max(150, 1100 - parseInt(document.getElementById('spd').value) * 100); }
+    async function slp() { return new Promise(r => setTimeout(r, spd())); }
+    function getV() { const v = parseInt(document.getElementById('iv').value); return isNaN(v) ? null : v; }
+
+    async function doInsert() {
+      const v = getV(); if (v === null) { log('Enter a value!', 'error'); return; }
+      const STEPS = [`Add ${v} at end of array`, `Heapify-Up: compare with parent`, `Swap until heap property holds`, `Done — root: ${H[1] ?? v} ✓`];
+      setSteps(STEPS, 0); log(`➕ Inserting ${v} into ${mode} heap…`, 'info');
+      H.push(v); hlIdx = H.length - 1; updArr(); await slp();
+      setSteps(STEPS, 1); log(`At index ${H.length - 1}. Heapifying up…`, 'info');
+      setSteps(STEPS, 2); await hUp(H.length - 1);
+      setSteps(STEPS, 3); log(`✅ Inserted ${v}. Root: ${H[1]}`, 'success');
+      hlIdx = -1; updArr(); clrSteps(); document.getElementById('iv').value = '';
+    }
+    async function doExtract() {
+      if (H.length <= 1) { log('Heap is empty!', 'error'); return; }
+      const root = H[1];
+      const STEPS = [`Save root: ${root}`, `Move last element → root`, `Heapify-Down from root`, `Return ${root} ✓`];
+      setSteps(STEPS, 0); log(`🔺 Extracting root: ${root}…`, 'warn'); hlIdx = 1; updArr(); await slp();
+      setSteps(STEPS, 1); H[1] = H[H.length - 1]; H.pop(); hlIdx = 1; updArr(); log(`Moved last element. Heapifying down…`, 'info'); await slp();
+      setSteps(STEPS, 2); await hDown(1);
+      setSteps(STEPS, 3); log(`✅ Extracted ${root}. New root: ${H[1] ?? '(empty)'}`, 'success');
+      hlIdx = -1; updArr(); clrSteps();
+    }
+    function doReset() { H = [null]; hlIdx = -1; swPair = []; updArr(); clrSteps(); log('Heap cleared', 'info'); }
+    function doRand() { const v = Math.floor(Math.random() * 99) + 1; document.getElementById('iv').value = v; doInsert(); }
+
+    function setMode(m, btn) {
+      mode = m; H = [null]; hlIdx = -1; swPair = [];
+      document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      updArr(); clrSteps(); log(`Switched to ${m.toUpperCase()} Heap`, 'info');
+    }
+    function showTab(id, btn) { document.querySelectorAll('.tp').forEach(p => p.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
+
+    window.onload = () => {
+      loop();
+      [15, 10, 20, 8, 12, 18, 25].forEach(v => { H.push(v); for (let i = H.length - 1; i > 1;) { const p = Math.floor(i / 2); if (cmp(H[i], H[p])) { let t = H[i]; H[i] = H[p]; H[p] = t; i = p; } else break; } });
+      updArr(); log('Pre-loaded: 15,10,20,8,12,18,25', 'info'); clrSteps();
+    };
+    window.addEventListener('resize', () => { const c = document.getElementById('hc'); c.width = c.clientWidth || 780; });
+    window.doInsert = doInsert; window.doExtract = doExtract; window.doReset = doReset; window.doRand = doRand;
+    window.setMode = setMode; window.showTab = showTab;
+  </script>
+</body>
+
+</html>
