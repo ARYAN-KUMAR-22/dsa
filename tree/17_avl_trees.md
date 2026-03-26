@@ -298,6 +298,171 @@ Node* insert(Node* node, int value) {
 
 ---
 
+## 📐 Deep Dive: Rotation Formulas & Examples
+
+Let's look at the mathematical formulation and detailed examples of these rotations, which visualize the balancing process step-by-step.
+
+### 1. Basic Concept (Rotations for Insertion)
+When inserting `n = 3` elements sequentially, the tree becomes a skewed line. Rotations perfectly balance it simply by pulling the middle element up.
+
+```mermaid
+graph TD
+    subgraph Right-Heavy Line
+        10A((10)) --> 20A((20))
+        20A --> 30A((30))
+    end
+    
+    subgraph Left-Heavy Line
+        30B((30)) --> 20B((20))
+        20B --> 10B((10))
+    end
+    
+    subgraph Balanced After Rotation
+        20C((20)) --> 10C((10))
+        20C --> 30C((30))
+    end
+```
+- For a Right-Heavy line (`10 -> 20 -> 30`), we perform a **Left Rotation** on `10`.
+- For a Left-Heavy line (`30 -> 20 -> 10`), we perform a **Right Rotation** on `30`.
+
+### 2. LL - Rotation (Left-Left)
+**Formula & Structure:**
+This occurs when a node `A` has a Balance Factor (BF) of `2` (meaning the left subtree is significantly taller), and its left child `B` has a BF of `1` (or `0`). This often corresponds to a newly inserted node falling into the left subtree of the left child.
+
+**Formula:** Left Child `B` moves up, Root `A` moves down to the right. `B`'s right child `BR` safely transfers to become `A`'s left child.
+```mermaid
+graph TD
+    subgraph Before LL-Rotation
+        A((A: BF=2)) --> B((B: BF=1))
+        A --> AR[A_R]
+        B --> C((C: BF=0))
+        B --> BR[B_R]
+        C --> CL[C_L]
+        C --> CR[C_R]
+    end
+    
+    subgraph After Right Rotation on A
+        B_new((B: BF=0)) --> C_new((C: BF=0))
+        B_new --> A_new((A: BF=0))
+        C_new --> CL_new[C_L]
+        C_new --> CR_new[C_R]
+        A_new --> BR_new[B_R]
+        A_new --> AR_new[A_R]
+    end
+```
+
+**Real Example (Inserting Key: `4`):**
+Let's insert `4`. The node `30` becomes unbalanced (BF = 2).
+Path to unbalanced node: `30 -> 20 -> 10 -> 5 -> 4`.
+- Unbalanced Node (`A`) = `30`
+- Left Child (`B`) = `20`
+*Applying Right Rotation at `30` elevates `20` to the root of the subtree, pulling `30` down to its right. Notice how `25` switches parents from `20` to `30`, perfectly balancing the heights!*
+
+```mermaid
+graph TD
+    subgraph Before Rotation (Insert: 4)
+        30((30<br>BF=2)) --> 20((20<br>BF=1))
+        30 --> 40((40<br>BF=-1))
+        20 --> 10((10<br>BF=1))
+        20 --> 25((25<br>BF=-1))
+        10 --> 5((5<br>BF=1))
+        10 --> 15((15<br>BF=0))
+        5 --> 4((4<br>BF=0))
+        40 --> 50((50<br>BF=0))
+        25 --> 28((28<br>BF=0))
+        
+        style 30 fill:#ffcccc
+        style 4 fill:#a8eda6
+    end
+    
+    subgraph After LL-Rotation on 30
+        20_new((20<br>BF=0)) --> 10_new((10<br>BF=1))
+        20_new --> 30_new((30<br>BF=0))
+        10_new --> 5_new((5<br>BF=1))
+        10_new --> 15_new((15<br>BF=0))
+        5_new --> 4_new((4<br>BF=0))
+        
+        30_new --> 25_new((25<br>BF=-1))
+        30_new --> 40_new((40<br>BF=-1))
+        
+        25_new --> 28_new((28<br>BF=0))
+        40_new --> 50_new((50<br>BF=0))
+        
+        style 25_new fill:#ffe66d
+    end
+```
+
+### 3. LR - Rotation (Left-Right)
+**Formula & Structure:**
+Occurs when Node `A` has BF = `2` (left-heavy), but its left child `B` has BF = `-1` (right-heavy). The newly inserted node falls in the right subtree of the left child.
+- This requires a **Double Rotation**: First Left Rotate on `B` (moving `C` up), then Right Rotate on `A` (moving `C` further up).
+
+**Formula:** Inner node `C` is promoted to the very top. Its left child `CL` goes to `B`, and its right child `CR` goes to `A`.
+```mermaid
+graph TD
+    subgraph Before LR-Rotation
+        A((A: BF=2)) --> B((B: BF=-1))
+        A --> AR[A_R]
+        B --> BL[B_L]
+        B --> C((C: BF=0))
+        C --> CL[C_L]
+        C --> CR[C_R]
+    end
+    
+    subgraph After LR (Left on B, Right on A)
+        C_new((C: BF=0)) --> B_new((B: BF=0))
+        C_new --> A_new((A: BF=0))
+        B_new --> BL_new[B_L]
+        B_new --> CL_new[C_L]
+        A_new --> CR_new[C_R]
+        A_new --> AR_new[A_R]
+    end
+```
+
+**Real Example (Inserting Key: `27`):**
+Let's insert `27`. Node `40` becomes unbalanced (BF = `2`), while its left child `20` has BF = `-1`.
+- Unbalanced Node (`A`) = `40`
+- Left Child (`B`) = `20`
+- Inner Node (`C`) = `30`
+*Applying the double rotation elevates `30` all the way to the top. `25` goes to node `20`, and `36` goes to node `40`.*
+
+```mermaid
+graph TD
+    subgraph Before Rotation (Insert: 27)
+        40((40<br>BF=2)) --> 20((20<br>BF=-1))
+        40 --> 50((50<br>BF=-1))
+        20 --> 10((10<br>BF=1))
+        20 --> 30((30<br>BF=1))
+        10 --> 5((5<br>BF=0))
+        30 --> 25((25<br>BF=-1))
+        30 --> 36((36<br>BF=0))
+        25 --> 27((27<br>BF=0))
+        50 --> 60((60<br>BF=0))
+        
+        style 40 fill:#ffcccc
+        style 20 fill:#ffcccc
+        style 27 fill:#a8eda6
+    end
+    
+    subgraph After LR-Rotation
+        30_new((30<br>BF=0)) --> 20_new((20<br>BF=0))
+        30_new --> 40_new((40<br>BF=-1))
+        
+        20_new --> 10_new((10<br>BF=1))
+        20_new --> 25_new((25<br>BF=-1))
+        10_new --> 5_new((5<br>BF=0))
+        25_new --> 27_new((27<br>BF=0))
+        
+        40_new --> 36_new((36<br>BF=0))
+        40_new --> 50_new((50<br>BF=-1))
+        50_new --> 60_new((60<br>BF=0))
+        
+        style 30_new fill:#4ecdc4
+    end
+```
+
+---
+
 ## Complete AVL Tree Implementation
 
 ```cpp
