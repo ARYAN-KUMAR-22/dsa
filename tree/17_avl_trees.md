@@ -307,17 +307,17 @@ When inserting `n = 3` elements sequentially, the tree becomes a skewed line. Ro
 
 ```mermaid
 graph TD
-    subgraph Right-Heavy Line
+    subgraph Right_Heavy_Line ["Right-Heavy Line"]
         10A((10)) --> 20A((20))
         20A --> 30A((30))
     end
     
-    subgraph Left-Heavy Line
+    subgraph Left_Heavy_Line ["Left-Heavy Line"]
         30B((30)) --> 20B((20))
         20B --> 10B((10))
     end
     
-    subgraph Balanced After Rotation
+    subgraph Balanced_After_Rotation ["Balanced After Rotation"]
         20C((20)) --> 10C((10))
         20C --> 30C((30))
     end
@@ -332,7 +332,7 @@ This occurs when a node `A` has a Balance Factor (BF) of `2` (meaning the left s
 **Formula:** Left Child `B` moves up, Root `A` moves down to the right. `B`'s right child `BR` safely transfers to become `A`'s left child.
 ```mermaid
 graph TD
-    subgraph Before LL-Rotation
+    subgraph Before_LL_Rotation ["Before LL-Rotation"]
         A((A: BF=2)) --> B((B: BF=1))
         A --> AR[A_R]
         B --> C((C: BF=0))
@@ -341,7 +341,7 @@ graph TD
         C --> CR[C_R]
     end
     
-    subgraph After Right Rotation on A
+    subgraph After_Right_Rotation_on_A ["After Right Rotation on A"]
         B_new((B: BF=0)) --> C_new((C: BF=0))
         B_new --> A_new((A: BF=0))
         C_new --> CL_new[C_L]
@@ -360,7 +360,7 @@ Path to unbalanced node: `30 -> 20 -> 10 -> 5 -> 4`.
 
 ```mermaid
 graph TD
-    subgraph Before Rotation (Insert: 4)
+    subgraph Before_Rotation_4 ["Before Rotation (Insert: 4)"]
         30((30<br>BF=2)) --> 20((20<br>BF=1))
         30 --> 40((40<br>BF=-1))
         20 --> 10((10<br>BF=1))
@@ -375,7 +375,7 @@ graph TD
         style 4 fill:#a8eda6
     end
     
-    subgraph After LL-Rotation on 30
+    subgraph After_LL_Rotation_on_30 ["After LL-Rotation on 30"]
         20_new((20<br>BF=0)) --> 10_new((10<br>BF=1))
         20_new --> 30_new((30<br>BF=0))
         10_new --> 5_new((5<br>BF=1))
@@ -400,7 +400,7 @@ Occurs when Node `A` has BF = `2` (left-heavy), but its left child `B` has BF = 
 **Formula:** Inner node `C` is promoted to the very top. Its left child `CL` goes to `B`, and its right child `CR` goes to `A`.
 ```mermaid
 graph TD
-    subgraph Before LR-Rotation
+    subgraph Before_LR_Rotation ["Before LR-Rotation"]
         A((A: BF=2)) --> B((B: BF=-1))
         A --> AR[A_R]
         B --> BL[B_L]
@@ -409,7 +409,7 @@ graph TD
         C --> CR[C_R]
     end
     
-    subgraph After LR (Left on B, Right on A)
+    subgraph After_LR ["After LR (Left on B, Right on A)"]
         C_new((C: BF=0)) --> B_new((B: BF=0))
         C_new --> A_new((A: BF=0))
         B_new --> BL_new[B_L]
@@ -428,7 +428,7 @@ Let's insert `27`. Node `40` becomes unbalanced (BF = `2`), while its left child
 
 ```mermaid
 graph TD
-    subgraph Before Rotation (Insert: 27)
+    subgraph Before_Rotation_27 ["Before Rotation (Insert: 27)"]
         40((40<br>BF=2)) --> 20((20<br>BF=-1))
         40 --> 50((50<br>BF=-1))
         20 --> 10((10<br>BF=1))
@@ -444,7 +444,7 @@ graph TD
         style 27 fill:#a8eda6
     end
     
-    subgraph After LR-Rotation
+    subgraph After_LR_Rotation ["After LR-Rotation"]
         30_new((30<br>BF=0)) --> 20_new((20<br>BF=0))
         30_new --> 40_new((40<br>BF=-1))
         
