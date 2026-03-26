@@ -48,4 +48,8 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
     - Side-by-side differences, equivalence mapping, and use-case guide.
 
 ---
-*Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
+[*Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
+](https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/traversal_animation.html)
+https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/bst_animation.html
+https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/heap_animation.html
+https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/avl_animation.html
