@@ -1010,14 +1010,14 @@
       return node;
     }
 
-    function minN(n) { while (n.l) n = n.l; return n; }
+    function getMinNode(n) { while (n.l) n = n.l; return n; }
     function del(node, v) {
       if (!node) return null;
       if (v < node.v) node.l = del(node.l, v);
       else if (v > node.v) node.r = del(node.r, v);
       else {
         if (!node.l || !node.r) { node = node.l || node.r; }
-        else { let s = minN(node.r); node.v = s.v; node.r = del(node.r, s.v); }
+        else { let s = getMinNode(node.r); node.v = s.v; node.r = del(node.r, s.v); }
       }
       if (!node) return null;
       upH(node);
@@ -1410,7 +1410,7 @@
     // ═══════════════════════════════════════
     //  HEIGHT CHART
     // ═══════════════════════════════════════
-    const minN = [0, 1, 2, 4, 7, 12, 20, 33, 54, 88];
+    const NofH = [0, 1, 2, 4, 7, 12, 20, 33, 54, 88];
 
     function drawChart() {
       const c = document.getElementById('chartCanvas'), ctx = c.getContext('2d');
@@ -1443,7 +1443,7 @@
       ctx.strokeStyle = '#7c6ff7'; ctx.lineWidth = 2.5; ctx.beginPath();
       hs.forEach((h, i) => {
         const x = padL + (i / (hs.length - 1)) * cW;
-        const y = H - padB - (Math.min(minN[h], maxV) / maxV) * cH;
+        const y = H - padB - (Math.min(NofH[h], maxV) / maxV) * cH;
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }); ctx.stroke();
 
@@ -1458,7 +1458,7 @@
       // dots + labels
       hs.forEach((h, i) => {
         const x = padL + (i / (hs.length - 1)) * cW;
-        [[minN[h], '#7c6ff7'], [Math.min(Math.pow(2, h) - 1, maxV), '#2ecc71']].forEach(([v, col], j) => {
+        [[NofH[h], '#7c6ff7'], [Math.min(Math.pow(2, h) - 1, maxV), '#2ecc71']].forEach(([v, col], j) => {
           const y = H - padB - (v / maxV) * cH;
           ctx.save(); ctx.shadowBlur = 10; ctx.shadowColor = col;
           ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
@@ -1480,9 +1480,9 @@
     function buildLookup() {
       const tb = document.getElementById('lookupTbody'); tb.innerHTML = '';
       [1, 2, 3, 4, 5, 6, 7].forEach(h => {
-        const rec = h <= 2 ? (h === 1 ? 'Base case' : 'N(1)+N(0)+1 = 1+0+1') : `N(${h - 1})+N(${h - 2})+1 = ${minN[h - 1]}+${minN[h - 2]}+1`;
+        const rec = h <= 2 ? (h === 1 ? 'Base case' : 'N(1)+N(0)+1 = 1+0+1') : `N(${h - 1})+N(${h - 2})+1 = ${NofH[h - 1]}+${NofH[h - 2]}+1`;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${h}</td><td class="good">${minN[h]}</td><td class="good">${Math.pow(2, h) - 1}</td><td style="font-family:Fira Code;font-size:0.75rem;color:#8892b0">${rec}</td>`;
+        tr.innerHTML = `<td>${h}</td><td class="good">${NofH[h]}</td><td class="good">${Math.pow(2, h) - 1}</td><td style="font-family:Fira Code;font-size:0.75rem;color:#8892b0">${rec}</td>`;
         tb.appendChild(tr);
       });
     }
@@ -1514,6 +1514,19 @@
       const c = document.getElementById('treeCanvas');
       c.width = c.clientWidth || 880;
     });
+
+    // Expose all onclick-callable functions to global scope
+    // (required for htmlpreview.github.io sandboxed environment)
+    window.doInsert  = doInsert;
+    window.doDelete  = doDelete;
+    window.doSearch  = doSearch;
+    window.doReset   = doReset;
+    window.doRandom  = doRandom;
+    window.showTab   = showTab;
+    window.animLL    = animLL;
+    window.animRR    = animRR;
+    window.animLR    = animLR;
+    window.animRL    = animRL;
   </script>
 </body>
 
