@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,234 +9,554 @@
     rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b1120;
-      --card: #141c30;
-      --card2: #0f1728;
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
       --border: #2b3550;
       --text: #e2e8f0;
-      --muted: #94a3b8;
+      --muted: #8b98b6;
       --accent: #38bdf8;
-      --accent2: #7dd3fc;
+      --accent-2: #7dd3fc;
       --good: #22c55e;
       --warn: #f59e0b;
-      --shadow: 0 18px 45px rgba(0, 0, 0, .28)
+      --focus-ring: rgba(125, 211, 252, .42);
+      --focus-glow: rgba(56, 189, 248, .14);
+      --shadow: 0 18px 45px rgba(0, 0, 0, .28);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0
+      padding: 0;
     }
 
     body {
-      font-family: Inter, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, .12), transparent 24%), radial-gradient(circle at bottom right, rgba(34, 197, 94, .08), transparent 26%), linear-gradient(160deg, #08101d, #0b1120);
-      min-height: 100vh;
-      padding: 24px
+      font-family: Inter, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .shell {
-      max-width: 1220px;
-      margin: 0 auto;
-      display: grid;
-      gap: 18px
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #081521, #0d1117);
+      flex-shrink: 0;
     }
 
-    .hero,
-    .panel,
-    .tab-card {
-      background: rgba(20, 28, 48, .94);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow)
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
     }
 
-    .hero {
-      padding: 28px
+    header h1 span {
+      color: var(--accent);
     }
 
-    .eyebrow {
-      display: inline-flex;
+    header p {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-link {
       padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(56, 189, 248, .1);
-      border: 1px solid rgba(56, 189, 248, .22);
-      font-size: .76rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .header-link.primary {
+      background: linear-gradient(135deg, #0ea5e9, var(--accent));
+      color: #041522;
+      border-color: transparent;
+    }
+
+    .header-link:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .speed-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .78rem;
+      padding-left: 6px;
+    }
+
+    .speed-wrap input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 360px;
+      min-width: 360px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .45;
+        transform: scale(.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: .67rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 7px 12px 4px;
+    }
+
+    .summary-grid {
+      padding: 1px 9px 5px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .metric {
+      background: rgba(20, 28, 48, .94);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: .64rem;
       letter-spacing: .08em;
       text-transform: uppercase;
-      color: var(--accent2);
-      font-weight: 700;
-      margin-bottom: 14px
-    }
-
-    h1 {
-      font-size: clamp(2rem, 4vw, 3.3rem);
-      line-height: 1.06;
-      margin-bottom: 12px
-    }
-
-    h1 span,
-    .tab-card h3 {
-      color: var(--accent2)
-    }
-
-    .hero p,
-    .tab-card p,
-    .tab-card li {
       color: var(--muted);
-      line-height: 1.75
+      margin-bottom: 4px;
     }
 
-    .hero-links {
+    .metric-value {
+      font-family: "Fira Code", monospace;
+      font-size: .78rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .flow-merge {
+      padding: 0 8px 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .flow-block {
+      display: grid;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .panel-mini-title {
+      padding: 0 4px;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px
-    }
-
-    .hero-links a,
-    .tabs button,
-    .controls button,
-    .controls select {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      font: 600 .88rem Inter, sans-serif;
-      text-decoration: none
-    }
-
-    .hero-links a {
-      background: rgba(56, 189, 248, .08);
-      color: var(--text)
-    }
-
-    .hero-links a.primary,
-    .controls button.primary {
-      background: linear-gradient(135deg, #0284c7, var(--accent));
-      color: #041522;
-      border-color: transparent
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.06), transparent 30%),
+        var(--bg);
     }
 
     .tabs {
       display: flex;
-      gap: 8px;
-      padding: 10px;
-      background: rgba(20, 28, 48, .94);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      box-shadow: var(--shadow)
+      gap: 2px;
+      padding: 8px 16px 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(18, 22, 31, 0.55);
+      flex-shrink: 0;
+      overflow-x: auto;
     }
 
-    .tabs button {
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
       background: transparent;
       color: var(--muted);
-      cursor: pointer
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      transition: all .2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
     }
 
-    .tabs button.active {
-      background: rgba(56, 189, 248, .12);
-      color: var(--accent2)
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(29, 36, 54, 0.7);
     }
 
-    .tab {
-      display: none
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(29, 36, 54, 0.85);
     }
 
-    .tab.active {
-      display: grid;
-      gap: 18px
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
     }
 
-    .controls,
-    .metrics {
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .control-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      align-items: center
+      gap: 8px;
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
     }
 
-    .controls {
-      padding: 18px
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(22, 27, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
     }
 
-    .controls select,
-    .controls button {
-      background: rgba(15, 23, 40, .92);
-      color: var(--text);
-      cursor: pointer
-    }
-
-    .metrics {
-      padding: 0 18px 18px
-    }
-
-    .metric {
-      min-width: 140px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(15, 23, 40, .92);
-      border: 1px solid var(--border)
-    }
-
-    .metric span {
-      display: block;
-      font-size: .68rem;
-      letter-spacing: .08em;
+    .field span {
+      font-size: .72rem;
+      letter-spacing: .07em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 4px
+      font-weight: 700;
     }
 
-    .metric strong {
-      font-family: "Fira Code", monospace;
-      font-size: .92rem
-    }
-
-    .status {
-      padding: 0 18px 18px;
+    .field select {
+      background: transparent;
+      border: none;
       color: var(--text);
-      line-height: 1.7
+      font-family: "Fira Code", monospace;
+      font-size: .8rem;
+      outline: none;
+      min-width: 170px;
     }
 
-    .grid {
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: .8rem;
+      font-weight: 600;
+      font-family: Inter, sans-serif;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #0ea5e9, var(--accent));
+      color: #041522;
+      border-color: transparent;
+    }
+
+    .viz-area {
       display: grid;
-      grid-template-columns: 1.06fr .94fr;
-      gap: 18px
+      grid-template-columns: 1.07fr .93fr;
+      grid-template-rows: 338px 244px;
+      gap: 12px;
+      padding: 12px 16px 16px;
+      align-items: start;
     }
 
-    .panel {
-      padding: 18px
+    .canvas-card,
+    .stack-card,
+    .footer-card,
+    .theory-card {
+      background: rgba(18, 22, 31, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     }
 
-    .panel h2,
-    .tab-card h3 {
-      font-size: 1rem;
-      margin-bottom: 10px
+    .stack-card,
+    .canvas-card {
+      overflow: hidden;
+    }
+
+    .focus-card {
+      border-color: var(--focus-ring);
+      box-shadow: 0 0 0 1px var(--focus-ring), 0 20px 40px var(--focus-glow);
+      transform: translateY(-1px);
+    }
+
+    .canvas-card.focus-card {
+      transform: none;
+    }
+
+    .canvas-card {
+      display: flex;
+      flex-direction: column;
+      grid-column: 1;
+      grid-row: 1;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .matrix-card {
+      grid-column: 1;
+      grid-row: 2;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+      grid-template-rows: 246px 188px 136px;
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      height: 594px;
+      min-height: 594px;
+      align-self: stretch;
+    }
+
+    .card-head {
+      padding: 12px 14px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: .75rem;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 560px;
     }
 
     .graph-stage {
-      height: 420px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(8, 16, 29, .72);
-      padding: 10px
+      height: 270px;
+      min-height: 270px;
+      max-height: 270px;
+      padding: 0 14px 14px;
+      margin-top: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
     }
 
     .graph-stage svg {
       width: 100%;
       height: 100%;
-      display: block
+      display: block;
     }
 
-    .stack {
-      display: grid;
-      gap: 18px
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: .72rem;
+      color: var(--muted);
+      justify-content: flex-end;
     }
 
-    .list-grid {
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 0;
+      border-top: 3px solid currentColor;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .stack-card-body,
+    .footer-card {
+      height: 100%;
+      min-height: 0;
+      padding: 10px;
+    }
+
+    .stack-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stack-card-head {
       display: grid;
-      gap: 10px
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .stack-card h2,
+    .footer-card h2,
+    .theory-card h3 {
+      font-size: .9rem;
+    }
+
+    .stack-card-head p,
+    .footer-card p,
+    .theory-card p,
+    .theory-card li {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.6;
+    }
+
+    .list-grid,
+    .edge-list,
+    .code-lines {
+      display: grid;
+      gap: 8px;
+      min-height: 0;
+      align-content: start;
+      grid-auto-rows: max-content;
+    }
+
+    .list-grid,
+    .edge-list,
+    .matrix-wrap,
+    .code-lines {
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .list-grid::-webkit-scrollbar,
+    .edge-list::-webkit-scrollbar,
+    .matrix-wrap::-webkit-scrollbar,
+    .code-lines::-webkit-scrollbar,
+    .footer-card::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    .list-grid::-webkit-scrollbar-thumb,
+    .edge-list::-webkit-scrollbar-thumb,
+    .matrix-wrap::-webkit-scrollbar-thumb,
+    .code-lines::-webkit-scrollbar-thumb,
+    .footer-card::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
     }
 
     .list-row {
@@ -246,11 +565,13 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
-      background: rgba(15, 23, 40, .78)
+      background: rgba(15, 23, 40, .78);
+      transition: border-color .16s ease, background .16s ease;
     }
 
     .list-row.active {
-      border-color: rgba(125, 211, 252, .45)
+      border-color: rgba(125, 211, 252, .45);
+      background: rgba(56, 189, 248, .08);
     }
 
     .list-head {
@@ -260,7 +581,8 @@
       background: rgba(8, 16, 29, .82);
       border-right: 1px solid var(--border);
       font-family: "Fira Code", monospace;
-      color: var(--accent2)
+      color: var(--accent-2);
+      font-size: .8rem;
     }
 
     .list-body {
@@ -268,7 +590,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      align-items: center
+      align-items: center;
     }
 
     .chip,
@@ -282,347 +604,742 @@
       align-items: center;
       justify-content: center;
       font-family: "Fira Code", monospace;
-      font-size: .78rem
+      font-size: .78rem;
     }
 
     .chip {
-      background: rgba(56, 189, 248, .12)
+      background: rgba(56, 189, 248, .12);
+    }
+
+    .chip.active {
+      border-color: rgba(125, 211, 252, .45);
+      background: rgba(56, 189, 248, .2);
     }
 
     .empty {
       background: rgba(8, 16, 29, .6);
-      color: #64748b
-    }
-
-    .edge-list {
-      display: grid;
-      gap: 8px
+      color: #64748b;
     }
 
     .edge-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
+      display: grid;
+      gap: 6px;
+      padding: 8px 10px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: rgba(15, 23, 40, .78);
-      font-family: "Fira Code", monospace;
-      font-size: .78rem
+      background: rgba(15, 23, 40, .82);
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .edge-item.done {
+      border-color: rgba(34, 197, 94, .28);
     }
 
     .edge-item.active {
-      border-color: rgba(125, 211, 252, .45);
-      background: rgba(56, 189, 248, .08)
+      border-color: rgba(56, 189, 248, .42);
+      background: rgba(56, 189, 248, .09);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, .14);
     }
 
     .edge-item.pending {
-      opacity: .55
+      opacity: .58;
+    }
+
+    .edge-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .edge-type,
+    .edge-state {
+      font-family: "Fira Code", monospace;
+      font-size: .69rem;
+    }
+
+    .edge-type {
+      color: var(--accent-2);
+    }
+
+    .edge-state {
+      color: #64748b;
+    }
+
+    .edge-msg {
+      color: var(--text);
+      font-size: .72rem;
+      line-height: 1.45;
     }
 
     .matrix-wrap {
-      overflow: auto
+      flex: 1;
+      min-height: 0;
     }
 
     table {
       border-collapse: separate;
       border-spacing: 8px;
-      min-width: 100%
+      min-width: 100%;
     }
 
     th,
     td {
-      min-width: 42px;
-      height: 42px;
+      min-width: 40px;
+      height: 40px;
       border-radius: 10px;
       border: 1px solid var(--border);
       text-align: center;
       font-family: "Fira Code", monospace;
-      font-size: .8rem
+      font-size: .78rem;
     }
 
     th {
       background: rgba(8, 16, 29, .82);
-      color: var(--accent2)
+      color: var(--accent-2);
     }
 
     td {
-      background: rgba(15, 23, 40, .78)
+      background: rgba(15, 23, 40, .78);
     }
 
     td.one {
       background: rgba(34, 197, 94, .12);
-      border-color: rgba(34, 197, 94, .34)
+      border-color: rgba(34, 197, 94, .34);
     }
 
     td.active {
-      background: rgba(56, 189, 248, .14);
-      border-color: rgba(125, 211, 252, .45)
+      background: rgba(56, 189, 248, .16);
+      border-color: rgba(125, 211, 252, .45);
     }
 
-    .cards {
+    .footer-card {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      overflow-y: auto;
+    }
+
+    #insightText {
+      margin: 0;
+      color: var(--text);
+      font-size: .8rem;
+      line-height: 1.55;
+    }
+
+    .step-list,
+    .code-lines {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 40, .78);
+      line-height: 1.55;
+      font-size: .76rem;
+    }
+
+    .step-item.done {
+      border-color: rgba(34, 197, 94, .3);
+    }
+
+    .step-item.active {
+      border-color: rgba(56, 189, 248, .42);
+      background: rgba(56, 189, 248, .08);
+    }
+
+    .step-index {
+      min-width: 24px;
+      font-family: "Fira Code", monospace;
+      color: var(--accent-2);
+    }
+
+    .step-item.done .step-index {
+      color: var(--good);
+    }
+
+    .flow-code-lines {
+      margin-top: 0;
+      min-height: 220px;
+      max-height: 220px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 40, .78);
+      font-family: "Fira Code", monospace;
+      font-size: .74rem;
+      color: #cbd5e1;
+    }
+
+    .code-line.active {
+      border-color: rgba(56, 189, 248, .38);
+      background: rgba(56, 189, 248, .1);
+    }
+
+    .code-line-num {
+      color: #64748b;
+      text-align: right;
+    }
+
+    .code-text {
+      white-space: pre;
+    }
+
+    .theory-grid {
+      padding: 16px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px
+      gap: 12px;
     }
 
-    .tab-card {
-      padding: 18px
+    .theory-card {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
     }
 
-    .tab-card ul {
+    .theory-card ul {
       padding-left: 18px;
       display: grid;
-      gap: 8px
+      gap: 8px;
+    }
+
+    .theory-log-card {
+      grid-column: 1 / -1;
+    }
+
+    .theory-log-list {
+      max-height: 250px;
+      min-height: 250px;
+      overflow-y: auto;
+      padding-right: 4px;
     }
 
     pre {
-      margin-top: 12px;
       padding: 14px;
       border-radius: 16px;
       border: 1px solid var(--border);
       background: #09101f;
-      overflow: auto
+      overflow: auto;
     }
 
     code {
       font-family: "Fira Code", monospace;
       color: #dbe4f3;
-      white-space: pre
+      white-space: pre;
     }
 
-    @media (max-width:960px) {
+    @media (max-width: 960px) {
       body {
-        padding: 14px
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
       }
 
-      .grid,
-      .cards {
-        grid-template-columns: 1fr
+      .app-body {
+        flex-direction: column;
+        overflow: visible;
       }
 
-      .hero,
-      .panel,
-      .tab-card {
-        padding: 18px
+      .left-panel {
+        width: auto;
+        min-width: 0;
       }
 
-      .tabs {
-        overflow: auto
+      .workspace {
+        overflow: visible;
+      }
+
+      .viz-area,
+      .theory-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .canvas-card,
+      .matrix-card,
+      .stack {
+        grid-column: auto;
+        grid-row: auto;
+        height: auto;
+        min-height: 0;
+      }
+
+      .stack {
+        grid-template-rows: none;
+      }
+
+      .graph-stage {
+        height: 260px;
+        min-height: 260px;
+        max-height: 260px;
       }
     }
   </style>
 </head>
-
 <body>
-  <div class="shell">
-    <section class="hero">
-      <div class="eyebrow">Graph Basics</div>
-      <h1><span>Undirected Graph</span> Representation</h1>
-      <p>See how the same undirected graph is stored as a graph drawing, adjacency list, adjacency matrix, and edge list
-        while edges are added step by step.</p>
-      <div class="hero-links">
-        <a class="primary" href="../index.html">Back to homepage</a>
-      </div>
-    </section>
+  <header>
+    <div>
+      <h1>Undirected Graph <span>Dashboard</span></h1>
+      <p>Build the same graph as a drawing, adjacency list, adjacency matrix, and edge list side by side.</p>
+    </div>
+    <div class="header-actions">
+      <a class="header-link primary" href="../index.html">Home</a>
+      <a class="header-link" href="directed_graph_representation.html">Directed Graph</a>
+      <label class="speed-wrap">Speed:
+        <input id="speedSlider" type="range" min="1" max="10" value="6" />
+      </label>
+    </div>
+  </header>
 
-    <nav class="tabs">
-      <button class="active" onclick="showTab('animation',this)">Animation</button>
-      <button onclick="showTab('theory',this)">Theory</button>
-      <button onclick="showTab('code',this)">Code</button>
-    </nav>
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header"><div class="pulse-dot"></div>Undirected Graph Panel</div>
+      <section class="panel-section">
+        <div class="panel-section-title">Snapshot</div>
+        <div class="summary-grid">
+          <div class="metric"><div class="metric-label">Vertices</div><div class="metric-value" id="vertexCount">0</div></div>
+          <div class="metric"><div class="metric-label">Edges Added</div><div class="metric-value" id="edgeCountMetric">0 / 0</div></div>
+          <div class="metric"><div class="metric-label">Current Edge</div><div class="metric-value" id="currentEdgeMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Max Degree</div><div class="metric-value" id="maxDegreeMetric">0</div></div>
+          <div class="metric"><div class="metric-label">Focus</div><div class="metric-value" id="focusMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Step</div><div class="metric-value" id="progressMetric">0 / 0</div></div>
+        </div>
+      </section>
+      <section class="panel-section" style="flex:1; min-height:0;">
+        <div class="panel-section-title">Algorithm Flow + Active Pseudocode</div>
+        <div class="flow-merge">
+          <div class="flow-block">
+            <div class="panel-mini-title">Flow Steps</div>
+            <div class="step-list" id="stepBox"></div>
+          </div>
+          <div class="flow-block">
+            <div class="panel-mini-title">Live Pseudocode</div>
+            <div class="code-lines flow-code-lines" id="codeLines"></div>
+          </div>
+        </div>
+      </section>
+    </aside>
 
-    <section id="animation" class="tab active">
-      <section class="panel">
-        <div class="controls">
-          <select id="sampleSelect">
-            <option value="classroom">Classroom Graph</option>
-            <option value="bridge">Bridge Graph</option>
-          </select>
-          <button id="loadBtn">Load Sample</button>
-          <button id="nextBtn">Next Edge</button>
-          <button class="primary" id="playBtn">Auto Play</button>
-          <button id="resetBtn">Reset</button>
-        </div>
-        <div class="metrics">
-          <div class="metric"><span>Vertices</span><strong id="vertexCount">0</strong></div>
-          <div class="metric"><span>Edges Added</span><strong id="edgeCount">0</strong></div>
-          <div class="metric"><span>Current Edge</span><strong id="currentEdge">-</strong></div>
-          <div class="metric"><span>Max Degree</span><strong id="maxDegree">0</strong></div>
-        </div>
-        <div class="status" id="statusText">Load a sample and add edges one by one to watch every representation update
-          together.</div>
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('animation',this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('theory',this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('pseudocode',this)">Pseudocode</button>
+      </nav>
+
+      <section id="animation" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Sample</span>
+            <select id="sampleSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="loadBtn">Load Sample</button>
+            <button id="nextBtn">Next Edge</button>
+            <button class="primary" id="playBtn">Auto Play</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+
+        <section class="viz-area">
+          <article class="canvas-card" id="graphCard">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Graph Drawing</div>
+                <div class="card-subtitle" id="statusText">Load a sample and add edges one by one to see all undirected representations update together.</div>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-line" style="color:#22c55e;"></span><span>Added</span></div>
+                <div class="legend-item"><span class="legend-line" style="color:#38bdf8;"></span><span>Current</span></div>
+                <div class="legend-item"><span class="legend-line" style="color:#f59e0b; border-top-style:dashed;"></span><span>Next</span></div>
+              </div>
+            </div>
+            <div class="graph-stage"><svg id="graphSvg" viewBox="0 0 760 430" preserveAspectRatio="xMidYMid meet"></svg></div>
+          </article>
+
+          <article class="stack-card matrix-card" id="matrixCard">
+            <div class="stack-card-body">
+              <div class="stack-card-head">
+                <h2>Adjacency Matrix</h2>
+                <p>Undirected graphs mirror every edge in both symmetric matrix cells.</p>
+              </div>
+              <div class="matrix-wrap" id="matrixWrap"></div>
+            </div>
+          </article>
+
+          <section class="stack">
+            <article class="stack-card adjacency-card" id="adjacencyCard">
+              <div class="stack-card-body">
+                <div class="stack-card-head">
+                  <h2>Adjacency List</h2>
+                  <p>Each endpoint stores the other because there is no arrow direction.</p>
+                </div>
+                <div class="list-grid" id="adjList"></div>
+              </div>
+            </article>
+
+            <article class="stack-card" id="edgeCard">
+              <div class="stack-card-body">
+                <div class="stack-card-head">
+                  <h2>Edge List</h2>
+                  <p>Each undirected pair is stored once as a single connection entry.</p>
+                </div>
+                <div class="edge-list" id="edgeList"></div>
+              </div>
+            </article>
+
+            <article class="footer-card" id="insightCard">
+              <h2>Current Insight</h2>
+              <p id="insightText">An undirected edge updates both adjacency rows and two mirrored matrix cells.</p>
+            </article>
+          </section>
+        </section>
       </section>
 
-      <section class="grid">
-        <article class="panel">
-          <h2>Graph Drawing</h2>
-          <div class="graph-stage"><svg id="graphSvg" viewBox="0 0 760 420" preserveAspectRatio="xMidYMid meet"></svg>
-          </div>
-        </article>
-
-        <section class="stack">
-          <article class="panel">
-            <h2>Adjacency List</h2>
-            <div class="list-grid" id="adjList"></div>
+      <section id="theory" class="tab-panel">
+        <section class="theory-grid">
+          <article class="theory-card">
+            <h3>What Undirected Means</h3>
+            <ul>
+              <li>An undirected edge has no arrow, so the connection works both ways.</li>
+              <li>If <code>A</code> connects to <code>B</code>, then <code>B</code> also connects to <code>A</code>.</li>
+              <li>That shared relationship is why the matrix stays symmetric.</li>
+            </ul>
           </article>
-          <article class="panel">
-            <h2>Edge List</h2>
-            <div class="edge-list" id="edgeList"></div>
+          <article class="theory-card">
+            <h3>Adjacency List Effect</h3>
+            <ul>
+              <li>Adding <code>(u, v)</code> inserts <code>v</code> in <code>u</code>'s list and <code>u</code> in <code>v</code>'s list.</li>
+              <li>This form is usually best for sparse graphs.</li>
+              <li>The active rows in the animation show exactly which two lists changed.</li>
+            </ul>
+          </article>
+          <article class="theory-card">
+            <h3>Adjacency Matrix Effect</h3>
+            <ul>
+              <li>The matrix uses <code>1</code> when an edge exists and <code>0</code> when it does not.</li>
+              <li>For undirected graphs, <code>matrix[u][v]</code> and <code>matrix[v][u]</code> always match.</li>
+              <li>Fast lookups come at the cost of <code>O(V^2)</code> space.</li>
+            </ul>
+          </article>
+          <article class="theory-card">
+            <h3>Why Keep an Edge List</h3>
+            <ul>
+              <li>The edge list keeps each connection once as a pair like <code>(u, v)</code>.</li>
+              <li>It is simple to scan, sort, or feed into graph algorithms.</li>
+              <li>The animation log shows when each pair becomes active, added, or still pending.</li>
+            </ul>
+          </article>
+          <article class="theory-card theory-log-card">
+            <h3>Execution Log</h3>
+            <p>The same step-by-step build sequence shown in the animation is collected here with the representation changes spelled out.</p>
+            <div class="edge-list theory-log-list" id="theoryActionList"></div>
           </article>
         </section>
       </section>
 
-      <section class="grid">
-        <article class="panel">
-          <h2>Adjacency Matrix</h2>
-          <div class="matrix-wrap" id="matrixWrap"></div>
-        </article>
-        <article class="panel">
-          <h2>Current Insight</h2>
-          <p id="insightText">An undirected edge must update both endpoints, so every connection appears in both
-            directions in the list and matrix.</p>
-        </article>
-      </section>
-    </section>
-
-    <section id="theory" class="tab">
-      <section class="cards">
-        <article class="tab-card">
-          <h3>What Undirected Means</h3>
-          <ul>
-            <li>An undirected edge has no arrow, so the connection works both ways.</li>
-            <li>If <code>A</code> connects to <code>B</code>, then <code>B</code> also connects to <code>A</code>.</li>
-            <li>This is why the matrix is symmetric and both adjacency lists are updated.</li>
-          </ul>
-        </article>
-        <article class="tab-card">
-          <h3>Adjacency List</h3>
-          <ul>
-            <li>Store the neighbors of each vertex.</li>
-            <li>Best for sparse graphs.</li>
-            <li>Space is usually <code>O(V + E)</code>.</li>
-          </ul>
-        </article>
-        <article class="tab-card">
-          <h3>Adjacency Matrix</h3>
-          <ul>
-            <li>Use a <code>V x V</code> table of <code>0</code> and <code>1</code>.</li>
-            <li>Edge lookup is fast.</li>
-            <li>Space is <code>O(V^2)</code>.</li>
-          </ul>
-        </article>
-        <article class="tab-card">
-          <h3>Edge List</h3>
-          <ul>
-            <li>Store each undirected edge once as a pair like <code>(u, v)</code>.</li>
-            <li>Simple to read and useful in many graph algorithms.</li>
-            <li>Not as fast as a matrix for direct edge checking.</li>
-          </ul>
-        </article>
-      </section>
-    </section>
-
-    <section id="code" class="tab">
-      <section class="cards">
-        <article class="tab-card">
-          <h3>C Code: Adjacency Matrix</h3>
-          <pre><code>#define V 6
+      <section id="pseudocode" class="tab-panel">
+        <section class="theory-grid">
+          <article class="theory-card">
+            <h3>Pseudocode</h3>
+            <pre><code>for each undirected edge (u, v):
+    draw the line between u and v
+    adjacency[u].append(v)
+    adjacency[v].append(u)
+    matrix[u][v] = 1
+    matrix[v][u] = 1
+    edgeList.append((u, v))</code></pre>
+          </article>
+          <article class="theory-card">
+            <h3>C Code: Adjacency Matrix</h3>
+            <pre><code>#define V 6
 
 void addEdge(int matrix[V][V], int u, int v) {
     matrix[u][v] = 1;
     matrix[v][u] = 1;
 }</code></pre>
-        </article>
-        <article class="tab-card">
-          <h3>C Code: Adjacency List</h3>
-          <pre><code>void addEdge(Node* graph[], int u, int v) {
+          </article>
+          <article class="theory-card">
+            <h3>C Code: Adjacency List</h3>
+            <pre><code>void addEdge(Node* graph[], int u, int v) {
     addNode(&graph[u], v);
     addNode(&graph[v], u);
 }</code></pre>
-        </article>
-        <article class="tab-card">
-          <h3>Pseudo Logic</h3>
-          <pre><code>for every undirected edge (u, v)
-    list[u].append(v)
-    list[v].append(u)
-    matrix[u][v] = 1
-    matrix[v][u] = 1
-    edgeList.append((u, v))</code></pre>
-        </article>
-        <article class="tab-card">
-          <h3>DSA Idea</h3>
-          <p>All three forms store the same graph. They only differ in how the data is arranged and which operations
-            become faster.</p>
-        </article>
+          </article>
+          <article class="theory-card">
+            <h3>Storage Idea</h3>
+            <p>All three structures describe the same undirected graph. The only difference is how the information is arranged for lookup, traversal, and algorithm use.</p>
+          </article>
+        </section>
       </section>
-    </section>
+    </main>
   </div>
-
   <script>
+    const FLOW_STEPS = [
+      'Choose the next undirected edge from the sample order.',
+      'Draw that edge between both vertices in the graph.',
+      'Add each endpoint to the other vertex\'s adjacency list.',
+      'Mirror the connection in two symmetric matrix cells.',
+      'Store the pair once in the edge list.'
+    ];
+
+    const PSEUDO_LINES = [
+      'edge = nextUndirectedEdge()',
+      'draw(u, v)',
+      'adj[u].append(v)',
+      'adj[v].append(u)',
+      'matrix[u][v] = 1',
+      'matrix[v][u] = 1',
+      'edgeList.append((u, v))'
+    ];
+
     const samples = {
-      classroom: { vertices: ['A', 'B', 'C', 'D', 'E', 'F'], positions: { A: [120, 100], B: [320, 70], C: [520, 110], D: [220, 260], E: [430, 260], F: [620, 240] }, edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'D'], ['C', 'E'], ['D', 'F'], ['E', 'F']] },
-      bridge: { vertices: ['P', 'Q', 'R', 'S', 'T', 'U'], positions: { P: [110, 110], Q: [280, 70], R: [460, 110], S: [170, 280], T: [370, 280], U: [600, 190] }, edges: [['P', 'Q'], ['Q', 'R'], ['P', 'S'], ['Q', 'S'], ['Q', 'T'], ['R', 'T'], ['T', 'U']] }
+      classroom: {
+        label: 'Classroom Graph',
+        vertices: ['A', 'B', 'C', 'D', 'E', 'F'],
+        positions: {
+          A: [120, 100],
+          B: [320, 70],
+          C: [520, 110],
+          D: [220, 260],
+          E: [430, 260],
+          F: [620, 240]
+        },
+        edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'D'], ['C', 'E'], ['D', 'F'], ['E', 'F']]
+      },
+      bridge: {
+        label: 'Bridge Graph',
+        vertices: ['P', 'Q', 'R', 'S', 'T', 'U'],
+        positions: {
+          P: [110, 110],
+          Q: [280, 70],
+          R: [460, 110],
+          S: [170, 280],
+          T: [370, 280],
+          U: [600, 190]
+        },
+        edges: [['P', 'Q'], ['Q', 'R'], ['P', 'S'], ['Q', 'S'], ['Q', 'T'], ['R', 'T'], ['T', 'U']]
+      }
     };
+
     const ui = {
       sampleSelect: document.getElementById('sampleSelect'),
       loadBtn: document.getElementById('loadBtn'),
       nextBtn: document.getElementById('nextBtn'),
       playBtn: document.getElementById('playBtn'),
       resetBtn: document.getElementById('resetBtn'),
+      speedSlider: document.getElementById('speedSlider'),
       graphSvg: document.getElementById('graphSvg'),
       adjList: document.getElementById('adjList'),
       edgeList: document.getElementById('edgeList'),
       matrixWrap: document.getElementById('matrixWrap'),
+      theoryActionList: document.getElementById('theoryActionList'),
       vertexCount: document.getElementById('vertexCount'),
-      edgeCount: document.getElementById('edgeCount'),
-      currentEdge: document.getElementById('currentEdge'),
-      maxDegree: document.getElementById('maxDegree'),
+      edgeCountMetric: document.getElementById('edgeCountMetric'),
+      currentEdgeMetric: document.getElementById('currentEdgeMetric'),
+      maxDegreeMetric: document.getElementById('maxDegreeMetric'),
+      focusMetric: document.getElementById('focusMetric'),
+      progressMetric: document.getElementById('progressMetric'),
       statusText: document.getElementById('statusText'),
-      insightText: document.getElementById('insightText')
+      insightText: document.getElementById('insightText'),
+      stepBox: document.getElementById('stepBox'),
+      codeLines: document.getElementById('codeLines'),
+      graphCard: document.getElementById('graphCard'),
+      adjacencyCard: document.getElementById('adjacencyCard'),
+      edgeCard: document.getElementById('edgeCard'),
+      matrixCard: document.getElementById('matrixCard'),
+      insightCard: document.getElementById('insightCard')
     };
-    let state = { sampleKey: 'classroom', sample: samples.classroom, stepIndex: 0, running: false, timer: null };
+
+    const state = {
+      sampleKey: 'classroom',
+      sample: samples.classroom,
+      stepIndex: 0,
+      running: false,
+      timer: null,
+      delay: 620
+    };
 
     function showTab(id, btn) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tabs button').forEach(button => button.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       btn.classList.add('active');
     }
 
+    function populateSamples() {
+      ui.sampleSelect.innerHTML = Object.entries(samples)
+        .map(([key, sample]) => `<option value="${key}">${sample.label}</option>`)
+        .join('');
+      ui.sampleSelect.value = state.sampleKey;
+    }
+
+    function speedToDelay(value) {
+      return 1260 - value * 95;
+    }
+
+    function formatEdge(edge) {
+      return edge ? `(${edge[0]}, ${edge[1]})` : '-';
+    }
+
     function adjacency() {
-      const map = Object.fromEntries(state.sample.vertices.map(v => [v, []]));
-      state.sample.edges.slice(0, state.stepIndex).forEach(([u, v]) => { map[u].push(v); map[v].push(u); });
+      const map = Object.fromEntries(state.sample.vertices.map(vertex => [vertex, []]));
+      state.sample.edges.slice(0, state.stepIndex).forEach(([u, v]) => {
+        map[u].push(v);
+        map[v].push(u);
+      });
       return map;
+    }
+
+    function buildMatrix(edges) {
+      const vertices = state.sample.vertices;
+      const matrix = Object.fromEntries(vertices.map(row => [row, Object.fromEntries(vertices.map(col => [col, 0]))]));
+      edges.forEach(([u, v]) => {
+        matrix[u][v] = 1;
+        matrix[v][u] = 1;
+      });
+      return matrix;
+    }
+
+    function renderSteps(activeStep) {
+      ui.stepBox.innerHTML = FLOW_STEPS.map((step, index) => {
+        const done = state.stepIndex > 0 && index < activeStep;
+        const active = index === activeStep;
+        return `<div class="step-item ${done ? 'done' : ''} ${active ? 'active' : ''}"><span class="step-index">${index + 1}.</span><span>${step}</span></div>`;
+      }).join('');
+    }
+
+    function renderCodeLines(activeLineSet) {
+      ui.codeLines.innerHTML = PSEUDO_LINES.map((line, index) => `<div class="code-line ${activeLineSet.has(index) ? 'active' : ''}"><span class="code-line-num">${index + 1}</span><span class="code-text">${line}</span></div>`).join('');
+    }
+
+    function buildLogItems() {
+      return state.sample.edges.map(([u, v], index) => {
+        const done = index < state.stepIndex;
+        const active = index === state.stepIndex - 1;
+        const pending = index >= state.stepIndex;
+        const message = done
+          ? `Add ${v} to ${u}, add ${u} to ${v}, and mirror both matrix cells.`
+          : `Wait to connect ${u} and ${v} in every undirected representation.`;
+        const stateLabel = active ? 'current' : done ? 'added' : 'pending';
+        return `<div class="edge-item ${done ? 'done' : ''} ${active ? 'active' : ''} ${pending ? 'pending' : ''}">
+          <div class="edge-head">
+            <span class="edge-type">edge ${index + 1}: (${u}, ${v})</span>
+            <span class="edge-state">${stateLabel}</span>
+          </div>
+          <div class="edge-msg">${message}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleFocus(element, active) {
+      element.classList.toggle('focus-card', active);
     }
 
     function render() {
       const adj = adjacency();
-      const current = state.stepIndex > 0 ? state.sample.edges[state.stepIndex - 1] : null;
+      const currentEdge = state.stepIndex > 0 ? state.sample.edges[state.stepIndex - 1] : null;
+      const nextEdge = state.stepIndex < state.sample.edges.length ? state.sample.edges[state.stepIndex] : null;
       const edges = state.sample.edges.slice(0, state.stepIndex);
+      const matrix = buildMatrix(edges);
+      const currentSet = new Set(currentEdge || []);
+      const activeStep = state.stepIndex === 0 ? 0 : FLOW_STEPS.length - 1;
+      const activeLines = state.stepIndex === 0 ? new Set([0]) : new Set([1, 2, 3, 4, 5, 6]);
+
       ui.vertexCount.textContent = state.sample.vertices.length;
-      ui.edgeCount.textContent = `${state.stepIndex} / ${state.sample.edges.length}`;
-      ui.currentEdge.textContent = current ? `(${current[0]}, ${current[1]})` : '-';
-      ui.maxDegree.textContent = Math.max(...state.sample.vertices.map(v => adj[v].length), 0);
-      ui.statusText.textContent = current ? `Edge (${current[0]}, ${current[1]}) was added. Both endpoints now store each other because the graph is undirected.` : 'Load a sample and add edges one by one to watch every representation update together.';
-      ui.insightText.textContent = current ? `The pair (${current[0]}, ${current[1]}) appears once in the edge list, twice in the adjacency list, and in two symmetric matrix cells.` : 'An undirected edge must update both endpoints, so every connection appears in both directions in the list and matrix.';
+      ui.edgeCountMetric.textContent = `${state.stepIndex} / ${state.sample.edges.length}`;
+      ui.currentEdgeMetric.textContent = formatEdge(currentEdge);
+      ui.maxDegreeMetric.textContent = Math.max(...state.sample.vertices.map(vertex => adj[vertex].length), 0);
+      ui.focusMetric.textContent = currentEdge ? `${currentEdge[0]} <-> ${currentEdge[1]}` : '-';
+      ui.progressMetric.textContent = `${state.stepIndex} / ${state.sample.edges.length}`;
+      ui.statusText.textContent = currentEdge
+        ? `Edge ${formatEdge(currentEdge)} is now active. Both endpoints store each other, and the matrix mirrors the connection in both directions.${nextEdge ? ` Next: ${formatEdge(nextEdge)}.` : ' The sample is complete.'}`
+        : `Start with the next sample edge. The same undirected pair will update the drawing, adjacency list, matrix, and edge list together.`;
+      ui.insightText.textContent = currentEdge
+        ? `Because ${currentEdge[0]} and ${currentEdge[1]} are connected without direction, both adjacency rows change and both matrix cells become 1.`
+        : 'An undirected edge updates both adjacency rows and two mirrored matrix cells.';
 
-      const activeSet = new Set(current || []);
-      const lines = edges.map(([u, v], i) => { const a = state.sample.positions[u], b = state.sample.positions[v], active = i === state.stepIndex - 1; return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${active ? '#38bdf8' : '#22c55e'}" stroke-width="${active ? 6 : 4}" stroke-linecap="round"/>`; }).join('');
-      const preview = state.stepIndex < state.sample.edges.length ? (() => { const [u, v] = state.sample.edges[state.stepIndex], a = state.sample.positions[u], b = state.sample.positions[v]; return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round" opacity=".8"/>`; })() : '';
-      const nodes = state.sample.vertices.map(v => { const [x, y] = state.sample.positions[v], active = activeSet.has(v), fill = active ? '#38bdf8' : '#1a2333', text = active ? '#041522' : '#e2e8f0'; return `<g><circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${active ? '#7dd3fc' : '#4f6287'}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Fira Code, monospace" font-size="18" fill="${text}">${v}</text></g>`; }).join('');
-      ui.graphSvg.innerHTML = `<rect x="8" y="8" width="744" height="404" rx="24" fill="#101826" stroke="#263247"/>${lines}${preview}${nodes}`;
+      renderSteps(activeStep);
+      renderCodeLines(activeLines);
+      ui.edgeList.innerHTML = buildLogItems();
+      ui.theoryActionList.innerHTML = buildLogItems();
 
-      ui.adjList.innerHTML = state.sample.vertices.map(v => { const vals = adj[v].length ? adj[v].map(n => `<div class="chip">${n}</div>`).join('') : '<div class="empty">empty</div>'; return `<div class="list-row ${activeSet.has(v) ? 'active' : ''}"><div class="list-head">${v}</div><div class="list-body">${vals}</div></div>`; }).join('');
+      toggleFocus(ui.graphCard, Boolean(currentEdge));
+      toggleFocus(ui.adjacencyCard, Boolean(currentEdge));
+      toggleFocus(ui.edgeCard, Boolean(currentEdge));
+      toggleFocus(ui.matrixCard, Boolean(currentEdge));
+      toggleFocus(ui.insightCard, Boolean(currentEdge));
 
-      ui.edgeList.innerHTML = state.sample.edges.map(([u, v], i) => `<div class="edge-item ${i === state.stepIndex - 1 ? 'active' : ''} ${i >= state.stepIndex ? 'pending' : ''}"><span>(${u}, ${v})</span><span>${i < state.stepIndex ? 'added' : i === state.stepIndex ? 'next' : 'pending'}</span></div>`).join('');
+      const lines = edges.map(([u, v], index) => {
+        const [x1, y1] = state.sample.positions[u];
+        const [x2, y2] = state.sample.positions[v];
+        const active = index === state.stepIndex - 1;
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${active ? '#38bdf8' : '#22c55e'}" stroke-width="${active ? 6 : 4}" stroke-linecap="round" opacity="${active ? 1 : .9}"/>`;
+      }).join('');
 
-      const vertices = state.sample.vertices;
-      const matrix = Object.fromEntries(vertices.map(r => [r, Object.fromEntries(vertices.map(c => [c, 0]))]));
-      edges.forEach(([u, v]) => { matrix[u][v] = 1; matrix[v][u] = 1; });
-      let html = '<table><tr><th></th>' + vertices.map(v => `<th>${v}</th>`).join('') + '</tr>';
-      vertices.forEach(r => { html += `<tr><th>${r}</th>`; vertices.forEach(c => { const on = matrix[r][c] === 1; const active = current && ((r === current[0] && c === current[1]) || (r === current[1] && c === current[0])); html += `<td class="${on ? 'one' : ''} ${active ? 'active' : ''}">${matrix[r][c]}</td>`; }); html += '</tr>'; });
-      ui.matrixWrap.innerHTML = html + '</table>';
+      const preview = nextEdge ? (() => {
+        const [u, v] = nextEdge;
+        const [x1, y1] = state.sample.positions[u];
+        const [x2, y2] = state.sample.positions[v];
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round" opacity=".85"/>`;
+      })() : '';
+
+      const nodes = state.sample.vertices.map(vertex => {
+        const [x, y] = state.sample.positions[vertex];
+        const active = currentSet.has(vertex);
+        const fill = active ? '#38bdf8' : '#1a2333';
+        const stroke = active ? '#7dd3fc' : '#4f6287';
+        const text = active ? '#041522' : '#e2e8f0';
+        return `<g>
+          <circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+          <text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Fira Code, monospace" font-size="18" fill="${text}">${vertex}</text>
+          <text x="${x}" y="${y + 49}" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#94a3b8">deg ${adj[vertex].length}</text>
+        </g>`;
+      }).join('');
+
+      ui.graphSvg.innerHTML = `<rect x="8" y="8" width="744" height="414" rx="24" fill="#101826" stroke="#263247"/>${lines}${preview}${nodes}`;
+
+      ui.adjList.innerHTML = state.sample.vertices.map(vertex => {
+        const values = adj[vertex].length
+          ? adj[vertex].map(neighbor => {
+            const active = currentEdge && ((vertex === currentEdge[0] && neighbor === currentEdge[1]) || (vertex === currentEdge[1] && neighbor === currentEdge[0]));
+            return `<div class="chip ${active ? 'active' : ''}">${neighbor}</div>`;
+          }).join('')
+          : '<div class="empty">empty</div>';
+        return `<div class="list-row ${currentSet.has(vertex) ? 'active' : ''}"><div class="list-head">${vertex}</div><div class="list-body">${values}</div></div>`;
+      }).join('');
+
+      let matrixHtml = '<table><tr><th></th>' + state.sample.vertices.map(vertex => `<th>${vertex}</th>`).join('') + '</tr>';
+      state.sample.vertices.forEach(row => {
+        matrixHtml += `<tr><th>${row}</th>`;
+        state.sample.vertices.forEach(col => {
+          const on = matrix[row][col] === 1;
+          const active = currentEdge && ((row === currentEdge[0] && col === currentEdge[1]) || (row === currentEdge[1] && col === currentEdge[0]));
+          matrixHtml += `<td class="${on ? 'one' : ''} ${active ? 'active' : ''}">${matrix[row][col]}</td>`;
+        });
+        matrixHtml += '</tr>';
+      });
+      ui.matrixWrap.innerHTML = matrixHtml + '</table>';
+    }
+
+    function resetCurrent() {
+      stop();
+      state.stepIndex = 0;
+      ui.playBtn.textContent = 'Auto Play';
+      render();
     }
 
     function loadSample(key) {
@@ -630,25 +1347,67 @@ void addEdge(int matrix[V][V], int u, int v) {
       state.sampleKey = key;
       state.sample = samples[key];
       state.stepIndex = 0;
+      ui.sampleSelect.value = key;
       ui.playBtn.textContent = 'Auto Play';
       render();
     }
 
     function nextEdge() {
-      if (state.stepIndex >= state.sample.edges.length) { stop(); ui.playBtn.textContent = 'Replay'; return; }
+      if (state.stepIndex >= state.sample.edges.length) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
       state.stepIndex += 1;
       render();
     }
 
-    function stop() { state.running = false; if (state.timer) { clearTimeout(state.timer); state.timer = null; } }
-    function loop() { if (!state.running) return; if (state.stepIndex >= state.sample.edges.length) { stop(); ui.playBtn.textContent = 'Replay'; return; } nextEdge(); state.timer = setTimeout(loop, 620); }
+    function stop() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function loop() {
+      if (!state.running) return;
+      if (state.stepIndex >= state.sample.edges.length) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      nextEdge();
+      state.timer = setTimeout(loop, state.delay);
+    }
 
     ui.loadBtn.addEventListener('click', () => loadSample(ui.sampleSelect.value));
-    ui.nextBtn.addEventListener('click', () => { stop(); ui.playBtn.textContent = 'Auto Play'; nextEdge(); });
-    ui.playBtn.addEventListener('click', () => { if (state.running) { stop(); ui.playBtn.textContent = 'Resume'; return; } if (state.stepIndex >= state.sample.edges.length) loadSample(state.sampleKey); state.running = true; ui.playBtn.textContent = 'Pause'; loop(); });
-    ui.resetBtn.addEventListener('click', () => loadSample(state.sampleKey));
+    ui.nextBtn.addEventListener('click', () => {
+      stop();
+      ui.playBtn.textContent = 'Auto Play';
+      nextEdge();
+    });
+    ui.playBtn.addEventListener('click', () => {
+      if (state.running) {
+        stop();
+        ui.playBtn.textContent = 'Resume';
+        return;
+      }
+      if (state.stepIndex >= state.sample.edges.length) {
+        resetCurrent();
+      }
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      loop();
+    });
+    ui.resetBtn.addEventListener('click', resetCurrent);
+    ui.speedSlider.addEventListener('input', () => {
+      state.delay = speedToDelay(Number(ui.speedSlider.value));
+    });
+
+    populateSamples();
+    state.delay = speedToDelay(Number(ui.speedSlider.value));
     loadSample('classroom');
   </script>
 </body>
-
 </html>
