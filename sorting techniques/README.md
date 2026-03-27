@@ -1,17 +1,17 @@
-# 📊 Sorting Techniques: Complete Learning Guide
+# Sorting Techniques: Complete Learning Guide
 
-Welcome to the Sorting Techniques module! This comprehensive curriculum covers all major sorting algorithms from basic to advanced.
+Welcome to the Sorting Techniques module. This folder covers major sorting algorithms from basic to advanced.
 
-## 🎯 Learning Path
+## Learning Path
 
 This folder will contain complete guides for:
 
-- **Basic Sorting** (O(n²))
+- **Basic Sorting** (`O(n^2)`)
   - Bubble Sort
   - Selection Sort
   - Insertion Sort
 
-- **Efficient Sorting** (O(n log n))
+- **Efficient Sorting** (`O(n log n)`)
   - Merge Sort
   - Quick Sort
   - Heap Sort
@@ -29,18 +29,26 @@ This folder will contain complete guides for:
 
 ---
 
-## 📚 Curriculum Structure
+## Curriculum Structure
 
 Each algorithm will include:
-- ✅ Visual step-by-step examples
-- ✅ Complete C++ implementations
-- ✅ Time & Space complexity analysis
-- ✅ Best/Average/Worst case scenarios
-- ✅ Real-world applications
-- ✅ Practice problems
+
+- Visual step-by-step examples
+- Complete C++ implementations
+- Time and space complexity analysis
+- Best, average, and worst-case scenarios
+- Real-world applications
+- Practice problems
 
 ---
 
-**Files coming soon!** 🚀
+## Interactive Pages
 
-Start exploring sorting algorithms and master one of the most fundamental computer science topics!
+- `bubble_sort_animation.html` - Bubble Sort visualizer with pass-by-pass animation, pseudo-code highlighting, and live metrics.
+- `insertion_sort_animation.html` - Insertion Sort visualizer with key tracking, shift animation, pseudo-code highlighting, and theory tabs.
+- `quick_sort_animation.html` - Quick Sort visualizer with pivot tracking, recursive or iterative modes, and theory tabs.
+- `selection_sort_animation.html` - Selection Sort visualizer with minimum tracking, scan animation, pseudo-code highlighting, and theory tabs.
+
+More files coming soon.
+
+Start exploring sorting algorithms and master one of the most fundamental computer science topics.
