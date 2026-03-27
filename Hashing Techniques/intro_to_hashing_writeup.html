@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intro to Hashing - Writeup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0c1222;--card:#151c30;--border:#28324e;--text:#e2e8f0;--muted:#94a3b8;--accent:#2dd4bf;--accent2:#99f6e4}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,sans-serif;background:radial-gradient(circle at top left,rgba(45,212,191,.12),transparent 24%),linear-gradient(160deg,#08101d,#0c1222);color:var(--text);min-height:100vh;padding:24px}
+    .shell{max-width:980px;margin:0 auto}
+    .hero,.card{background:rgba(21,28,48,.94);border:1px solid var(--border);border-radius:22px}
+    .hero{padding:28px;margin-bottom:18px}
+    .hero h1{font-size:clamp(1.9rem,4vw,3rem);margin-bottom:10px}
+    .hero h1 span,.card h2{color:var(--accent2)}
+    .hero p,.card p,.card li{color:var(--muted);line-height:1.75}
+    .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .links a{color:var(--text);text-decoration:none;padding:10px 14px;border-radius:999px;border:1px solid var(--border);background:rgba(45,212,191,.08)}
+    .grid{display:grid;gap:16px}
+    .card{padding:22px}
+    .card h2{font-size:1rem;margin-bottom:10px}
+    .card ul{padding-left:18px;display:grid;gap:8px}
+    code{font-family:Consolas,monospace;color:var(--accent2);background:rgba(45,212,191,.08);padding:2px 6px;border-radius:6px}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
+    .mini{padding:14px;border-radius:14px;border:1px solid var(--border);background:rgba(12,18,34,.75)}
+    .mini strong{display:block;color:var(--accent2);margin-bottom:6px}
+    @media (max-width:700px){body{padding:14px}.hero,.card{padding:18px}.mini-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1><span>Intro to Hashing</span> Writeup</h1>
+      <p>
+        Hashing is a technique that maps a key to a table index. That direct jump is what gives hash tables their fast
+        average-time behavior for insert, search, and delete operations.
+      </p>
+      <div class="links">
+        <a href="intro_to_hashing.html">Open interactive visualizer</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Core Idea</h2>
+        <p>
+          A hash function takes a key and computes a bucket position. Instead of scanning every stored element, the
+          program goes to the computed bucket immediately. In a simple classroom example, the function
+          <code>h(k) = k % m</code> is often used, where <code>m</code> is the table size.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Worked Example</h2>
+        <p>
+          If the table size is <code>7</code> and the key is <code>44</code>, then
+          <code>44 % 7 = 2</code>. That means the key should be stored in bucket <code>2</code>.
+          If bucket <code>2</code> is empty, insertion is direct. If it already has another key, a collision occurs.
+        </p>
+        <div class="mini-grid">
+          <div class="mini">
+            <strong>No collision</strong>
+            <p>Key <code>18</code> goes to bucket <code>4</code> and the slot is empty, so insertion is immediate.</p>
+          </div>
+          <div class="mini">
+            <strong>Collision</strong>
+            <p>Key <code>32</code> also maps to bucket <code>4</code>, so both keys must be stored under the same bucket.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Why Collisions Are Normal</h2>
+        <ul>
+          <li>A hash table usually has far fewer buckets than possible key values.</li>
+          <li>That means two different keys can easily compute the same bucket index.</li>
+          <li>Collisions do not mean hashing failed; they just mean the table needs a collision strategy.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Chaining</h2>
+        <p>
+          In chaining, each bucket can store multiple keys by attaching a small list or grouped chain to the bucket.
+          This approach is straightforward to visualize and reason about, which is why it is commonly used for
+          introductions to hashing.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Load Factor</h2>
+        <p>
+          The load factor is <code>number of stored keys / table size</code>. As the load factor grows, collisions
+          become more frequent and chains become longer. That gradually pushes lookups away from ideal constant-time
+          behavior.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Where Hashing Is Used</h2>
+        <ul>
+          <li>Hash maps and dictionaries</li>
+          <li>Sets and duplicate detection</li>
+          <li>Caches and memoization</li>
+          <li>Symbol tables in compilers and interpreters</li>
+        </ul>
+      </article>
+    </section>
+  </div>
+</body>
+</html>

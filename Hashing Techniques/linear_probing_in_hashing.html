@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linear Probing in Hashing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0b1120;--card:#141c30;--panel:#0f1728;--border:#2a3551;--text:#e2e8f0;--muted:#93a4c3;--accent:#38bdf8;--accent2:#7dd3fc;--warn:#f59e0b;--good:#22c55e;--danger:#ef4444;--shadow:0 18px 45px rgba(0,0,0,.28)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(56,189,248,.12),transparent 24%),radial-gradient(circle at bottom right,rgba(34,197,94,.08),transparent 26%),linear-gradient(160deg,#08101d,#0b1120);min-height:100vh;padding:24px}
+    .shell{max-width:1180px;margin:0 auto;display:grid;gap:18px}
+    .hero,.card{background:rgba(20,28,48,.94);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow)}
+    .hero{padding:28px}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:16px}
+    h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1.08;margin-bottom:12px}
+    h1 span,.card h2,.mini strong,.formula strong{color:var(--accent2)}
+    .hero p,.card p,.card li{color:var(--muted);line-height:1.75}
+    .hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .hero-links a,.demo-actions button{padding:10px 14px;border-radius:999px;border:1px solid var(--border);text-decoration:none;font-weight:600;font-size:.88rem}
+    .hero-links a{background:rgba(56,189,248,.08);color:var(--text)}
+    .hero-links a.primary{background:linear-gradient(135deg,#0284c7,var(--accent));color:#041522;border-color:transparent}
+    .tabs{display:flex;gap:4px;padding:10px;background:rgba(20,28,48,.94);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}
+    .tab-btn{border:none;background:transparent;color:var(--muted);padding:10px 16px;border-radius:14px;font:600 .9rem Inter,sans-serif;cursor:pointer}
+    .tab-btn.active{background:rgba(56,189,248,.12);color:var(--accent2)}
+    .tab-panel{display:none;gap:18px}
+    .tab-panel.active{display:grid}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    .card{padding:22px}
+    .card h2{font-size:1.05rem;margin-bottom:10px}
+    .card ul{padding-left:18px;display:grid;gap:8px}
+    .formula{margin-top:14px;padding:14px 16px;border-radius:16px;background:rgba(8,16,29,.72);border:1px solid var(--border);font-family:"Fira Code",monospace;color:var(--text)}
+    .demo-card{display:grid;gap:16px}
+    .demo-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+    .demo-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .demo-actions button{background:rgba(29,37,55,.95);color:var(--text);cursor:pointer}
+    .demo-actions button.primary{background:linear-gradient(135deg,#0284c7,var(--accent));color:#041522;border-color:transparent}
+    .status{padding:14px 16px;border-radius:16px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);color:var(--text)}
+    .demo-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:16px}
+    .key-strip,.table-board,.code-panel{background:rgba(8,16,29,.72);border:1px solid var(--border);border-radius:18px;padding:16px}
+    .key-strip h3,.table-board h3,.trail h3,.code-panel h3{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);margin-bottom:12px}
+    .key-list{display:flex;flex-wrap:wrap;gap:10px}
+    .key-pill{min-width:64px;padding:12px 14px;border-radius:14px;background:rgba(29,37,55,.96);border:1px solid var(--border);text-align:center;font-family:"Fira Code",monospace}
+    .key-pill.active{background:rgba(56,189,248,.15);border-color:rgba(125,211,252,.35);transform:translateY(-2px)}
+    .table-board{display:grid;gap:14px}
+    .table-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+    .slot{min-height:116px;border:1px solid var(--border);border-radius:18px;background:rgba(20,28,48,.84);padding:10px;display:flex;flex-direction:column;gap:10px;justify-content:space-between;position:relative}
+    .slot.active{border-color:rgba(125,211,252,.42);box-shadow:0 0 0 1px rgba(56,189,248,.12) inset}
+    .slot.taken{background:rgba(34,197,94,.08)}
+    .slot.collide{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.4)}
+    .slot.inserted{background:rgba(56,189,248,.14);border-color:rgba(125,211,252,.44)}
+    .slot-index{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .slot-value{font-family:"Fira Code",monospace;font-size:1.05rem;color:var(--text)}
+    .slot-note{font-size:.7rem;color:var(--muted);line-height:1.45}
+    .probe-line{display:flex;flex-wrap:wrap;gap:8px}
+    .probe-chip{padding:8px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(29,37,55,.95);font-family:"Fira Code",monospace;font-size:.78rem}
+    .probe-chip.hit{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.4);color:#fde68a}
+    .probe-chip.final{background:rgba(56,189,248,.12);border-color:rgba(125,211,252,.44);color:#e0f2fe}
+    .trail{padding:16px;border-radius:18px;background:rgba(8,16,29,.72);border:1px solid var(--border)}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .mini{padding:16px;border-radius:16px;border:1px solid var(--border);background:rgba(8,16,29,.72)}
+    .mini strong{display:block;margin-bottom:6px}
+    .pseudo{display:grid;gap:8px;margin-top:12px}
+    .pseudo-line{display:grid;grid-template-columns:32px 1fr;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(8,16,29,.55);font-family:"Fira Code",monospace;font-size:.8rem;color:#dbe4f3}
+    .pseudo-line span{color:#60708d;text-align:right}
+    pre{margin-top:12px;padding:14px;border-radius:16px;border:1px solid var(--border);background:#09101f;overflow:auto}
+    code{font-family:"Fira Code",monospace;color:#dbe4f3;white-space:pre}
+    @media (max-width:920px){body{padding:14px}.grid,.demo-grid,.mini-grid{grid-template-columns:1fr}.hero,.card{padding:18px}.table-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.tabs{overflow:auto}}
+    @media (max-width:620px){.table-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Open Addressing Strategy</div>
+      <h1><span>Linear Probing</span> in Hashing</h1>
+      <p>
+        Linear probing handles collisions by checking the next slot, then the next one after that, until it finds an
+        empty position. Instead of storing a chain, the table keeps all keys directly inside the array.
+      </p>
+      <div class="hero-links">
+        <a class="primary" href="intro_to_hashing.html">Open intro page</a>
+        <a href="quadratic_probing_in_hashing.html">Next: quadratic probing</a>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="showTab('tab-theory', this)">Theory</button>
+      <button class="tab-btn" onclick="showTab('tab-demo', this)">Demo</button>
+    </nav>
+
+    <section id="tab-theory" class="tab-panel active">
+      <section class="grid">
+        <article class="card">
+          <h2>Concept</h2>
+          <p>
+            In linear probing, a collision does not create a linked list. Instead, the algorithm moves one slot forward
+            at a time until it reaches a free place. This is called <strong>probing</strong>. If it reaches the end of
+            the table, it wraps around to the beginning.
+          </p>
+          <div class="formula"><strong>Probe rule:</strong> <code>index = (hash(key) + i) % tableSize</code>, where <code>i = 0, 1, 2, ...</code></div>
+        </article>
+
+        <article class="card">
+          <h2>Why It Helps</h2>
+          <ul>
+            <li>No extra linked nodes are needed because everything stays in the table array.</li>
+            <li>Insertion and search follow the same probe trail, which makes the logic consistent.</li>
+            <li>It is memory-friendly, but clustering can become a problem when many nearby slots get filled.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>What Search Does</h2>
+          <ul>
+            <li>Start from the key's home slot using the hash function.</li>
+            <li>If that slot contains a different key, move to the next slot.</li>
+            <li>Continue until the key is found or an empty slot appears.</li>
+            <li>That is why insertion and search must follow the exact same probing rule.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Main Tradeoff</h2>
+          <div class="mini-grid">
+            <div class="mini">
+              <strong>Good</strong>
+              <p>Simple array-only structure, no extra pointers, and good cache locality.</p>
+            </div>
+            <div class="mini">
+              <strong>Limit</strong>
+              <p>Nearby occupied slots form clusters, so later insertions may scan many positions before finding space.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Pseudo Logic</h2>
+          <div class="pseudo">
+            <div class="pseudo-line"><span>1</span><div>for i from 0 to tableSize - 1</div></div>
+            <div class="pseudo-line"><span>2</span><div>  index = (hash(key) + i) % tableSize</div></div>
+            <div class="pseudo-line"><span>3</span><div>  if table[index] is empty</div></div>
+            <div class="pseudo-line"><span>4</span><div>    table[index] = key</div></div>
+            <div class="pseudo-line"><span>5</span><div>    stop</div></div>
+            <div class="pseudo-line"><span>6</span><div>report overflow if no slot is found</div></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>C Code Example</h2>
+          <p>This example stores keys directly in the array and uses <code>-1</code> for an empty slot.</p>
+          <pre><code>#include &lt;stdio.h&gt;
+
+#define TABLE_SIZE 7
+
+int table[TABLE_SIZE];
+
+void initTable() {
+    for (int i = 0; i &lt; TABLE_SIZE; i++) {
+        table[i] = -1;
+    }
+}
+
+void insert(int key) {
+    int index = key % TABLE_SIZE;
+
+    for (int i = 0; i &lt; TABLE_SIZE; i++) {
+        int probe = (index + i) % TABLE_SIZE;
+        if (table[probe] == -1) {
+            table[probe] = key;
+            return;
+        }
+    }
+
+    printf("Hash table is full\n");
+}
+
+void display() {
+    for (int i = 0; i &lt; TABLE_SIZE; i++) {
+        printf("Slot %d: %d\n", i, table[i]);
+    }
+}</code></pre>
+        </article>
+      </section>
+    </section>
+
+    <section id="tab-demo" class="tab-panel">
+      <section class="card demo-card">
+        <div class="demo-head">
+          <div>
+            <h2>Probe Sequence Demo</h2>
+            <p>These keys all start at the same home slot. Step forward to see collisions, probing, and wrap-around.</p>
+          </div>
+          <div class="demo-actions">
+            <button id="replayBtn">Replay</button>
+            <button class="primary" id="nextBtn">Next Step</button>
+          </div>
+        </div>
+        <div class="status" id="statusText">Start with an empty table of size 7. Every slot is available.</div>
+        <div class="demo-grid">
+          <div class="key-strip">
+            <h3>Incoming Keys</h3>
+            <div class="key-list" id="keyList"></div>
+          </div>
+          <div class="table-board">
+            <h3>Table Representation</h3>
+            <div class="table-grid" id="tableGrid"></div>
+            <div class="trail">
+              <h3>Current Probe Trail</h3>
+              <div class="probe-line" id="probeLine"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>How To Read The Demo</h2>
+          <ul>
+            <li>The active key is highlighted in the incoming key list.</li>
+            <li>Orange slots mean the probe hit an occupied position and had to keep moving.</li>
+            <li>The blue slot is where the key is finally inserted.</li>
+            <li>The probe trail shows the exact order of slots checked by linear probing.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>What The Demo Proves</h2>
+          <ul>
+            <li>All four example keys have the same home slot.</li>
+            <li>Linear probing resolves each collision by checking the next slot.</li>
+            <li>The last example wraps from slot <code>6</code> back to slot <code>0</code>.</li>
+            <li>This wrap-around behavior is an important part of open addressing.</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    function showTab(id,btn){
+      document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button=>button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    const keys=[18,25,32,39];
+    const steps=[
+      {active:-1,table:[null,null,null,null,null,null,null],probe:[],message:'Start with an empty table of size 7. Every slot is available.'},
+      {active:0,table:[null,null,null,null,18,null,null],probe:[4],message:'Insert 18. Since 18 % 7 = 4, slot 4 is empty, so the key goes directly there.'},
+      {active:1,table:[null,null,null,null,18,25,null],probe:[4,5],message:'Insert 25. Its home slot is 4 too, but slot 4 is occupied, so linear probing checks slot 5 and inserts there.'},
+      {active:2,table:[null,null,null,null,18,25,32],probe:[4,5,6],message:'Insert 32. Slots 4 and 5 are occupied, so the probe sequence continues to slot 6.'},
+      {active:3,table:[39,null,null,null,18,25,32],probe:[4,5,6,0],message:'Insert 39. Slots 4, 5, and 6 are full, so probing wraps around to slot 0 and inserts there.'}
+    ];
+    const keyList=document.getElementById('keyList');
+    const tableGrid=document.getElementById('tableGrid');
+    const probeLine=document.getElementById('probeLine');
+    const statusText=document.getElementById('statusText');
+    const replayBtn=document.getElementById('replayBtn');
+    const nextBtn=document.getElementById('nextBtn');
+    let stepIndex=0;
+
+    function render(){
+      const step=steps[stepIndex];
+      keyList.innerHTML=keys.map((key,index)=>`<div class="key-pill ${index===step.active?'active':''}">${key}</div>`).join('');
+      tableGrid.innerHTML=step.table.map((value,index)=>{
+        const isActive=step.probe.includes(index);
+        const isFinal=step.probe.length && step.probe[step.probe.length-1]===index && value!==null && step.active>=0;
+        const isCollision=isActive && !isFinal && value!==null;
+        const classes=['slot',value!==null?'taken':'',isActive?'active':'',isCollision?'collide':'',isFinal?'inserted':''].filter(Boolean).join(' ');
+        const note=value===null?'empty slot':isCollision?'collision, keep probing':isFinal?'final insertion slot':'already stored';
+        return `<div class="${classes}"><div class="slot-index">slot ${index}</div><div class="slot-value">${value===null?'empty':value}</div><div class="slot-note">${note}</div></div>`;
+      }).join('');
+      probeLine.innerHTML=step.probe.length?step.probe.map((slot,index)=>{
+        const isFinal=index===step.probe.length-1 && step.active>=0;
+        return `<div class="probe-chip ${isFinal?'final':'hit'}">slot ${slot}</div>`;
+      }).join(''):'<div class="probe-chip">no probe yet</div>';
+      statusText.textContent=step.message;
+      nextBtn.textContent=stepIndex===steps.length-1?'Replay Steps':'Next Step';
+    }
+
+    nextBtn.addEventListener('click',()=>{
+      stepIndex=stepIndex===steps.length-1?0:stepIndex+1;
+      render();
+    });
+
+    replayBtn.addEventListener('click',()=>{
+      stepIndex=0;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

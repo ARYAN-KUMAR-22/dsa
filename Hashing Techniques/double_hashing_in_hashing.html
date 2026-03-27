@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Double Hashing in Hashing</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1220;
+      --card: #161f31;
+      --border: #2c3a52;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent2: #86efac;
+      --warn: #f59e0b;
+      --good: #38bdf8;
+      --shadow: 0 18px 45px rgba(0, 0, 0, .28)
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: Inter, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, .12), transparent 24%), radial-gradient(circle at bottom right, rgba(56, 189, 248, .08), transparent 26%), linear-gradient(160deg, #08101d, #0c1220);
+      min-height: 100vh;
+      padding: 24px
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px
+    }
+
+    .hero,
+    .card {
+      background: rgba(22, 31, 49, .94);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow)
+    }
+
+    .hero {
+      padding: 28px
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, .1);
+      border: 1px solid rgba(34, 197, 94, .22);
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      font-weight: 700;
+      margin-bottom: 16px
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.08;
+      margin-bottom: 12px
+    }
+
+    h1 span,
+    .card h2,
+    .mini strong,
+    .formula strong {
+      color: var(--accent2)
+    }
+
+    .hero p,
+    .card p,
+    .card li {
+      color: var(--muted);
+      line-height: 1.75
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px
+    }
+
+    .hero-links a,
+    .demo-actions button {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: .88rem
+    }
+
+    .hero-links a {
+      background: rgba(34, 197, 94, .08);
+      color: var(--text)
+    }
+
+    .hero-links a.primary {
+      background: linear-gradient(135deg, #15803d, var(--accent));
+      color: #03150a;
+      border-color: transparent
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 10px;
+      background: rgba(22, 31, 49, .94);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow)
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 10px 16px;
+      border-radius: 14px;
+      font: 600 .9rem Inter, sans-serif;
+      cursor: pointer
+    }
+
+    .tab-btn.active {
+      background: rgba(34, 197, 94, .12);
+      color: var(--accent2)
+    }
+
+    .tab-panel {
+      display: none;
+      gap: 18px
+    }
+
+    .tab-panel.active {
+      display: grid
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px
+    }
+
+    .card {
+      padding: 22px
+    }
+
+    .card h2 {
+      font-size: 1.05rem;
+      margin-bottom: 10px
+    }
+
+    .card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px
+    }
+
+    .formula {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(8, 16, 29, .72);
+      border: 1px solid var(--border);
+      font-family: "Fira Code", monospace;
+      color: var(--text)
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 16px
+    }
+
+    .demo-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start
+    }
+
+    .demo-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .demo-actions button {
+      background: rgba(29, 37, 55, .95);
+      color: var(--text);
+      cursor: pointer
+    }
+
+    .demo-actions button.primary {
+      background: linear-gradient(135deg, #15803d, var(--accent));
+      color: #03150a;
+      border-color: transparent
+    }
+
+    .status {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(34, 197, 94, .08);
+      border: 1px solid rgba(34, 197, 94, .18);
+      color: var(--text)
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: .72fr 1.28fr;
+      gap: 16px
+    }
+
+    .key-strip,
+    .table-board,
+    .trail {
+      background: rgba(8, 16, 29, .72);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px
+    }
+
+    .key-strip h3,
+    .table-board h3,
+    .trail h3 {
+      font-size: .82rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 12px
+    }
+
+    .key-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .key-pill {
+      min-width: 64px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(29, 37, 55, .96);
+      border: 1px solid var(--border);
+      text-align: center;
+      font-family: "Fira Code", monospace
+    }
+
+    .key-pill.active {
+      background: rgba(34, 197, 94, .15);
+      border-color: rgba(134, 239, 172, .4);
+      transform: translateY(-2px)
+    }
+
+    .table-board {
+      display: grid;
+      gap: 14px
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .slot {
+      min-height: 128px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(20, 28, 48, .84);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between
+    }
+
+    .slot.active {
+      border-color: rgba(134, 239, 172, .45);
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, .15) inset
+    }
+
+    .slot.taken {
+      background: rgba(56, 189, 248, .08)
+    }
+
+    .slot.collide {
+      background: rgba(245, 158, 11, .12);
+      border-color: rgba(245, 158, 11, .36)
+    }
+
+    .slot.inserted {
+      background: rgba(34, 197, 94, .14);
+      border-color: rgba(134, 239, 172, .44)
+    }
+
+    .slot-index {
+      font-size: .68rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    .slot-value {
+      font-family: "Fira Code", monospace;
+      font-size: 1.05rem;
+      color: var(--text)
+    }
+
+    .slot-note {
+      font-size: .7rem;
+      color: var(--muted);
+      line-height: 1.45
+    }
+
+    .probe-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .probe-chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(29, 37, 55, .95);
+      font-family: "Fira Code", monospace;
+      font-size: .75rem
+    }
+
+    .probe-chip.hit {
+      background: rgba(245, 158, 11, .12);
+      border-color: rgba(245, 158, 11, .36);
+      color: #fde68a
+    }
+
+    .probe-chip.final {
+      background: rgba(34, 197, 94, .12);
+      border-color: rgba(134, 239, 172, .44);
+      color: #dcfce7
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(8, 16, 29, .72)
+    }
+
+    .mini strong {
+      display: block;
+      margin-bottom: 6px
+    }
+
+    .pseudo {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    .pseudo-line {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(8, 16, 29, .55);
+      font-family: "Fira Code", monospace;
+      font-size: .8rem;
+      color: #dbe4f3
+    }
+
+    .pseudo-line span {
+      color: #60708d;
+      text-align: right
+    }
+
+    pre {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #09101f;
+      overflow: auto
+    }
+
+    code {
+      font-family: "Fira Code", monospace;
+      color: #dbe4f3;
+      white-space: pre
+    }
+
+    @media (max-width:920px) {
+      body {
+        padding: 14px
+      }
+
+      .grid,
+      .demo-grid,
+      .mini-grid {
+        grid-template-columns: 1fr
+      }
+
+      .hero,
+      .card {
+        padding: 18px
+      }
+
+      .table-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr))
+      }
+
+      .tabs {
+        overflow: auto
+      }
+    }
+
+    @media (max-width:620px) {
+      .table-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Open Addressing Strategy</div>
+      <h1><span>Double Hashing</span> in Hashing</h1>
+      <p>
+        Double hashing uses two hash functions. The first hash chooses the home slot, and the second hash decides how
+        far to jump when a collision happens. That makes probe trails differ from key to key.
+      </p>
+      <div class="hero-links">
+        <a class="primary" href="intro_to_hashing.html">Open intro page</a>
+        <a href="intro_to_hashing_writeup.html">Next: hashing writeup</a>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="showTab('tab-theory', this)">Theory</button>
+      <button class="tab-btn" onclick="showTab('tab-demo', this)">Demo</button>
+    </nav>
+
+    <section id="tab-theory" class="tab-panel active">
+      <section class="grid">
+        <article class="card">
+          <h2>Concept</h2>
+          <p>
+            Double hashing is an open addressing method. Like other probing methods, it stores keys directly in the
+            table array. The difference is that collision jumps are controlled by a second hash function instead of a
+            fixed step or square offset.
+          </p>
+          <div class="formula"><strong>Probe rule:</strong> <code>index = (h1(key) + i * h2(key)) % tableSize</code>
+          </div>
+          <div class="formula"><strong>Demo functions:</strong> <code>h1(k) = k % 7</code>,
+            <code>h2(k) = 5 - (k % 5)</code></div>
+        </article>
+
+        <article class="card">
+          <h2>Why It Helps</h2>
+          <ul>
+            <li>Keys that share the same home slot can still follow different probe trails.</li>
+            <li>That reduces clustering more effectively than many simpler probing methods.</li>
+            <li>The second hash function must never produce <code>0</code>, or probing will stop moving.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Search Behavior</h2>
+          <ul>
+            <li>Search computes both <code>h1(key)</code> and <code>h2(key)</code>.</li>
+            <li>It then follows the same jump pattern used during insertion.</li>
+            <li>If an empty slot appears before the key is found, the search can stop.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Main Tradeoff</h2>
+          <div class="mini-grid">
+            <div class="mini">
+              <strong>Good</strong>
+              <p>Better distribution of probe trails, which usually means less clustering than linear probing.</p>
+            </div>
+            <div class="mini">
+              <strong>Limit</strong>
+              <p>The table size and second hash function must be chosen carefully so probing can reach enough slots.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Pseudo Logic</h2>
+          <div class="pseudo">
+            <div class="pseudo-line"><span>1</span>
+              <div>home = h1(key)</div>
+            </div>
+            <div class="pseudo-line"><span>2</span>
+              <div>step = h2(key)</div>
+            </div>
+            <div class="pseudo-line"><span>3</span>
+              <div>for i from 0 to tableSize - 1</div>
+            </div>
+            <div class="pseudo-line"><span>4</span>
+              <div> index = (home + i * step) % tableSize</div>
+            </div>
+            <div class="pseudo-line"><span>5</span>
+              <div> if table[index] is empty, place the key there</div>
+            </div>
+            <div class="pseudo-line"><span>6</span>
+              <div>report overflow if no slot is found</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>C Code Example</h2>
+          <p>This sample uses a second hash function to compute the jump size.</p>
+          <pre><code>#include &lt;stdio.h&gt;
+
+#define TABLE_SIZE 7
+
+int table[TABLE_SIZE];
+
+int h1(int key) {
+    return key % TABLE_SIZE;
+}
+
+int h2(int key) {
+    return 5 - (key % 5);
+}
+
+void initTable() {
+    for (int i = 0; i &lt; TABLE_SIZE; i++) {
+        table[i] = -1;
+    }
+}
+
+void insert(int key) {
+    int home = h1(key);
+    int step = h2(key);
+
+    for (int i = 0; i &lt; TABLE_SIZE; i++) {
+        int probe = (home + i * step) % TABLE_SIZE;
+        if (table[probe] == -1) {
+            table[probe] = key;
+            return;
+        }
+    }
+
+    printf("No slot found for %d\n", key);
+}</code></pre>
+        </article>
+      </section>
+    </section>
+
+    <section id="tab-demo" class="tab-panel">
+      <section class="card demo-card">
+        <div class="demo-head">
+          <div>
+            <h2>Double Hashing Demo</h2>
+            <p>These keys all share the same first hash, but their second hashes make them jump through different slots.
+            </p>
+          </div>
+          <div class="demo-actions">
+            <button id="replayBtn">Replay</button>
+            <button class="primary" id="nextBtn">Next Step</button>
+          </div>
+        </div>
+        <div class="status" id="statusText">Start with an empty table of size 7. The first key uses its home slot
+          directly.</div>
+        <div class="demo-grid">
+          <div class="key-strip">
+            <h3>Incoming Keys</h3>
+            <div class="key-list" id="keyList"></div>
+          </div>
+          <div class="table-board">
+            <h3>Table Representation</h3>
+            <div class="table-grid" id="tableGrid"></div>
+            <div class="trail">
+              <h3>Current Probe Trail</h3>
+              <div class="probe-line" id="probeLine"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>How To Read The Demo</h2>
+          <ul>
+            <li>The active key is highlighted on the left.</li>
+            <li>Orange slots show collisions where probing had to continue.</li>
+            <li>The green slot is the final insertion position for the active key.</li>
+            <li>Each chip in the probe trail shows the second-hash step used for that key.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>What This Shows</h2>
+          <ul>
+            <li>All example keys have the same home slot because <code>k % 7 = 4</code>.</li>
+            <li>But their jump sizes are different because <code>h2(key)</code> is different.</li>
+            <li>That means collisions do not force every key into the same next-slot pattern.</li>
+            <li>This is the main reason double hashing is usually stronger than linear probing.</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    const keys = [18, 25, 32, 39];
+    const steps = [
+      { active: -1, table: [null, null, null, null, null, null, null], probe: [], message: 'Start with an empty table of size 7. The first key uses its home slot directly.' },
+      { active: 0, table: [null, null, null, null, 18, null, null], probe: [{ slot: 4, label: 'h2=2, i=0 -> 4' }], message: 'Insert 18. Here h1(18)=4 and h2(18)=2, so slot 4 is checked first and is empty.' },
+      { active: 1, table: [null, null, 25, null, 18, null, null], probe: [{ slot: 4, label: 'h2=5, i=0 -> 4' }, { slot: 2, label: 'h2=5, i=1 -> 2' }], message: 'Insert 25. It shares home slot 4, but h2(25)=5, so after the collision it jumps to slot 2 and inserts there.' },
+      { active: 2, table: [32, null, 25, null, 18, null, null], probe: [{ slot: 4, label: 'h2=3, i=0 -> 4' }, { slot: 0, label: 'h2=3, i=1 -> 0' }], message: 'Insert 32. Its second hash is 3, so after colliding at slot 4 it jumps to slot 0.' },
+      { active: 3, table: [32, null, 25, null, 18, 39, null], probe: [{ slot: 4, label: 'h2=1, i=0 -> 4' }, { slot: 5, label: 'h2=1, i=1 -> 5' }], message: 'Insert 39. This key gets h2(39)=1, so its path behaves like a step of one and lands at slot 5.' }
+    ];
+
+    const keyList = document.getElementById('keyList');
+    const tableGrid = document.getElementById('tableGrid');
+    const probeLine = document.getElementById('probeLine');
+    const statusText = document.getElementById('statusText');
+    const replayBtn = document.getElementById('replayBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let stepIndex = 0;
+
+    function render() {
+      const step = steps[stepIndex];
+      keyList.innerHTML = keys.map((key, index) => `<div class="key-pill ${index === step.active ? 'active' : ''}">${key}</div>`).join('');
+      tableGrid.innerHTML = step.table.map((value, index) => {
+        const activeSlots = step.probe.map(item => item.slot);
+        const isActive = activeSlots.includes(index);
+        const isFinal = step.probe.length && step.probe[step.probe.length - 1].slot === index && value !== null && step.active >= 0;
+        const isCollision = isActive && !isFinal && value !== null;
+        const classes = ['slot', value !== null ? 'taken' : '', isActive ? 'active' : '', isCollision ? 'collide' : '', isFinal ? 'inserted' : ''].filter(Boolean).join(' ');
+        const note = value === null ? 'empty slot' : isCollision ? 'collision, jump again' : isFinal ? 'final insertion slot' : 'already stored';
+        return `<div class="${classes}"><div class="slot-index">slot ${index}</div><div class="slot-value">${value === null ? 'empty' : value}</div><div class="slot-note">${note}</div></div>`;
+      }).join('');
+      probeLine.innerHTML = step.probe.length ? step.probe.map((item, index) => {
+        const isFinal = index === step.probe.length - 1 && step.active >= 0;
+        return `<div class="probe-chip ${isFinal ? 'final' : 'hit'}">${item.label}</div>`;
+      }).join('') : '<div class="probe-chip">no probe yet</div>';
+      statusText.textContent = step.message;
+      nextBtn.textContent = stepIndex === steps.length - 1 ? 'Replay Steps' : 'Next Step';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      stepIndex = stepIndex === steps.length - 1 ? 0 : stepIndex + 1;
+      render();
+    });
+
+    replayBtn.addEventListener('click', () => {
+      stepIndex = 0;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+
+</html>
