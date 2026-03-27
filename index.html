@@ -19,6 +19,7 @@
       --accent: #7dd3fc;
       --accent-2: #fca5a5;
       --accent-3: #86efac;
+      --accent-4: #fcd34d;
       --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
     }
 
@@ -172,8 +173,8 @@
       color: var(--accent);
     }
 
-    .accent-hash {
-      color: var(--accent-2);
+    .accent-graph {
+      color: var(--accent-4);
     }
 
     .footer {
@@ -218,7 +219,7 @@
   <div class="shell">
     <section class="hero">
       <div class="eyebrow">GitHub Pages Ready</div>
-      <h1>DSA visualizers for trees, sorting, and hashing from one homepage.</h1>
+      <h1>DSA visualizers for trees, graphs, and sorting from one homepage.</h1>
       <p>
         This site collects the HTML simulations from the repository so they can be opened directly after deployment.
         Use the quick links below for the main demos, or jump into the full topic sections.
@@ -226,15 +227,12 @@
       <div class="hero-links">
         <a class="pill" href="tree/traversal_animation.html">Traversal Visualizer</a>
         <a class="pill" href="tree/traversal_animation_enhanced.html">Enhanced Traversal</a>
+        <a class="pill" href="Graph/undirected_graph_representation.html">Undirected Graph</a>
+        <a class="pill" href="Graph/directed_graph_representation.html">Directed Graph</a>
+        <a class="pill" href="Graph/bfs_traversal.html">BFS</a>
+        <a class="pill" href="Graph/dfs_traversal.html">DFS</a>
         <a class="pill" href="sorting%20techniques/bubble_sort_animation.html">Bubble Sort</a>
         <a class="pill" href="sorting%20techniques/quick_sort_animation.html">Quick Sort</a>
-        <a class="pill" href="Hashing%20Techniques/intro_to_hashing.html">01 Intro to Hashing</a>
-        <a class="pill" href="Hashing%20Techniques/hashing_functions_in_hashing.html">02 Hashing Functions</a>
-        <a class="pill" href="Hashing%20Techniques/chaining_in_hashing.html">03 Chaining</a>
-        <a class="pill" href="Hashing%20Techniques/linear_probing_in_hashing.html">04 Linear Probing</a>
-        <a class="pill" href="Hashing%20Techniques/quadratic_probing_in_hashing.html">05 Quadratic Probing</a>
-        <a class="pill" href="Hashing%20Techniques/double_hashing_in_hashing.html">06 Double Hashing</a>
-        <a class="pill" href="Hashing%20Techniques/intro_to_hashing_writeup.html">07 Hashing Writeup</a>
       </div>
     </section>
 
@@ -268,18 +266,16 @@
       </article>
 
       <article class="card">
-        <h2><span class="accent-hash">Hashing</span> Visualizers</h2>
-        <p>Interactive hashing pages inside <code>Hashing Techniques</code>, covering bucket mapping, collisions, and table behavior.</p>
+        <h2><span class="accent-graph">Graph</span> Visualizers</h2>
+        <p>Interactive graph pages inside <code>Graph</code>, covering the basic storage forms used for undirected and directed graphs.</p>
         <div class="list">
-          <a class="link-btn" href="Hashing%20Techniques/intro_to_hashing.html"><span>01 Intro to hashing</span><span>Animation and graph</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/hashing_functions_in_hashing.html"><span>02 Hashing functions</span><span>Function comparison demo</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/chaining_in_hashing.html"><span>03 Chaining in hashing</span><span>Collision handling explained</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/linear_probing_in_hashing.html"><span>04 Linear probing</span><span>Open addressing demo</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/quadratic_probing_in_hashing.html"><span>05 Quadratic probing</span><span>Square-jump probe demo</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/double_hashing_in_hashing.html"><span>06 Double hashing</span><span>Two-hash probe demo</span></a>
-          <a class="link-btn" href="Hashing%20Techniques/intro_to_hashing_writeup.html"><span>07 Hashing writeup</span><span>Companion notes</span></a>
+          <a class="link-btn" href="Graph/undirected_graph_representation.html"><span>Undirected graph representation</span><span>List, matrix, edge list</span></a>
+          <a class="link-btn" href="Graph/directed_graph_representation.html"><span>Directed graph representation</span><span>Arrows, out-list, matrix</span></a>
+          <a class="link-btn" href="Graph/bfs_traversal.html"><span>Breadth first search (BFS)</span><span>Queue-based traversal</span></a>
+          <a class="link-btn" href="Graph/dfs_traversal.html"><span>Depth first search (DFS)</span><span>Stack-based traversal</span></a>
         </div>
       </article>
+
     </section>
 
     <section class="footer">

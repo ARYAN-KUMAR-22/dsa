@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directed Graph Representation</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #141c30;
+      --card2: #0f1728;
+      --border: #2b3550;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #f97316;
+      --accent2: #fdba74;
+      --good: #22c55e;
+      --warn: #facc15;
+      --shadow: 0 18px 45px rgba(0, 0, 0, .28)
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: Inter, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top left, rgba(249, 115, 22, .12), transparent 24%), radial-gradient(circle at bottom right, rgba(250, 204, 21, .08), transparent 26%), linear-gradient(160deg, #08101d, #0b1120);
+      min-height: 100vh;
+      padding: 24px
+    }
+
+    .shell {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px
+    }
+
+    .hero,
+    .panel,
+    .tab-card {
+      background: rgba(20, 28, 48, .94);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow)
+    }
+
+    .hero {
+      padding: 28px
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, .1);
+      border: 1px solid rgba(249, 115, 22, .22);
+      font-size: .76rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      font-weight: 700;
+      margin-bottom: 14px
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      line-height: 1.06;
+      margin-bottom: 12px
+    }
+
+    h1 span,
+    .tab-card h3 {
+      color: var(--accent2)
+    }
+
+    .hero p,
+    .tab-card p,
+    .tab-card li {
+      color: var(--muted);
+      line-height: 1.75
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px
+    }
+
+    .hero-links a,
+    .tabs button,
+    .controls button,
+    .controls select {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font: 600 .88rem Inter, sans-serif;
+      text-decoration: none
+    }
+
+    .hero-links a {
+      background: rgba(249, 115, 22, .08);
+      color: var(--text)
+    }
+
+    .hero-links a.primary,
+    .controls button.primary {
+      background: linear-gradient(135deg, #ea580c, var(--accent));
+      color: #261103;
+      border-color: transparent
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(20, 28, 48, .94);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow)
+    }
+
+    .tabs button {
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    .tabs button.active {
+      background: rgba(249, 115, 22, .12);
+      color: var(--accent2)
+    }
+
+    .tab {
+      display: none
+    }
+
+    .tab.active {
+      display: grid;
+      gap: 18px
+    }
+
+    .controls,
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center
+    }
+
+    .controls {
+      padding: 18px
+    }
+
+    .controls select,
+    .controls button {
+      background: rgba(15, 23, 40, .92);
+      color: var(--text);
+      cursor: pointer
+    }
+
+    .metrics {
+      padding: 0 18px 18px
+    }
+
+    .metric {
+      min-width: 150px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(15, 23, 40, .92);
+      border: 1px solid var(--border)
+    }
+
+    .metric span {
+      display: block;
+      font-size: .68rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px
+    }
+
+    .metric strong {
+      font-family: "Fira Code", monospace;
+      font-size: .92rem
+    }
+
+    .status {
+      padding: 0 18px 18px;
+      color: var(--text);
+      line-height: 1.7
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.06fr .94fr;
+      gap: 18px
+    }
+
+    .panel {
+      padding: 18px
+    }
+
+    .panel h2,
+    .tab-card h3 {
+      font-size: 1rem;
+      margin-bottom: 10px
+    }
+
+    .graph-stage {
+      height: 420px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(8, 16, 29, .72);
+      padding: 10px
+    }
+
+    .graph-stage svg {
+      width: 100%;
+      height: 100%;
+      display: block
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px
+    }
+
+    .list-grid {
+      display: grid;
+      gap: 10px
+    }
+
+    .list-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(15, 23, 40, .78)
+    }
+
+    .list-row.active {
+      border-color: rgba(253, 186, 116, .45)
+    }
+
+    .list-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8, 16, 29, .82);
+      border-right: 1px solid var(--border);
+      font-family: "Fira Code", monospace;
+      color: var(--accent2)
+    }
+
+    .list-body {
+      padding: 10px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center
+    }
+
+    .chip,
+    .empty {
+      min-width: 40px;
+      min-height: 32px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Fira Code", monospace;
+      font-size: .78rem
+    }
+
+    .chip {
+      background: rgba(249, 115, 22, .12)
+    }
+
+    .empty {
+      background: rgba(8, 16, 29, .6);
+      color: #64748b
+    }
+
+    .edge-list {
+      display: grid;
+      gap: 8px
+    }
+
+    .edge-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 40, .78);
+      font-family: "Fira Code", monospace;
+      font-size: .78rem
+    }
+
+    .edge-item.active {
+      border-color: rgba(253, 186, 116, .45);
+      background: rgba(249, 115, 22, .08)
+    }
+
+    .edge-item.pending {
+      opacity: .55
+    }
+
+    .matrix-wrap {
+      overflow: auto
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 8px;
+      min-width: 100%
+    }
+
+    th,
+    td {
+      min-width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+      font-family: "Fira Code", monospace;
+      font-size: .8rem
+    }
+
+    th {
+      background: rgba(8, 16, 29, .82);
+      color: var(--accent2)
+    }
+
+    td {
+      background: rgba(15, 23, 40, .78)
+    }
+
+    td.one {
+      background: rgba(34, 197, 94, .12);
+      border-color: rgba(34, 197, 94, .34)
+    }
+
+    td.active {
+      background: rgba(249, 115, 22, .14);
+      border-color: rgba(253, 186, 116, .45)
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px
+    }
+
+    .tab-card {
+      padding: 18px
+    }
+
+    .tab-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px
+    }
+
+    pre {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #09101f;
+      overflow: auto
+    }
+
+    code {
+      font-family: "Fira Code", monospace;
+      color: #dbe4f3;
+      white-space: pre
+    }
+
+    @media (max-width:960px) {
+      body {
+        padding: 14px
+      }
+
+      .grid,
+      .cards {
+        grid-template-columns: 1fr
+      }
+
+      .hero,
+      .panel,
+      .tab-card {
+        padding: 18px
+      }
+
+      .tabs {
+        overflow: auto
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Graph Basics</div>
+      <h1><span>Directed Graph</span> Representation</h1>
+      <p>See how a directed graph stores one-way connections using arrowed edges, outgoing adjacency lists, a non-symmetric adjacency matrix, and an ordered edge list.</p>
+      <div class="hero-links">
+        <a class="primary" href="../index.html">Back to homepage</a>
+        <a href="undirected_graph_representation.html">Open undirected graph page</a>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="active" onclick="showTab('animation',this)">Animation</button>
+      <button onclick="showTab('theory',this)">Theory</button>
+      <button onclick="showTab('code',this)">Code</button>
+    </nav>
+
+    <section id="animation" class="tab active">
+      <section class="panel">
+        <div class="controls">
+          <select id="sampleSelect">
+            <option value="workflow">Workflow Graph</option>
+            <option value="network">Network Graph</option>
+          </select>
+          <button id="loadBtn">Load Sample</button>
+          <button id="nextBtn">Next Edge</button>
+          <button class="primary" id="playBtn">Auto Play</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span>Vertices</span><strong id="vertexCount">0</strong></div>
+          <div class="metric"><span>Edges Added</span><strong id="edgeCount">0</strong></div>
+          <div class="metric"><span>Current Edge</span><strong id="currentEdge">-</strong></div>
+          <div class="metric"><span>Max Out-Degree</span><strong id="maxOutDegree">0</strong></div>
+        </div>
+        <div class="status" id="statusText">Load a sample and add directed edges one by one to watch every representation update.</div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Graph Drawing</h2>
+          <div class="graph-stage"><svg id="graphSvg" viewBox="0 0 760 420" preserveAspectRatio="xMidYMid meet"></svg></div>
+        </article>
+
+        <section class="stack">
+          <article class="panel">
+            <h2>Outgoing Adjacency List</h2>
+            <div class="list-grid" id="adjList"></div>
+          </article>
+          <article class="panel">
+            <h2>Edge List</h2>
+            <div class="edge-list" id="edgeList"></div>
+          </article>
+        </section>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Adjacency Matrix</h2>
+          <div class="matrix-wrap" id="matrixWrap"></div>
+        </article>
+        <article class="panel">
+          <h2>Current Insight</h2>
+          <p id="insightText">A directed edge updates only one list direction and only one matrix cell, because the connection goes from source to destination.</p>
+        </article>
+      </section>
+    </section>
+
+    <section id="theory" class="tab">
+      <section class="cards">
+        <article class="tab-card">
+          <h3>What Directed Means</h3>
+          <ul>
+            <li>A directed edge has an arrow, so <code>A -&gt; B</code> does not automatically mean <code>B -&gt; A</code>.</li>
+            <li>The direction matters in storage, traversal, and matrix updates.</li>
+            <li>That is why the adjacency matrix for a directed graph is not necessarily symmetric.</li>
+          </ul>
+        </article>
+        <article class="tab-card">
+          <h3>Adjacency List</h3>
+          <ul>
+            <li>Store the outgoing neighbors of each vertex.</li>
+            <li>If there is an edge <code>u -&gt; v</code>, add <code>v</code> only to the list of <code>u</code>.</li>
+            <li>This is usually space-efficient for sparse graphs.</li>
+          </ul>
+        </article>
+        <article class="tab-card">
+          <h3>Adjacency Matrix</h3>
+          <ul>
+            <li><code>matrix[u][v] = 1</code> means there is a directed edge from <code>u</code> to <code>v</code>.</li>
+            <li>You do not automatically set <code>matrix[v][u]</code>.</li>
+            <li>This makes edge lookup fast but uses <code>O(V^2)</code> space.</li>
+          </ul>
+        </article>
+        <article class="tab-card">
+          <h3>In-Degree and Out-Degree</h3>
+          <ul>
+            <li><strong>Out-degree:</strong> number of edges leaving a vertex.</li>
+            <li><strong>In-degree:</strong> number of edges entering a vertex.</li>
+            <li>Directed graphs care about both because flow has direction.</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+
+    <section id="code" class="tab">
+      <section class="cards">
+        <article class="tab-card">
+          <h3>C Code: Adjacency Matrix</h3>
+          <pre><code>#define V 6
+
+void addEdge(int matrix[V][V], int u, int v) {
+    matrix[u][v] = 1;
+}</code></pre>
+        </article>
+        <article class="tab-card">
+          <h3>C Code: Adjacency List</h3>
+          <pre><code>void addEdge(Node* graph[], int u, int v) {
+    addNode(&graph[u], v);
+}</code></pre>
+        </article>
+        <article class="tab-card">
+          <h3>Pseudo Logic</h3>
+          <pre><code>for every directed edge (u, v)
+    list[u].append(v)
+    matrix[u][v] = 1
+    edgeList.append((u, v))</code></pre>
+        </article>
+        <article class="tab-card">
+          <h3>DSA Idea</h3>
+          <p>In a directed graph, the storage must preserve the direction of travel. That is the main difference from the undirected case.</p>
+        </article>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    const samples = {
+      workflow: {
+        vertices: ['A', 'B', 'C', 'D', 'E', 'F'],
+        positions: { A: [120, 100], B: [320, 70], C: [540, 100], D: [200, 270], E: [420, 250], F: [620, 240] },
+        edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'E'], ['D', 'E'], ['E', 'F'], ['B', 'E']]
+      },
+      network: {
+        vertices: ['P', 'Q', 'R', 'S', 'T', 'U'],
+        positions: { P: [120, 110], Q: [310, 70], R: [520, 110], S: [180, 280], T: [390, 280], U: [630, 190] },
+        edges: [['P', 'Q'], ['Q', 'R'], ['P', 'S'], ['Q', 'T'], ['S', 'T'], ['T', 'R'], ['R', 'U']]
+      }
+    };
+
+    const ui = {
+      sampleSelect: document.getElementById('sampleSelect'),
+      loadBtn: document.getElementById('loadBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      playBtn: document.getElementById('playBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      graphSvg: document.getElementById('graphSvg'),
+      adjList: document.getElementById('adjList'),
+      edgeList: document.getElementById('edgeList'),
+      matrixWrap: document.getElementById('matrixWrap'),
+      vertexCount: document.getElementById('vertexCount'),
+      edgeCount: document.getElementById('edgeCount'),
+      currentEdge: document.getElementById('currentEdge'),
+      maxOutDegree: document.getElementById('maxOutDegree'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText')
+    };
+
+    let state = { sampleKey: 'workflow', sample: samples.workflow, stepIndex: 0, running: false, timer: null };
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tabs button').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function adjacency() {
+      const map = Object.fromEntries(state.sample.vertices.map(v => [v, []]));
+      state.sample.edges.slice(0, state.stepIndex).forEach(([u, v]) => { map[u].push(v); });
+      return map;
+    }
+
+    function inDegrees() {
+      const map = Object.fromEntries(state.sample.vertices.map(v => [v, 0]));
+      state.sample.edges.slice(0, state.stepIndex).forEach(([u, v]) => { map[v] += 1; });
+      return map;
+    }
+
+    function edgePoints(from, to) {
+      const dx = to[0] - from[0];
+      const dy = to[1] - from[1];
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      return {
+        x1: from[0] + ux * 28,
+        y1: from[1] + uy * 28,
+        x2: to[0] - ux * 34,
+        y2: to[1] - uy * 34
+      };
+    }
+
+    function render() {
+      const adj = adjacency();
+      const indeg = inDegrees();
+      const current = state.stepIndex > 0 ? state.sample.edges[state.stepIndex - 1] : null;
+      const edges = state.sample.edges.slice(0, state.stepIndex);
+      ui.vertexCount.textContent = state.sample.vertices.length;
+      ui.edgeCount.textContent = `${state.stepIndex} / ${state.sample.edges.length}`;
+      ui.currentEdge.textContent = current ? `(${current[0]} -> ${current[1]})` : '-';
+      ui.maxOutDegree.textContent = Math.max(...state.sample.vertices.map(v => adj[v].length), 0);
+      ui.statusText.textContent = current ? `Edge ${current[0]} -> ${current[1]} was added. Only the source stores the destination in its adjacency list.` : 'Load a sample and add directed edges one by one to watch every representation update.';
+      ui.insightText.textContent = current ? `The edge ${current[0]} -> ${current[1]} marks only matrix[${current[0]}][${current[1]}] and adds ${current[1]} only to the outgoing list of ${current[0]}.` : 'A directed edge updates only one list direction and only one matrix cell, because the connection goes from source to destination.';
+
+      const defs = `<defs><marker id="arrowHead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#22c55e"/></marker><marker id="arrowHeadActive" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f97316"/></marker><marker id="arrowHeadPreview" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#facc15"/></marker></defs>`;
+      const lines = edges.map(([u, v], i) => {
+        const pts = edgePoints(state.sample.positions[u], state.sample.positions[v]);
+        const active = i === state.stepIndex - 1;
+        return `<line x1="${pts.x1}" y1="${pts.y1}" x2="${pts.x2}" y2="${pts.y2}" stroke="${active ? '#f97316' : '#22c55e'}" stroke-width="${active ? 5 : 4}" stroke-linecap="round" marker-end="url(#${active ? 'arrowHeadActive' : 'arrowHead'})"/>`;
+      }).join('');
+      const preview = state.stepIndex < state.sample.edges.length ? (() => {
+        const [u, v] = state.sample.edges[state.stepIndex];
+        const pts = edgePoints(state.sample.positions[u], state.sample.positions[v]);
+        return `<line x1="${pts.x1}" y1="${pts.y1}" x2="${pts.x2}" y2="${pts.y2}" stroke="#facc15" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round" marker-end="url(#arrowHeadPreview)" opacity=".9"/>`;
+      })() : '';
+      const activeSet = new Set(current || []);
+      const nodes = state.sample.vertices.map(v => {
+        const [x, y] = state.sample.positions[v];
+        const active = activeSet.has(v);
+        const fill = active ? '#f97316' : '#1a2333';
+        const stroke = active ? '#fdba74' : '#4f6287';
+        const text = active ? '#261103' : '#e2e8f0';
+        return `<g><circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${stroke}" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Fira Code, monospace" font-size="18" fill="${text}">${v}</text><text x="${x}" y="${y+50}" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#94a3b8">out ${adj[v].length} | in ${indeg[v]}</text></g>`;
+      }).join('');
+      ui.graphSvg.innerHTML = `<rect x="8" y="8" width="744" height="404" rx="24" fill="#101826" stroke="#263247"/>${defs}${lines}${preview}${nodes}`;
+
+      const source = current ? current[0] : null;
+      ui.adjList.innerHTML = state.sample.vertices.map(v => {
+        const vals = adj[v].length ? adj[v].map(n => `<div class="chip">${n}</div>`).join('') : '<div class="empty">empty</div>';
+        return `<div class="list-row ${v === source ? 'active' : ''}"><div class="list-head">${v}</div><div class="list-body">${vals}</div></div>`;
+      }).join('');
+
+      ui.edgeList.innerHTML = state.sample.edges.map(([u, v], i) => `<div class="edge-item ${i === state.stepIndex - 1 ? 'active' : ''} ${i >= state.stepIndex ? 'pending' : ''}"><span>(${u} -> ${v})</span><span>${i < state.stepIndex ? 'added' : i === state.stepIndex ? 'next' : 'pending'}</span></div>`).join('');
+
+      const vertices = state.sample.vertices;
+      const matrix = Object.fromEntries(vertices.map(r => [r, Object.fromEntries(vertices.map(c => [c, 0]))]));
+      edges.forEach(([u, v]) => { matrix[u][v] = 1; });
+      let html = '<table><tr><th></th>' + vertices.map(v => `<th>${v}</th>`).join('') + '</tr>';
+      vertices.forEach(r => {
+        html += `<tr><th>${r}</th>`;
+        vertices.forEach(c => {
+          const on = matrix[r][c] === 1;
+          const active = current && r === current[0] && c === current[1];
+          html += `<td class="${on ? 'one' : ''} ${active ? 'active' : ''}">${matrix[r][c]}</td>`;
+        });
+        html += '</tr>';
+      });
+      ui.matrixWrap.innerHTML = html + '</table>';
+    }
+
+    function loadSample(key) {
+      stop();
+      state.sampleKey = key;
+      state.sample = samples[key];
+      state.stepIndex = 0;
+      ui.playBtn.textContent = 'Auto Play';
+      render();
+    }
+
+    function nextEdge() {
+      if (state.stepIndex >= state.sample.edges.length) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      state.stepIndex += 1;
+      render();
+    }
+
+    function stop() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function loop() {
+      if (!state.running) return;
+      if (state.stepIndex >= state.sample.edges.length) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      nextEdge();
+      state.timer = setTimeout(loop, 620);
+    }
+
+    ui.loadBtn.addEventListener('click', () => loadSample(ui.sampleSelect.value));
+    ui.nextBtn.addEventListener('click', () => { stop(); ui.playBtn.textContent = 'Auto Play'; nextEdge(); });
+    ui.playBtn.addEventListener('click', () => {
+      if (state.running) {
+        stop();
+        ui.playBtn.textContent = 'Resume';
+        return;
+      }
+      if (state.stepIndex >= state.sample.edges.length) loadSample(state.sampleKey);
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      loop();
+    });
+    ui.resetBtn.addEventListener('click', () => loadSample(state.sampleKey));
+
+    loadSample('workflow');
+  </script>
+</body>
+</html>
