@@ -50,6 +50,7 @@ Each algorithm will include:
 - `insertion_sort_animation.html` - Insertion Sort visualizer with key tracking, shift animation, pseudo-code highlighting, and theory tabs.
 - `merge_sort_animation.html` - Merge Sort visualizer with split-range tracking, merge buffer animation, pseudo-code highlighting, and theory tabs.
 - `quick_sort_animation.html` - Quick Sort visualizer with pivot tracking, recursive or iterative modes, and theory tabs.
+- `radix_sort_animation.html` - Radix Sort visualizer with digit-by-digit counting passes, stable output placement, and theory tabs.
 - `selection_sort_animation.html` - Selection Sort visualizer with minimum tracking, scan animation, pseudo-code highlighting, and theory tabs.
 
 More files coming soon.
