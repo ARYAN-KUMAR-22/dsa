@@ -52,6 +52,7 @@ Each algorithm will include:
 - `quick_sort_animation.html` - Quick Sort visualizer with pivot tracking, recursive or iterative modes, and theory tabs.
 - `radix_sort_animation.html` - Radix Sort visualizer with digit-by-digit counting passes, stable output placement, and theory tabs.
 - `selection_sort_animation.html` - Selection Sort visualizer with minimum tracking, scan animation, pseudo-code highlighting, and theory tabs.
+- `shell_sort_animation.html` - Shell Sort visualizer with shrinking gap passes, gapped insertion behavior, and theory tabs.
 
 More files coming soon.
 

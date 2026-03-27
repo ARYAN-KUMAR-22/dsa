@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Radix Sort - Interactive Visualizer</title>
+  <title>Shell Sort - Interactive Visualizer</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
     rel="stylesheet" />
@@ -14,8 +14,8 @@
       --card: #1d2436;
       --panel: #12161f;
       --border: #2b3550;
-      --accent: #38bdf8;  
-      --accent-2: #7dd3fc;
+      --accent: #ec4899;
+      --accent-2: #f9a8d4;
       --good: #22c55e;
       --warn: #f59e0b;
       --danger: #ef4444;
@@ -46,7 +46,7 @@
       gap: 14px;
       padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(90deg, #04141f, #0d1117);
+      background: linear-gradient(90deg, #190713, #0d1117);
       flex-shrink: 0;
     }
 
@@ -243,7 +243,7 @@
     .log-entry.info {
       color: var(--accent-2);
       border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.08);
+      background: rgba(236, 72, 153, 0.08);
     }
 
     .log-entry.warn {
@@ -271,8 +271,8 @@
       flex-direction: column;
       overflow: hidden;
       background:
-        radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.07), transparent 30%),
+        radial-gradient(circle at top right, rgba(236, 72, 153, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(249, 168, 212, 0.06), transparent 30%),
         var(--bg);
     }
 
@@ -411,8 +411,8 @@
     }
 
     button.primary {
-      background: linear-gradient(135deg, var(--accent), #7dd3fc);
-      color: #04141f;
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      color: #07131d;
       border-color: transparent;
     }
 
@@ -421,7 +421,6 @@
     }
 
     .viz-area {
-      flex: 1;
       min-height: 0;
       display: grid;
       grid-template-columns: 1.4fr 0.8fr;
@@ -442,17 +441,7 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .canvas-card::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .canvas-card::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 999px;
+      overflow: hidden;
     }
 
     .card-head {
@@ -495,9 +484,9 @@
     }
 
     .bars-wrap {
-      flex: 0 0 auto;
-      min-height: 220px;
-      height: clamp(220px, 30vh, 280px);
+      flex: 1;
+      min-height: 280px;
+      height: clamp(280px, 44vh, 380px);
       padding: 22px 18px 18px;
       display: flex;
       align-items: flex-end;
@@ -506,13 +495,11 @@
       overflow-x: auto;
     }
 
-    .bars-wrap::-webkit-scrollbar,
-    .buffer-wrap::-webkit-scrollbar {
+    .bars-wrap::-webkit-scrollbar {
       height: 6px;
     }
 
-    .bars-wrap::-webkit-scrollbar-thumb,
-    .buffer-wrap::-webkit-scrollbar-thumb {
+    .bars-wrap::-webkit-scrollbar-thumb {
       background: var(--border);
       border-radius: 999px;
     }
@@ -526,7 +513,7 @@
       align-items: center;
       justify-content: flex-end;
       gap: 10px;
-      height: calc(clamp(220px, 30vh, 280px) - 40px);
+      height: calc(clamp(280px, 44vh, 380px) - 40px);
     }
 
     .bar {
@@ -534,26 +521,31 @@
       border-radius: 12px 12px 4px 4px;
       background: linear-gradient(180deg, #475569, #0f172a);
       position: relative;
-      transition: height 0.35s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+      transition: height 0.35s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
-    .bar.count-source {
-      background: linear-gradient(180deg, #fde68a, #f59e0b);
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+    .bar.compare {
+      background: linear-gradient(180deg, #f97316, var(--warn));
+      transform: translateY(-6px);
+    }
+
+    .bar.key {
+      background: linear-gradient(180deg, #f9a8d4, var(--accent));
+      color: #f8fafc;
+      box-shadow: 0 0 18px rgba(236, 72, 153, 0.24);
       transform: translateY(-8px);
     }
 
-    .bar.place-source {
-      background: linear-gradient(180deg, #fb7185, var(--danger));
+    .bar.shift {
+      background: linear-gradient(180deg, #f43f5e, var(--danger));
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
       transform: translateY(-10px);
-      box-shadow: 0 0 18px rgba(244, 63, 94, 0.22);
     }
 
     .bar.sorted {
-      background: linear-gradient(180deg, #4ade80, var(--good));
-      box-shadow: 0 0 18px rgba(74, 222, 128, 0.22);
+      background: linear-gradient(180deg, #16a34a, var(--good));
     }
 
     .bar-label {
@@ -566,112 +558,6 @@
     .index-badge {
       font-size: 0.64rem;
       color: var(--muted);
-      font-family: 'Fira Code', monospace;
-    }
-
-    .buffer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 12px 16px 14px;
-      border-top: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.86);
-      flex-shrink: 0;
-    }
-
-    .buffer-panel {
-      min-width: 0;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-      background: rgba(29, 36, 54, 0.42);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .buffer-panel.tight {
-      border-top: 1px solid var(--border);
-      padding: 12px 16px 14px;
-    }
-
-    .buffer-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .buffer-title {
-      font-size: 0.76rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent-2);
-      font-weight: 700;
-    }
-
-    .buffer-subtitle {
-      font-size: 0.74rem;
-      color: var(--muted);
-    }
-
-    .buffer-wrap {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      min-height: 58px;
-      padding-bottom: 2px;
-    }
-
-    .buffer-empty {
-      min-height: 58px;
-      width: 100%;
-      border-radius: 14px;
-      border: 1px dashed var(--border);
-      background: rgba(29, 36, 54, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .buffer-cell {
-      min-width: 58px;
-      border-radius: 14px;
-      border: 1px dashed var(--border);
-      background: rgba(29, 36, 54, 0.45);
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-    }
-
-    .buffer-cell.filled {
-      border-style: solid;
-      border-color: rgba(103, 232, 249, 0.28);
-      background: rgba(56, 189, 248, 0.12);
-    }
-
-    .buffer-cell.active {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.16);
-    }
-
-    .buffer-index {
-      font-size: 0.64rem;
-      color: var(--muted);
-      font-family: 'Fira Code', monospace;
-    }
-
-    .buffer-value {
-      font-size: 0.86rem;
-      color: var(--text);
       font-family: 'Fira Code', monospace;
     }
 
@@ -713,8 +599,8 @@
     }
 
     .code-line.active {
-      background: rgba(56, 189, 248, 0.08);
-      border-color: rgba(56, 189, 248, 0.28);
+      background: rgba(236, 72, 153, 0.08);
+      border-color: rgba(236, 72, 153, 0.28);
       color: #f8fafc;
     }
 
@@ -842,10 +728,6 @@
       .theory-grid {
         grid-template-columns: 1fr;
       }
-
-      .buffer-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 900px) {
@@ -915,8 +797,8 @@
 <body>
   <header>
     <div>
-      <h1><span>Radix Sort</span> Visualizer</h1>
-      <p>Watch LSD radix sort process ones, tens, and higher digits with stable counting passes.</p>
+      <h1><span>Shell Sort</span> Visualizer</h1>
+      <p>Watch gap-based insertion passes move values long distances before the final gap-1 cleanup.</p>
     </div>
     <label class="speed-label">
       Speed
@@ -928,27 +810,27 @@
     <aside class="left-panel">
       <div class="panel-header">
         <span class="pulse-dot"></span>
-        Radix Runtime Feed
+        Shell Runtime Feed
       </div>
 
       <section class="panel-section">
         <div class="panel-section-title">Live Metrics</div>
         <div class="summary-grid">
           <div class="metric">
+            <div class="metric-label">Gap</div>
+            <div class="metric-value" id="gapCount">0</div>
+          </div>
+          <div class="metric">
             <div class="metric-label">Pass</div>
-            <div class="metric-value" id="passOps">0/0</div>
+            <div class="metric-value" id="passCount">0</div>
           </div>
           <div class="metric">
-            <div class="metric-label">Prefix</div>
-            <div class="metric-value" id="prefixOps">0</div>
+            <div class="metric-label">Compare</div>
+            <div class="metric-value" id="compareCount">0</div>
           </div>
           <div class="metric">
-            <div class="metric-label">Output</div>
-            <div class="metric-value" id="outputWrites">0</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Digits</div>
-            <div class="metric-value" id="digitPasses">0</div>
+            <div class="metric-label">Shift</div>
+            <div class="metric-value" id="shiftCount">0</div>
           </div>
         </div>
       </section>
@@ -974,7 +856,7 @@
         <section class="control-row">
           <label class="field">
             <span>Input</span>
-            <input id="inputArray" type="text" value="170, 45, 75, 90, 802, 24, 2, 66"
+            <input id="inputArray" type="text" value="54, 23, 91, 17, 77, 31, 44, 55"
               aria-label="Enter comma separated numbers" />
           </label>
 
@@ -992,32 +874,16 @@
             <div class="card-head">
               <div>
                 <div class="card-title">Bar Animation</div>
-                <div class="card-subtitle" id="statusText">Ready to simulate Radix Sort.</div>
+                <div class="card-subtitle" id="statusText">Ready to simulate Shell Sort.</div>
               </div>
               <div class="legend">
-                <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b;"></span> Current digit source</span>
-                <span class="legend-item"><span class="legend-swatch" style="background:#38bdf8;"></span> Active digit slot</span>
-                <span class="legend-item"><span class="legend-swatch" style="background:#f43f5e;"></span> Stable pass placement</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#ec4899;"></span> Current key</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#f97316;"></span> Gap comparison</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#ef4444;"></span> Gap shift</span>
                 <span class="legend-item"><span class="legend-swatch" style="background:#22c55e;"></span> Final sorted array</span>
               </div>
             </div>
             <div class="bars-wrap" id="barsWrap"></div>
-            <div class="buffer-grid">
-              <div class="buffer-panel">
-                <div class="buffer-head">
-                  <div class="buffer-title">Digit Count Array</div>
-                  <div class="buffer-subtitle" id="countStatus">Counts digits 0 through 9 for the active place value.</div>
-                </div>
-                <div class="buffer-wrap" id="countWrap"></div>
-              </div>
-              <div class="buffer-panel">
-                <div class="buffer-head">
-                  <div class="buffer-title">Output Array</div>
-                  <div class="buffer-subtitle" id="outputStatus">Output is rebuilt on every digit pass using stable placement.</div>
-                </div>
-                <div class="buffer-wrap" id="outputWrap"></div>
-              </div>
-            </div>
           </article>
 
           <article class="code-card">
@@ -1035,19 +901,19 @@
           <article class="footer-card">
             <h3>Complexity</h3>
             <div class="badge-row">
-              <span class="badge">Best: O(d(n + b))</span>
-              <span class="badge">Average: O(d(n + b))</span>
-              <span class="badge">Worst: O(d(n + b))</span>
-              <span class="badge">Space: O(n + b)</span>
-              <span class="badge">Stable: Yes</span>
+              <span class="badge">Best: O(n log n)</span>
+              <span class="badge">Average: Depends gap sequence</span>
+              <span class="badge">Worst: O(n^2)</span>
+              <span class="badge">Space: O(1)</span>
+              <span class="badge">Stable: No</span>
             </div>
           </article>
 
           <article class="footer-card">
             <h3>Current Insight</h3>
             <p class="status-line" id="insightText">
-              <strong>Radix Sort</strong> repeatedly applies a stable counting pass to each digit place, from least
-              significant to most significant, until the whole array is ordered.
+              <strong>Shell Sort</strong> runs insertion-style passes over shrinking gaps so elements can travel long
+              distances before the final pass.
             </p>
           </article>
         </section>
@@ -1056,44 +922,44 @@
       <section id="tab-theory" class="tab-panel">
         <div class="theory-grid">
           <article class="theory-card">
-            <h3>How Radix Sort Works</h3>
+            <h3>How Shell Sort Works</h3>
             <ul>
-              <li>Choose a digit place such as ones, tens, or hundreds.</li>
-              <li>Run a stable counting sort using only that digit from every number.</li>
-              <li>Copy the output back so the array is now sorted by all processed lower digits.</li>
-              <li>Move to the next larger digit place and repeat the same stable pass.</li>
-              <li>Stop after the largest number has no more remaining higher digits.</li>
+              <li>Start with a large gap, often half of the array length.</li>
+              <li>Run a gapped insertion sort so each value compares with elements that are gap positions apart.</li>
+              <li>Shrink the gap and repeat until the gap becomes 1.</li>
+              <li>The final gap-1 pass behaves like insertion sort, but the array is already much closer to sorted.</li>
             </ul>
           </article>
 
           <article class="theory-card">
             <h3>Pseudo Logic</h3>
             <ul>
-              <li><code>maxValue = max(a)</code></li>
-              <li><code>for exp = 1; maxValue / exp &gt; 0; exp *= 10</code></li>
-              <li><code>  count = array(10, 0)</code></li>
-              <li><code>  count digits at place exp</code></li>
-              <li><code>  convert count into prefix sums</code></li>
-              <li><code>  place values into output from right to left</code></li>
-              <li><code>  copy output back to a</code></li>
+              <li><code>gap = floor(n / 2)</code></li>
+              <li><code>while gap &gt; 0</code></li>
+              <li><code>for i = gap to n - 1</code></li>
+              <li><code>temp = a[i]; j = i</code></li>
+              <li><code>while j &gt;= gap and a[j - gap] &gt; temp</code></li>
+              <li><code>a[j] = a[j - gap]; j -= gap</code></li>
+              <li><code>a[j] = temp</code></li>
+              <li><code>gap = floor(gap / 2)</code></li>
             </ul>
           </article>
 
           <article class="theory-card">
             <h3>When It Is Useful</h3>
             <ul>
-              <li>Excellent for sorting many non-negative integers when the number of digits <code>d</code> is small.</li>
-              <li>Useful when comparison sorts are not ideal and digit-wise processing is cheap.</li>
-              <li>Works especially well for fixed-width integer keys such as IDs, zip codes, or padded numbers.</li>
+              <li>Useful when you want something simpler than advanced <code>O(n log n)</code> sorts but faster than plain insertion sort on medium arrays.</li>
+              <li>Good for in-place sorting when long-distance moves help reduce disorder early.</li>
+              <li>Often performs well in practice on partially disordered data.</li>
             </ul>
           </article>
 
           <article class="theory-card">
             <h3>Key Tradeoffs</h3>
             <ul>
-              <li>It needs a stable inner counting sort for every digit place, so implementation is more involved than a single-pass sort.</li>
-              <li>It is best suited for non-negative integers unless extra handling is added for negatives or strings.</li>
-              <li>If numbers have many digits, the repeated passes can reduce its practical advantage.</li>
+              <li>Performance depends heavily on the chosen gap sequence.</li>
+              <li>It is not stable, so equal values may change their relative order.</li>
+              <li>It works in place and needs only <code>O(1)</code> extra space.</li>
             </ul>
           </article>
         </div>
@@ -1102,36 +968,33 @@
   </div>
 
   <script>
-    const defaultArray = [170, 45, 75, 90, 802, 24, 2, 66];
+    const defaultArray = [54, 23, 91, 17, 77, 31, 44, 55];
     const maxBars = 14;
-    const minValue = 0;
-    const maxValue = 999;
+    const minValue = 5;
+    const maxValue = 99;
 
     const stepsTemplate = [
-      'Choose the current digit place.',
-      'Count how often each digit 0-9 appears.',
-      'Convert digit counts into prefix positions.',
-      'Place values into output from right to left.',
-      'Copy the pass result back to the main array.',
-      'Repeat for the next higher digit place.'
+      'Choose the current gap for this pass.',
+      'Pick the next element in the gapped subsequence as the key.',
+      'Compare with elements that are gap positions to the left.',
+      'Shift larger elements forward by the current gap.',
+      'Insert the key into its gapped position.',
+      'Shrink the gap and repeat until the gap becomes 1.'
     ];
 
     const pseudoCode = [
-      'maxValue = max(a)',
-      'for exp = 1; maxValue / exp > 0; exp *= 10',
-      '  count = array(10, 0)',
-      '  count digits at place exp',
-      '  convert count into prefix sums',
-      '  place values into output from right to left',
-      '  copy output back to a'
+      'gap = floor(n / 2)',
+      'while gap > 0',
+      '  for i = gap to n - 1',
+      '    temp = a[i]; j = i',
+      '    while j >= gap and a[j - gap] > temp',
+      '      a[j] = a[j - gap]; j -= gap',
+      '    a[j] = temp',
+      '  gap = floor(gap / 2)'
     ];
 
     const ui = {
       barsWrap: document.getElementById('barsWrap'),
-      countWrap: document.getElementById('countWrap'),
-      outputWrap: document.getElementById('outputWrap'),
-      countStatus: document.getElementById('countStatus'),
-      outputStatus: document.getElementById('outputStatus'),
       inputArray: document.getElementById('inputArray'),
       playBtn: document.getElementById('playBtn'),
       stepBtn: document.getElementById('stepBtn'),
@@ -1139,11 +1002,10 @@
       randomBtn: document.getElementById('randomBtn'),
       loadBtn: document.getElementById('loadBtn'),
       speedRange: document.getElementById('speedRange'),
-      passOps: document.getElementById('passOps'),
-      countOps: document.getElementById('countOps'),
-      prefixOps: document.getElementById('prefixOps'),
-      outputWrites: document.getElementById('outputWrites'),
-      digitPasses: document.getElementById('digitPasses'),
+      gapCount: document.getElementById('gapCount'),
+      passCount: document.getElementById('passCount'),
+      compareCount: document.getElementById('compareCount'),
+      shiftCount: document.getElementById('shiftCount'),
       stepBox: document.getElementById('stepBox'),
       logBox: document.getElementById('logBox'),
       codeWrap: document.getElementById('codeWrap'),
@@ -1158,19 +1020,15 @@
       actionIndex: 0,
       running: false,
       timer: null,
-      currentPass: 0,
-      totalPasses: 0,
-      currentExp: 1,
-      countOps: 0,
-      prefixOps: 0,
-      outputWrites: 0,
-      activeInputIndex: null,
-      activeCountIndex: null,
-      activeOutputIndex: null,
-      phase: null,
+      currentGap: 0,
+      compareCount: 0,
+      shiftCount: 0,
+      passCount: 0,
       sortedIndices: [],
-      countArray: Array.from({ length: 10 }, () => 0),
-      outputArray: [],
+      highlight: [],
+      shiftIndices: [],
+      selectedIndex: null,
+      currentKey: null,
       currentLine: -1,
       currentStep: 0,
       lastInsight: 'Ready to sort.'
@@ -1179,7 +1037,7 @@
     function init() {
       renderSteps();
       renderPseudoCode();
-      loadArray(defaultArray, 'Loaded default Radix Sort sample.');
+      loadArray(defaultArray, 'Loaded default Shell Sort sample.');
       bindEvents();
     }
 
@@ -1188,7 +1046,7 @@
       ui.loadBtn.addEventListener('click', () => {
         const parsed = parseInput(ui.inputArray.value);
         if (!parsed.length) {
-          pushLog('warn', 'Invalid input. Enter up to 14 comma separated integers between 0 and 999.');
+          pushLog('warn', 'Invalid input. Enter up to 14 comma separated integers.');
           return;
         }
         loadArray(parsed, 'Loaded custom input array.');
@@ -1223,32 +1081,27 @@
 
     function randomizeArray() {
       const size = 8 + Math.floor(Math.random() * 4);
-      const random = Array.from({ length: size }, () => Math.floor(Math.random() * (maxValue + 1)));
+      const random = Array.from({ length: size }, () => Math.floor(Math.random() * 90) + 10);
       ui.inputArray.value = random.join(', ');
       loadArray(random, 'Generated a fresh random array.');
     }
 
     function loadArray(arr, message) {
       stopRun();
-      const totalPasses = getTotalPasses(arr);
       state.original = [...arr];
       state.arr = [...arr];
-      state.actions = buildActions(arr, totalPasses);
+      state.actions = buildActions(arr);
       state.actionIndex = 0;
       state.running = false;
-      state.currentPass = 0;
-      state.totalPasses = totalPasses;
-      state.currentExp = 1;
-      state.countOps = 0;
-      state.prefixOps = 0;
-      state.outputWrites = 0;
-      state.activeInputIndex = null;
-      state.activeCountIndex = null;
-      state.activeOutputIndex = null;
-      state.phase = null;
+      state.currentGap = arr.length > 1 ? Math.floor(arr.length / 2) : 0;
+      state.compareCount = 0;
+      state.shiftCount = 0;
+      state.passCount = 0;
       state.sortedIndices = [];
-      state.countArray = Array.from({ length: 10 }, () => 0);
-      state.outputArray = Array.from({ length: arr.length }, () => null);
+      state.highlight = [];
+      state.shiftIndices = [];
+      state.selectedIndex = null;
+      state.currentKey = null;
       state.currentLine = -1;
       state.currentStep = 0;
       state.lastInsight = 'Ready to sort.';
@@ -1256,201 +1109,154 @@
       ui.playBtn.textContent = 'Start Sort';
       clearLogs();
       pushLog('info', message);
-      pushLog('info', `Prepared ${state.actions.length} animation steps across ${totalPasses} digit pass(es).`);
-      updateStatus('Ready to simulate Radix Sort.');
-      updateInsight('processes one digit place at a time, using a stable counting pass for each exponent.');
-      updateCountStatus(`Digits 0 through 9 will be counted for the ${digitPlaceName(1)} first.`);
-      updateOutputStatus('Output resets on every pass before stable placement begins.');
+      pushLog('info', `Prepared ${state.actions.length} animation steps for ${arr.length} elements.`);
+      updateStatus(arr.length > 1 ? 'Ready to simulate Shell Sort with a shrinking gap sequence.' : 'Ready to simulate Shell Sort.');
+      updateInsight('Shell Sort runs insertion-style passes over shrinking gaps so elements can move long distances early.');
       renderAll();
     }
 
-    function buildActions(source, totalPasses) {
+    function buildActions(source) {
+      const arr = [...source];
       const actions = [];
-      const maxNum = Math.max(...source, 0);
-      const runOnceForZero = maxNum === 0;
-      let working = [...source];
+      const n = arr.length;
 
-      actions.push({
-        type: 'init',
-        totalPasses,
-        exp: 1,
-        workingSnapshot: [...working],
-        countSnapshot: Array.from({ length: 10 }, () => 0),
-        outputSnapshot: Array.from({ length: source.length }, () => null),
-        line: 1,
-        step: 0
-      });
-
-      let exp = 1;
-      let passNumber = 0;
-
-      while (Math.floor(maxNum / exp) > 0 || (runOnceForZero && passNumber === 0)) {
-        passNumber += 1;
-        const count = Array.from({ length: 10 }, () => 0);
-        const output = Array.from({ length: source.length }, () => null);
-
+      if (n <= 1) {
         actions.push({
-          type: 'startPass',
-          passNumber,
-          totalPasses,
-          exp,
-          workingSnapshot: [...working],
-          countSnapshot: [...count],
-          outputSnapshot: [...output],
+          type: 'complete',
+          line: 1,
+          step: 5,
+          finalArray: [...arr],
+          sorted: arr.map((_, index) => index)
+        });
+        return actions;
+      }
+
+      let gap = Math.floor(n / 2);
+      let pass = 0;
+
+      while (gap > 0) {
+        pass += 1;
+        actions.push({
+          type: 'gapStart',
+          gap,
+          pass,
+          snapshot: [...arr],
           line: 2,
-          step: 0
+          step: 0,
+          sorted: gap === 1 && n > 0 ? [0] : []
         });
 
-        working.forEach((value, index) => {
-          const digit = getDigit(value, exp);
+        for (let i = gap; i < n; i++) {
+          const key = arr[i];
+          let j = i;
+          let keyVisibleIndex = i;
+          const sortedPrefix = gap === 1 ? Array.from({ length: i }, (_, index) => index) : [];
+
           actions.push({
-            type: 'scanDigit',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value,
-            digit,
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
+            type: 'selectKey',
+            gap,
+            pass,
+            key,
+            index: i,
+            line: 3,
+            step: 1,
+            sorted: sortedPrefix
+          });
+
+          actions.push({
+            type: 'setPointer',
+            gap,
+            pass,
+            key,
+            j,
             line: 4,
-            step: 1
+            step: 1,
+            sorted: sortedPrefix
           });
 
-          count[digit] += 1;
+          while (j >= gap) {
+            actions.push({
+              type: 'compare',
+              gap,
+              pass,
+              key,
+              compareIndex: j - gap,
+              comparedValue: arr[j - gap],
+              keyIndex: keyVisibleIndex,
+              line: 5,
+              step: 2,
+              sorted: sortedPrefix
+            });
+
+            if (arr[j - gap] > key) {
+              const shiftedValue = arr[j - gap];
+              arr[j] = arr[j - gap];
+              keyVisibleIndex = null;
+              actions.push({
+                type: 'shift',
+                gap,
+                pass,
+                key,
+                from: j - gap,
+                to: j,
+                shiftedValue,
+                snapshot: [...arr],
+                line: 6,
+                step: 3,
+                sorted: sortedPrefix
+              });
+
+              j -= gap;
+              actions.push({
+                type: 'moveGapLeft',
+                gap,
+                pass,
+                key,
+                j,
+                line: 6,
+                step: 3,
+                sorted: sortedPrefix
+              });
+            } else {
+              break;
+            }
+          }
+
+          arr[j] = key;
           actions.push({
-            type: 'incrementCount',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value,
-            digit,
-            newCount: count[digit],
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
-            line: 4,
-            step: 1
-          });
-        });
-
-        actions.push({
-          type: 'startPrefix',
-          passNumber,
-          totalPasses,
-          exp,
-          countSnapshot: [...count],
-          outputSnapshot: [...output],
-          line: 5,
-          step: 2
-        });
-
-        for (let i = 1; i < count.length; i++) {
-          const previousCount = count[i];
-          const previousTotal = count[i - 1];
-          count[i] += count[i - 1];
-          actions.push({
-            type: 'prefixUpdate',
-            passNumber,
-            totalPasses,
-            exp,
-            prefixIndex: i,
-            previousCount,
-            previousTotal,
-            newValue: count[i],
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
-            line: 5,
-            step: 2
-          });
-        }
-
-        for (let index = working.length - 1; index >= 0; index--) {
-          const value = working[index];
-          const digit = getDigit(value, exp);
-          const outputIndex = count[digit] - 1;
-
-          actions.push({
-            type: 'readForPlacement',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value,
-            digit,
-            outputIndex,
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
-            line: 6,
-            step: 3
-          });
-
-          output[outputIndex] = value;
-          actions.push({
-            type: 'writeOutput',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value,
-            digit,
-            outputIndex,
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
-            line: 6,
-            step: 3
-          });
-
-          count[digit] -= 1;
-          actions.push({
-            type: 'decrementCount',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value,
-            digit,
-            outputIndex,
-            newCount: count[digit],
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
-            line: 6,
-            step: 3
-          });
-        }
-
-        const finalPass = passNumber === totalPasses;
-        for (let index = 0; index < output.length; index++) {
-          working[index] = output[index];
-          actions.push({
-            type: 'copyBackProgress',
-            passNumber,
-            totalPasses,
-            exp,
-            index,
-            value: output[index],
-            snapshot: [...working],
-            countSnapshot: [...count],
-            outputSnapshot: [...output],
+            type: 'insert',
+            gap,
+            pass,
+            key,
+            index: j,
+            snapshot: [...arr],
             line: 7,
             step: 4,
-            sorted: finalPass ? Array.from({ length: index + 1 }, (_, i) => i) : []
+            sorted: gap === 1 ? Array.from({ length: i + 1 }, (_, index) => index) : []
           });
         }
 
-        exp *= 10;
+        const nextGap = Math.floor(gap / 2);
+        actions.push({
+          type: 'gapComplete',
+          gap,
+          nextGap,
+          pass,
+          snapshot: [...arr],
+          line: 8,
+          step: 5,
+          sorted: nextGap === 0 ? arr.map((_, index) => index) : []
+        });
+
+        gap = nextGap;
       }
 
       actions.push({
         type: 'complete',
-        totalPasses,
-        exp: exp / 10,
-        finalArray: [...working],
-        countSnapshot: Array.from({ length: 10 }, () => 0),
-        outputSnapshot: [...working],
-        line: 7,
+        line: 8,
         step: 5,
-        sorted: working.map((_, index) => index)
+        finalArray: [...arr],
+        sorted: arr.map((_, index) => index)
       });
 
       return actions;
@@ -1505,7 +1311,11 @@
       }
 
       applyAction(state.actions[state.actionIndex++]);
-      state.timer = setTimeout(runLoop, getSpeedDelay());
+      if (state.running) {
+        state.timer = setTimeout(runLoop, getSpeedDelay());
+      } else {
+        state.timer = null;
+      }
     }
 
     function getSpeedDelay() {
@@ -1513,142 +1323,113 @@
       return 1100 - value * 9;
     }
 
-    function resetHighlights() {
-      state.activeInputIndex = null;
-      state.activeCountIndex = null;
-      state.activeOutputIndex = null;
-      state.inputMode = null;
-    }
-
     function applyAction(action) {
-      resetHighlights();
+      state.highlight = [];
+      state.shiftIndices = [];
+      state.selectedIndex = null;
       state.currentLine = action.line ?? -1;
       state.currentStep = action.step ?? 0;
 
+      if (typeof action.gap === 'number') {
+        state.currentGap = action.gap;
+      }
+      if (typeof action.pass === 'number') {
+        state.passCount = action.pass;
+      }
+      if (action.snapshot) {
+        state.arr = [...action.snapshot];
+      }
       if (action.sorted) {
         state.sortedIndices = [...action.sorted];
       }
 
       switch (action.type) {
-        case 'init':
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          updateStatus(`Initialized count array for values 0 through ${action.maxValue}.`);
-          updateInsight('works best when the input values come from a small non-negative range.');
-          updateCountStatus(`Tracking values from 0 to ${action.maxValue}.`);
-          updateOutputStatus('Output array is empty and ready for stable placement.');
-          pushLog('info', `Initialized ${action.countSnapshot.length} count slots.`);
+        case 'gapStart':
+          state.currentKey = null;
+          updateStatus(`Pass ${action.pass}: start Shell Sort with gap ${action.gap}.`);
+          if (action.gap === 1) {
+            updateInsight('The final gap-1 pass behaves like insertion sort, but earlier gap passes have already reduced a lot of disorder.');
+          } else {
+            updateInsight(`Gap ${action.gap} lets values jump farther so Shell Sort can reduce long-range disorder early.`);
+          }
+          pushLog('info', `Gap pass ${action.pass} started with gap ${action.gap}.`);
           break;
 
-        case 'readForCount':
-          state.activeInputIndex = action.index;
-          state.activeCountIndex = action.countIndex;
-          state.inputMode = 'count';
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          updateStatus(`Read value ${action.value} from input index ${action.index}.`);
-          updateInsight('starts by counting how often each value appears.');
-          updateCountStatus(`About to increment count[${action.countIndex}].`);
-          pushLog('info', `Scanning input index ${action.index} with value ${action.value}.`);
+        case 'selectKey':
+          state.selectedIndex = action.index;
+          state.currentKey = action.key;
+          updateStatus(`Gap ${action.gap}: choose key ${action.key} from index ${action.index}.`);
+          updateInsight('Each gap pass performs a gapped insertion sort over interleaved subsequences.');
           break;
 
-        case 'incrementCount':
-          state.activeInputIndex = action.index;
-          state.activeCountIndex = action.countIndex;
-          state.inputMode = 'count';
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          state.countOps += 1;
-          updateStatus(`Incremented count[${action.countIndex}] to ${action.newCount}.`);
-          updateInsight('raw frequency counts tell us how many copies of each value must be placed later.');
-          updateCountStatus(`count[${action.countIndex}] is now ${action.newCount}.`);
-          pushLog('warn', `Counted value ${action.value}. count[${action.countIndex}] = ${action.newCount}.`);
+        case 'setPointer':
+          state.currentKey = action.key;
+          updateStatus(`Start scanning left in steps of ${action.gap} from index ${action.j}.`);
           break;
 
-        case 'startPrefix':
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          updateStatus('Convert the count array into prefix sums.');
-          updateInsight('prefix sums turn frequencies into ending positions in the sorted output.');
-          updateCountStatus('Each slot will now include the totals of all smaller values.');
-          pushLog('info', 'Starting prefix-sum conversion on the count array.');
+        case 'compare':
+          state.highlight = [action.compareIndex];
+          state.selectedIndex = action.keyIndex;
+          state.currentKey = action.key;
+          state.compareCount += 1;
+          updateStatus(`Compare key ${action.key} with ${action.comparedValue} at index ${action.compareIndex} using gap ${action.gap}.`);
+          updateInsight(`Comparison ${state.compareCount}: Shell Sort only checks values inside the current gap chain.`);
+          pushLog('info', `Compared ${action.key} with ${action.comparedValue} at index ${action.compareIndex} using gap ${action.gap}.`);
           break;
 
-        case 'prefixUpdate':
-          state.activeCountIndex = action.prefixIndex;
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          state.prefixOps += 1;
-          updateStatus(`Updated count[${action.prefixIndex}] to ${action.newValue}.`);
-          updateInsight('after prefix conversion, each count value marks the next ending position for that number.');
-          updateCountStatus(`count[${action.prefixIndex}] = ${action.previousCount} + ${action.previousTotal} = ${action.newValue}.`);
-          pushLog('info', `Prefix update at index ${action.prefixIndex}: ${action.newValue}.`);
+        case 'shift':
+          state.shiftIndices = [action.from, action.to];
+          state.currentKey = action.key;
+          state.shiftCount += 1;
+          updateStatus(`Shifted ${action.shiftedValue} from index ${action.from} to ${action.to} by gap ${action.gap}.`);
+          updateInsight(`Shift ${state.shiftCount}: larger values move forward by the current gap to open space for ${action.key}.`);
+          pushLog('warn', `Shifted ${action.shiftedValue} by gap ${action.gap}. Array is now [${state.arr.join(', ')}].`);
           break;
 
-        case 'readForPlacement':
-          state.activeInputIndex = action.index;
-          state.activeCountIndex = action.countIndex;
-          state.activeOutputIndex = action.outputIndex;
-          state.inputMode = 'place';
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          updateStatus(`Place value ${action.value} from input index ${action.index} into output[${action.outputIndex}].`);
-          updateInsight('walking the input from right to left keeps counting sort stable for equal values.');
-          updateCountStatus(`count[${action.countIndex}] currently points at output slot ${action.outputIndex}.`);
-          updateOutputStatus(`Next stable slot for ${action.value} is output[${action.outputIndex}].`);
-          pushLog('info', `Preparing to place ${action.value} from input index ${action.index}.`);
+        case 'moveGapLeft':
+          state.currentKey = action.key;
+          if (action.j >= action.gap) {
+            state.highlight = [action.j - action.gap];
+            updateStatus(`Move left by gap ${action.gap} to continue checking where ${action.key} belongs.`);
+          } else {
+            updateStatus(`Reached the front of this gap chain. ${action.key} will be inserted at index ${action.j}.`);
+          }
           break;
 
-        case 'writeOutput':
-          state.activeInputIndex = action.index;
-          state.activeCountIndex = action.countIndex;
-          state.activeOutputIndex = action.outputIndex;
-          state.inputMode = 'place';
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          state.outputWrites += 1;
-          updateStatus(`Wrote ${action.value} to output[${action.outputIndex}].`);
-          updateInsight('the prefix total gives the last free output position for the current value.');
-          updateOutputStatus(`Placed ${action.value} into output[${action.outputIndex}].`);
-          pushLog('warn', `Output[${action.outputIndex}] = ${action.value}.`);
+        case 'insert':
+          state.selectedIndex = action.index;
+          state.currentKey = action.key;
+          updateStatus(`Inserted key ${action.key} at index ${action.index} for gap ${action.gap}.`);
+          if (action.gap === 1) {
+            updateInsight(`The final gap-1 pass now has a sorted prefix through index ${action.sorted.length - 1}.`);
+          } else {
+            updateInsight('This subsequence is now more ordered, which makes later smaller-gap passes cheaper.');
+          }
+          pushLog('success', `Inserted ${action.key} at index ${action.index}. Array is now [${state.arr.join(', ')}].`);
           break;
 
-        case 'decrementCount':
-          state.activeInputIndex = action.index;
-          state.activeCountIndex = action.countIndex;
-          state.activeOutputIndex = action.outputIndex;
-          state.inputMode = 'place';
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          updateStatus(`Decremented count[${action.countIndex}] to ${action.newCount}.`);
-          updateInsight('after placing one copy, the next equal value must move one slot to the left.');
-          updateCountStatus(`count[${action.countIndex}] now points to the next open position.`);
-          pushLog('success', `Decremented count[${action.countIndex}] to ${action.newCount}.`);
-          break;
-
-        case 'copyBack':
-          state.arr = [...action.finalArray];
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
-          state.copyWrites += action.copyAmount;
-          state.sortedIndices = [...action.sorted];
-          updateStatus('Copy the output array back to the main array.');
-          updateInsight('the output array now contains the sorted sequence and becomes the final result.');
-          updateCountStatus('All placements are complete.');
-          updateOutputStatus(`Final output: [${action.outputSnapshot.join(', ')}].`);
-          pushLog('success', `Copied ${action.copyAmount} values back from output.`);
+        case 'gapComplete':
+          state.currentKey = null;
+          state.currentGap = action.nextGap;
+          if (action.nextGap > 0) {
+            updateStatus(`Completed gap ${action.gap}. Next gap will be ${action.nextGap}.`);
+            updateInsight(`Shell Sort now shrinks the gap from ${action.gap} to ${action.nextGap} to refine the ordering.`);
+            pushLog('success', `Completed gap ${action.gap}. Next gap: ${action.nextGap}.`);
+          } else {
+            updateStatus('Completed the final gap-1 pass.');
+            updateInsight('Once the gap reaches 1 and finishes, the entire array is sorted.');
+            pushLog('success', 'Completed the final gap pass.');
+          }
           break;
 
         case 'complete':
           state.arr = [...action.finalArray];
-          state.countArray = [...action.countSnapshot];
-          state.outputArray = [...action.outputSnapshot];
           state.sortedIndices = [...action.sorted];
-          resetHighlights();
+          state.currentGap = 0;
+          state.selectedIndex = null;
+          state.currentKey = null;
           updateStatus('Sorting complete.');
-          updateInsight(`finished. Final sorted array: [${state.arr.join(', ')}].`);
-          updateCountStatus('Counting Sort has finished using the count array.');
-          updateOutputStatus(`Sorted output: [${state.outputArray.join(', ')}].`);
+          updateInsight(`Finished. Final sorted array: [${state.arr.join(', ')}].`);
           pushLog('success', `Sorting complete: [${state.arr.join(', ')}].`);
           stopRun();
           ui.playBtn.textContent = 'Replay';
@@ -1660,8 +1441,6 @@
 
     function renderAll() {
       renderBars();
-      renderCountArray();
-      renderOutputArray();
       renderMetrics();
       renderSteps();
       renderPseudoCode();
@@ -1681,14 +1460,16 @@
 
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = `${Math.max(28, (value / max) * 170)}px`;
+        bar.style.height = `${Math.max(40, (value / max) * 260)}px`;
 
-        if (state.sortedIndices.includes(index)) {
+        if (state.selectedIndex === index) {
+          bar.classList.add('key');
+        } else if (state.shiftIndices.includes(index)) {
+          bar.classList.add('shift');
+        } else if (state.highlight.includes(index)) {
+          bar.classList.add('compare');
+        } else if (state.sortedIndices.includes(index)) {
           bar.classList.add('sorted');
-        } else if (state.activeInputIndex === index && state.inputMode === 'place') {
-          bar.classList.add('place-source');
-        } else if (state.activeInputIndex === index) {
-          bar.classList.add('count-source');
         }
 
         const badge = document.createElement('div');
@@ -1702,69 +1483,11 @@
       });
     }
 
-    function renderCountArray() {
-      ui.countWrap.innerHTML = '';
-
-      if (!state.countArray.length) {
-        const empty = document.createElement('div');
-        empty.className = 'buffer-empty';
-        empty.textContent = 'Load an array to create count slots.';
-        ui.countWrap.appendChild(empty);
-        return;
-      }
-
-      state.countArray.forEach((value, index) => {
-        const cell = document.createElement('div');
-        cell.className = `buffer-cell ${value !== 0 ? 'filled' : ''} ${state.activeCountIndex === index ? 'active' : ''}`.trim();
-
-        const slot = document.createElement('div');
-        slot.className = 'buffer-index';
-        slot.textContent = `v:${index}`;
-
-        const val = document.createElement('div');
-        val.className = 'buffer-value';
-        val.textContent = value;
-
-        cell.appendChild(slot);
-        cell.appendChild(val);
-        ui.countWrap.appendChild(cell);
-      });
-    }
-
-    function renderOutputArray() {
-      ui.outputWrap.innerHTML = '';
-
-      if (!state.outputArray.length) {
-        const empty = document.createElement('div');
-        empty.className = 'buffer-empty';
-        empty.textContent = 'Output array will appear here.';
-        ui.outputWrap.appendChild(empty);
-        return;
-      }
-
-      state.outputArray.forEach((value, index) => {
-        const cell = document.createElement('div');
-        cell.className = `buffer-cell ${value !== null ? 'filled' : ''} ${state.activeOutputIndex === index ? 'active' : ''}`.trim();
-
-        const slot = document.createElement('div');
-        slot.className = 'buffer-index';
-        slot.textContent = `o:${index}`;
-
-        const val = document.createElement('div');
-        val.className = 'buffer-value';
-        val.textContent = value === null ? '...' : value;
-
-        cell.appendChild(slot);
-        cell.appendChild(val);
-        ui.outputWrap.appendChild(cell);
-      });
-    }
-
     function renderMetrics() {
-      ui.countOps.textContent = state.countOps;
-      ui.prefixOps.textContent = state.prefixOps;
-      ui.outputWrites.textContent = state.outputWrites;
-      ui.copyWrites.textContent = state.copyWrites;
+      ui.gapCount.textContent = state.currentGap;
+      ui.passCount.textContent = state.passCount;
+      ui.compareCount.textContent = state.compareCount;
+      ui.shiftCount.textContent = state.shiftCount;
     }
 
     function renderSteps() {
@@ -1810,15 +1533,7 @@
 
     function updateInsight(text) {
       state.lastInsight = text;
-      ui.insightText.innerHTML = `<strong>Counting Sort</strong> ${text}`;
-    }
-
-    function updateCountStatus(text) {
-      ui.countStatus.textContent = text;
-    }
-
-    function updateOutputStatus(text) {
-      ui.outputStatus.textContent = text;
+      ui.insightText.innerHTML = `<strong>Shell Sort</strong> ${text}`;
     }
 
     function clearLogs() {

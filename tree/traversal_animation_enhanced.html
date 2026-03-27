@@ -658,27 +658,18 @@
     // ── TREE NODE ──
     class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = '#1e2438'; } }
 
-    const DEFAULT_TREE = [50, 30, 70, 20, 40, 60, 80, 10, 25];
-
     let root = null;
     let running = false;
     let activeCol = '#a78bfa';
-    let currentTree = [];
 
-    // Build a tree
-    function buildTree(vals = DEFAULT_TREE) {
-      currentTree = [...vals];
+    // Build a fixed sample tree
+    function buildTree() {
+      const vals = [50, 30, 70, 20, 40, 60, 80, 10, 25];
       root = null;
       vals.forEach(v => { root = bstIns(root, v); });
     }
     function bstIns(nd, v) { if (!nd) return new TN(v); if (v < nd.v) nd.l = bstIns(nd.l, v); else nd.r = bstIns(nd.r, v); return nd; }
     function resetColors(nd) { if (!nd) return; nd.col = '#1e2438'; resetColors(nd.l); resetColors(nd.r); }
-
-    function randomTreeValues(count = 9, min = 10, max = 99) {
-      const vals = new Set();
-      while (vals.size < count) vals.add(Math.floor(Math.random() * (max - min + 1)) + min);
-      return Array.from(vals);
-    }
 
     // ── POSITIONING ──
     function pos(nd, x, y, gap) { if (!nd) return; nd.tx = x; nd.ty = y; if (!nd.placed) { nd.x = x; nd.y = y; nd.placed = true; } pos(nd.l, x - gap, y + 65, gap / 1.65); pos(nd.r, x + gap, y + 65, gap / 1.65); }
@@ -716,24 +707,12 @@
       d.appendChild(c);
       setTimeout(() => c.classList.remove('new'), 400);
     }
-    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:#3a4060;font-size:.75rem;padding:4px 0">${msg}</span>`; }
+    function clearVisit() { const d = document.getElementById('visitOrder'); d.innerHTML = '<span style="color:#3a4060;font-size:.75rem;padding:4px 0">Running…</span>'; }
 
     function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-item ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); d.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`; b.appendChild(d); }); }
     function clearSteps() { document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle…</div></div>'; }
     function spd() { return Math.max(200, 1200 - parseInt(document.getElementById('speedSlider').value) * 100); }
     async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    async function pulseNode(nd, ms = Math.max(120, Math.floor(spd() * .45))) {
-      if (!nd) return;
-      const old = nd.col;
-      if (old === activeCol) {
-        await sleep(ms);
-        return;
-      }
-      nd.col = '#f1c40f';
-      await sleep(ms);
-      if (nd.col === '#f1c40f') nd.col = old;
-    }
 
     // ── TRAVERSALS ──
     const TRAV_INFO = {
@@ -743,133 +722,85 @@
       level: { label: 'Level-Order (BFS)', col: '#2ecc71', steps: ['Enqueue root', 'Dequeue node, visit it', 'Enqueue left child (if any)', 'Enqueue right child (if any)', 'Repeat until queue empty ✓'] }
     };
 
-    function buildTraversalPlan(type, nd) {
-      const actions = [];
-      const order = [];
-
-      function addVisit(node, step, text) {
-        actions.push({ kind: 'visit', node, step, text });
-        order.push(node.v);
-      }
-
-      function inorder(node) {
-        if (!node) return;
-        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 0, text: `Move left from ${node.v} to ${node.l.v}` });
-        inorder(node.l);
-        addVisit(node, 1, `Visit ${node.v}`);
-        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 2, text: `Move right from ${node.v} to ${node.r.v}` });
-        inorder(node.r);
-      }
-
-      function preorder(node) {
-        if (!node) return;
-        addVisit(node, 0, `Visit ${node.v}`);
-        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 1, text: `Go left from ${node.v} to ${node.l.v}` });
-        preorder(node.l);
-        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 2, text: `Go right from ${node.v} to ${node.r.v}` });
-        preorder(node.r);
-      }
-
-      function postorder(node) {
-        if (!node) return;
-        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 0, text: `Go left from ${node.v} to ${node.l.v}` });
-        postorder(node.l);
-        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 1, text: `Go right from ${node.v} to ${node.r.v}` });
-        postorder(node.r);
-        addVisit(node, 2, `Visit ${node.v}`);
-      }
-
-      function levelOrder(node) {
-        const q = [node];
-        actions.push({ kind: 'queue', node, step: 0, text: `Enqueue root ${node.v}` });
-        while (q.length) {
-          const cur = q.shift();
-          addVisit(cur, 1, `Dequeue and visit ${cur.v}`);
-          if (cur.l) {
-            actions.push({ kind: 'queue', node: cur.l, step: 2, text: `Enqueue left child ${cur.l.v}` });
-            q.push(cur.l);
-          }
-          if (cur.r) {
-            actions.push({ kind: 'queue', node: cur.r, step: 3, text: `Enqueue right child ${cur.r.v}` });
-            q.push(cur.r);
-          }
-        }
-      }
-
-      if (type === 'inorder') inorder(nd);
-      else if (type === 'preorder') preorder(nd);
-      else if (type === 'postorder') postorder(nd);
-      else if (type === 'level' && nd) levelOrder(nd);
-
-      return { actions, order };
-    }
-
-    async function playAction(action) {
-      if (action.kind === 'visit') {
-        action.node.col = activeCol;
-        addVisit(action.node.v);
-        log(action.text, 'info');
-        await sleep(spd());
-        return;
-      }
-
-      log(action.text, action.kind === 'queue' ? 'success' : 'warn');
-      await pulseNode(action.node);
-    }
-
     async function runTraversal(type) {
       if (running) return;
       if (!root) { log('No tree! Click Reset to build one.', 'warn'); return; }
       running = true;
       const info = TRAV_INFO[type];
       activeCol = info.col;
-      resetColors(root);
-      clearVisit('Running…');
+      resetColors(root); clearVisit();
       setSteps(info.steps, 0);
       log(`▶ Starting ${info.label}…`, 'info');
+      const visited = [];
 
-      const plan = buildTraversalPlan(type, root);
-      for (const action of plan.actions) {
-        setSteps(info.steps, Math.min(action.step, info.steps.length - 1));
-        await playAction(action);
-      }
+      if (type === 'inorder') { await inorder(root, visited); }
+      else if (type === 'preorder') { await preorder(root, visited); }
+      else if (type === 'postorder') { await postorder(root, visited); }
+      else { await levelOrder(root, visited); }
 
       setSteps(info.steps, info.steps.length);
-      log(`✅ ${info.label} complete: [${plan.order.join(' → ')}]`, 'success');
-      running = false;
-      clearSteps();
+      log(`✅ ${info.label} complete: [${visited.join(' → ')}]`, 'success');
+      running = false; clearSteps();
+    }
+
+    async function visit(nd, arr) {
+      nd.col = activeCol; arr.push(nd.v); addVisit(nd.v);
+      log(`Visiting: ${nd.v}`, 'info');
+      await sleep(spd());
+    }
+
+    async function inorder(nd, arr) {
+      if (!nd) return;
+      setSteps(TRAV_INFO.inorder.steps, 0); await inorder(nd.l, arr);
+      setSteps(TRAV_INFO.inorder.steps, 1); await visit(nd, arr);
+      setSteps(TRAV_INFO.inorder.steps, 2); await inorder(nd.r, arr);
+    }
+    async function preorder(nd, arr) {
+      if (!nd) return;
+      setSteps(TRAV_INFO.preorder.steps, 0); await visit(nd, arr);
+      setSteps(TRAV_INFO.preorder.steps, 1); await preorder(nd.l, arr);
+      setSteps(TRAV_INFO.preorder.steps, 2); await preorder(nd.r, arr);
+    }
+    async function postorder(nd, arr) {
+      if (!nd) return;
+      setSteps(TRAV_INFO.postorder.steps, 0); await postorder(nd.l, arr);
+      setSteps(TRAV_INFO.postorder.steps, 1); await postorder(nd.r, arr);
+      setSteps(TRAV_INFO.postorder.steps, 2); await visit(nd, arr);
+    }
+    async function levelOrder(nd, arr) {
+      const q = [nd]; let step = 0;
+      while (q.length) {
+        const cur = q.shift();
+        setSteps(TRAV_INFO.level.steps, Math.min(step, 3)); step++;
+        await visit(cur, arr);
+        if (cur.l) q.push(cur.l);
+        if (cur.r) q.push(cur.r);
+      }
     }
 
     // ── CONTROLS ──
     function doReset() {
       if (running) return;
-      buildTree(currentTree.length ? currentTree : DEFAULT_TREE);
-      resetColors(root);
-      clearVisit();
-      clearSteps();
-      log('Tree reset', 'info');
+      buildTree(); resetColors(root); clearVisit(); clearSteps();
+      log('Tree reset to default', 'info');
     }
-    function loadCustom(initial = false) {
+    function loadCustom() {
       if (running) return;
-      buildTree(randomTreeValues());
-      resetColors(root);
-      clearVisit();
-      clearSteps();
-      log(`${initial ? 'Random tree ready' : 'Loaded random tree'}: [${currentTree.join(', ')}]`, 'info');
+      root = null;
+      const vals = [40, 20, 60, 10, 30, 50, 70, 5, 15, 25, 35];
+      vals.forEach(v => { root = bstIns(root, v); });
+      resetColors(root); clearVisit(); clearSteps();
+      log('Loaded alternate tree (40-rooted, 11 nodes)', 'info');
     }
     function showTab(id, btn) { document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
 
     // ── INIT ──
     window.onload = () => {
-      loadCustom(true); loop();
+      buildTree(); loop();
       log('Tree ready. Click a traversal button to animate!', 'info');
     };
     window.addEventListener('resize', () => { const c = document.getElementById('travCanvas'); c.width = c.clientWidth || 800; });
-    window.runTraversal = runTraversal;
-    window.doReset = doReset;
-    window.loadCustom = loadCustom;
-    window.showTab = showTab;
-    window.buildTraversalPlan = buildTraversalPlan;
+    window.runTraversal = runTraversal; window.doReset = doReset; window.loadCustom = loadCustom; window.showTab = showTab;
   </script>
 </body>
 
