@@ -47,5 +47,10 @@ Follow these in order to build your knowledge from **Beginner to Pro**:
 21. [**21: Comparison — Balanced Trees**](./21_comparison_balanced_trees.md)
     - Side-by-side differences, equivalence mapping, and use-case guide.
 
----
-*Stay tuned for more modules (Traversals, BST, Balanced Trees) coming soon!*
+[**traversal sim**](https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/traversal_animation.html)
+
+[**bst sim**](https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/bst_animation.html)
+
+[**heap sim**](https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/heap_animation.html)
+
+[**avl sim**](https://htmlpreview.github.io/?https://github.com/ARYAN-KUMAR-22/dsa/blob/main/tree/avl_animation.html)
