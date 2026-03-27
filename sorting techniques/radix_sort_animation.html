@@ -968,6 +968,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -1094,6 +1095,46 @@
               <li>It needs a stable inner counting sort for every digit place, so implementation is more involved than a single-pass sort.</li>
               <li>It is best suited for non-negative integers unless extra handling is added for negatives or strings.</li>
               <li>If numbers have many digits, the repeated passes can reduce its practical advantage.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Radix Sort At a Glance</h3>
+            <ul>
+              <li>Radix Sort processes keys digit by digit and can run in about <code>O(d * (n + k))</code>.</li>
+              <li>It is not comparison-based and stays stable when the inner digit sort is stable.</li>
+              <li>Its usefulness depends on bounded digit width and appropriate key formats.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Counting Sort</h3>
+            <ul>
+              <li><strong>Counting Sort</strong> is simpler when the full key range is already small.</li>
+              <li><strong>Radix Sort</strong> extends that idea to larger values by sorting one digit position at a time.</li>
+              <li>If there are many digits, Radix Sort pays for multiple passes.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li>Radix Sort can outperform comparison sorts for fixed-width integers or strings.</li>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> are more general because they do not depend on digit structure.</li>
+              <li>Radix Sort wins only when the input format matches its assumptions well.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Radix Sort for bounded-width integers, zip codes, IDs, or digit-based keys.</li>
+              <li>It is a strong option when stability matters and non-comparison sorting is possible.</li>
+              <li>If values are arbitrary, comparison-based sorts are usually easier to apply.</li>
             </ul>
           </article>
         </div>

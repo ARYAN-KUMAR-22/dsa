@@ -968,6 +968,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -1093,6 +1094,46 @@
               <li>It is not comparison-based, so it only works well for restricted integer ranges.</li>
               <li>Space usage grows with both the input size and the value range.</li>
               <li>If the maximum value is very large, counting sort can waste memory and lose its advantage.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Counting Sort At a Glance</h3>
+            <ul>
+              <li>Counting Sort is not comparison-based and runs in <code>O(n + k)</code> when the value range is small.</li>
+              <li>It is stable, but it needs extra memory for both the count array and the output array.</li>
+              <li>Its speed depends less on input order and more on how large the key range is.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li>When <code>k</code> is small, Counting Sort can beat comparison sorts because it does not rely on pairwise ordering tests.</li>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> are more flexible because they work for general comparable values.</li>
+              <li>If the range becomes huge, Counting Sort loses its memory and speed advantage quickly.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Radix Sort</h3>
+            <ul>
+              <li><strong>Radix Sort</strong> uses counting-style passes repeatedly to handle larger integers digit by digit.</li>
+              <li>Counting Sort is simpler when the full value range is already small enough.</li>
+              <li>Radix Sort is more scalable for bounded-width numbers, but Counting Sort is the more direct tool.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Counting Sort for small non-negative integer ranges where stability matters.</li>
+              <li>It is especially useful as a building block inside Radix Sort.</li>
+              <li>If the keys are wide, sparse, or not integer-like, use a different family of sort.</li>
             </ul>
           </article>
         </div>

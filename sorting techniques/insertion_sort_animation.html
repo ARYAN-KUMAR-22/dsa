@@ -850,6 +850,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -957,6 +958,46 @@
               <li>Average and worst-case time are <code>O(n^2)</code>.</li>
               <li>It is stable, so equal values keep their relative order.</li>
               <li>It works in place and needs only <code>O(1)</code> extra space.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Insertion Sort At a Glance</h3>
+            <ul>
+              <li>Insertion Sort is <code>stable</code>, <code>in place</code>, and adaptive, with a best case of <code>O(n)</code>.</li>
+              <li>Its worst case is still <code>O(n^2)</code>, so it is best for small or partially sorted inputs.</li>
+              <li>It works by extending a sorted prefix one element at a time.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble and Selection</h3>
+            <ul>
+              <li>Insertion Sort usually beats <strong>Bubble Sort</strong> on nearly sorted data because elements move directly to their place.</li>
+              <li>It is also adaptive, unlike <strong>Selection Sort</strong>, which still scans the whole unsorted region every pass.</li>
+              <li>Selection Sort performs fewer writes, but Insertion Sort is often the faster of the three in practice.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Shell, Merge, and Quick</h3>
+            <ul>
+              <li><strong>Shell Sort</strong> improves on insertion ideas by moving elements farther early with gaps.</li>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> scale much better on large arrays.</li>
+              <li>Insertion Sort still remains useful as a tiny-array helper inside faster hybrid sorts.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Insertion Sort for very small arrays, almost-sorted arrays, or as a base case inside larger algorithms.</li>
+              <li>It is a strong educational step up from Bubble Sort because it shows local shifting instead of repeated swapping.</li>
+              <li>For large random arrays, prefer an <code>O(n log n)</code> algorithm.</li>
             </ul>
           </article>
         </div>

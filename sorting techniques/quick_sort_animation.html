@@ -889,6 +889,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -1013,6 +1014,46 @@
               <li>Average time is excellent, but poor pivots can degrade it to <code>O(n^2)</code>.</li>
               <li>The standard in-place version is not stable.</li>
               <li>Recursive calls use stack space, typically <code>O(log n)</code> on balanced partitions.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Quick Sort At a Glance</h3>
+            <ul>
+              <li>Quick Sort is a fast general-purpose comparison sort with average time around <code>O(n log n)</code>.</li>
+              <li>It is usually in-place apart from recursion or stack storage, but it is not stable.</li>
+              <li>Poor pivots can still push it down to <code>O(n^2)</code> in the worst case.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge Sort</h3>
+            <ul>
+              <li><strong>Quick Sort</strong> often wins on in-memory speed and cache behavior.</li>
+              <li><strong>Merge Sort</strong> gives guaranteed <code>O(n log n)</code> time and stable ordering.</li>
+              <li>Quick Sort is usually preferred when memory use matters more than stability.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble, Insertion, and Selection</h3>
+            <ul>
+              <li>Quick Sort is dramatically better on medium and large arrays than the simple quadratic sorts.</li>
+              <li>The simpler sorts are still easier to teach and sometimes useful for tiny inputs.</li>
+              <li>Quick Sort becomes the practical choice once input size starts to matter.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Quick Sort when you want strong average performance on general in-memory arrays.</li>
+              <li>It is excellent when stability is not required and pivot choice is handled well.</li>
+              <li>If guaranteed worst-case behavior matters more, Merge Sort may be safer.</li>
             </ul>
           </article>
         </div>

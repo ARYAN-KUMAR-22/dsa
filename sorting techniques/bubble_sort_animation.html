@@ -843,6 +843,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -949,6 +950,46 @@
               <li>Average and worst-case time are <code>O(n^2)</code>, so it scales poorly.</li>
               <li>It is stable, so equal elements keep their relative order.</li>
               <li>It sorts in place, needing only <code>O(1)</code> extra space.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Bubble Sort At a Glance</h3>
+            <ul>
+              <li>Bubble Sort is <code>stable</code> and sorts <code>in place</code>, but its average and worst-case time are <code>O(n^2)</code>.</li>
+              <li>Its early-exit check gives it a best case of <code>O(n)</code> on already sorted data.</li>
+              <li>It is easiest to understand visually, which is why it is great for learning but weak for large inputs.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Insertion and Selection</h3>
+            <ul>
+              <li><strong>Insertion Sort</strong> is usually better on nearly sorted arrays because it does not repeat full adjacent passes.</li>
+              <li><strong>Selection Sort</strong> makes fewer swaps, so it can be better when writes are expensive.</li>
+              <li>Bubble Sort does the most obvious adjacent swapping, but that simplicity usually costs extra work.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> both scale much better for big arrays with around <code>O(n log n)</code> behavior.</li>
+              <li>Merge Sort is stable but needs extra memory, while Quick Sort is usually faster in practice but not stable.</li>
+              <li>Bubble Sort is mainly a teaching tool once input sizes stop being tiny.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Bubble Sort when you want the clearest possible swap-by-swap demonstration.</li>
+              <li>It is acceptable for very small or almost-sorted arrays where clarity matters more than speed.</li>
+              <li>For real workloads, other algorithms are usually the better choice.</li>
             </ul>
           </article>
         </div>

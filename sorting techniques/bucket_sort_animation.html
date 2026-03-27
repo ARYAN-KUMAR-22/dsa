@@ -1056,6 +1056,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -1186,6 +1187,46 @@
               <li>If many values fall into the same bucket, bucket sort can degrade toward the cost of the inner bucket sort.</li>
               <li>Its performance depends heavily on how well the bucket ranges match the input distribution.</li>
               <li>It uses extra space for the buckets and for collecting the final output.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Bucket Sort At a Glance</h3>
+            <ul>
+              <li>Bucket Sort distributes data into groups, sorts each group, and then concatenates the results.</li>
+              <li>Its expected speed can be close to linear for well-distributed inputs, but performance depends heavily on the data pattern.</li>
+              <li>It usually needs extra memory for the buckets and their local storage.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Counting and Radix</h3>
+            <ul>
+              <li><strong>Counting Sort</strong> and <strong>Radix Sort</strong> are more structured for integer-like keys and bounded ranges.</li>
+              <li>Bucket Sort is often more natural for normalized decimals or uniformly spread real values.</li>
+              <li>Its success depends more on good bucket distribution than the other two.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> are more predictable across arbitrary data.</li>
+              <li>Bucket Sort can be faster when the data is spread evenly across the chosen intervals.</li>
+              <li>If most values land in only a few buckets, its advantage fades quickly.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Bucket Sort for values that are already known to be distributed across a small numeric interval.</li>
+              <li>It is especially attractive for floating-point samples in ranges like <code>[0, 1)</code>.</li>
+              <li>If the distribution is unknown or highly uneven, a more predictable sort is safer.</li>
             </ul>
           </article>
         </div>

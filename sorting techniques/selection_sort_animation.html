@@ -855,6 +855,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -963,6 +964,46 @@
               <li>Its best, average, and worst cases are all <code>O(n^2)</code>.</li>
               <li>The standard version is not stable because swaps can reorder equal values.</li>
               <li>It sorts in place and uses only <code>O(1)</code> extra space.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Selection Sort At a Glance</h3>
+            <ul>
+              <li>Selection Sort is <code>in place</code> and simple, but it is not stable in its basic form.</li>
+              <li>Its time stays <code>O(n^2)</code> in the best, average, and worst cases.</li>
+              <li>Its main advantage is that it performs only one swap per pass after finding the minimum.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble and Insertion</h3>
+            <ul>
+              <li>Selection Sort usually makes fewer writes than <strong>Bubble Sort</strong> or <strong>Insertion Sort</strong>.</li>
+              <li><strong>Insertion Sort</strong> is generally faster on nearly sorted arrays because it is adaptive.</li>
+              <li>Bubble Sort is stable, while the standard Selection Sort implementation is not.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> are much better for medium and large arrays.</li>
+              <li>Selection Sort keeps its simple control flow, but it gives up too much time as input size grows.</li>
+              <li>Its niche is mostly educational or write-limited situations.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Selection Sort when minimizing swaps matters more than minimizing comparisons.</li>
+              <li>It is reasonable for tiny arrays and good for understanding the idea of choosing the next minimum.</li>
+              <li>It is rarely the right answer for high-performance sorting.</li>
             </ul>
           </article>
         </div>

@@ -958,6 +958,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -1087,6 +1088,46 @@
               <li>Merge sort needs extra memory for temporary arrays, so it is not in-place in the usual array version.</li>
               <li>It performs more copying than in-place algorithms like quick sort.</li>
               <li>In return, its runtime stays predictably <code>O(n log n)</code> in every case.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Merge Sort At a Glance</h3>
+            <ul>
+              <li>Merge Sort is <code>stable</code> and gives consistent <code>O(n log n)</code> time in all major cases.</li>
+              <li>Its main cost is the extra <code>O(n)</code> memory used during merging.</li>
+              <li>It is one of the most reliable comparison sorts when predictable performance matters.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Quick Sort</h3>
+            <ul>
+              <li><strong>Quick Sort</strong> often wins in average in-memory speed and uses less extra space.</li>
+              <li><strong>Merge Sort</strong> gives stronger worst-case guarantees and keeps equal values in order.</li>
+              <li>If stability matters, Merge Sort is usually the better choice.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble, Insertion, and Selection</h3>
+            <ul>
+              <li>Merge Sort scales far better once arrays become moderate or large.</li>
+              <li>The simple quadratic sorts can still be useful for tiny arrays or teaching, but they do not compete on big inputs.</li>
+              <li>Merge Sort trades implementation simplicity for much stronger growth behavior.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Merge Sort when you need stable output and dependable <code>O(n log n)</code> performance.</li>
+              <li>It is especially attractive for linked lists, external sorting, and large datasets.</li>
+              <li>If memory is very tight, an in-place alternative like Quick Sort may be more appealing.</li>
             </ul>
           </article>
         </div>

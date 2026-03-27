@@ -850,6 +850,7 @@
       <nav class="tabs">
         <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
         <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
       </nav>
 
       <section id="tab-visualizer" class="tab-panel visualizer-panel active">
@@ -960,6 +961,46 @@
               <li>Performance depends heavily on the chosen gap sequence.</li>
               <li>It is not stable, so equal values may change their relative order.</li>
               <li>It works in place and needs only <code>O(1)</code> extra space.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Shell Sort At a Glance</h3>
+            <ul>
+              <li>Shell Sort is an in-place improvement over Insertion Sort that moves elements farther apart early.</li>
+              <li>It is not stable, and its exact speed depends on the chosen gap sequence.</li>
+              <li>In practice it often performs much better than basic <code>O(n^2)</code> sorts on medium-size arrays.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble, Insertion, and Selection</h3>
+            <ul>
+              <li>Shell Sort usually beats the three basic quadratic sorts because large gaps reduce long-distance disorder sooner.</li>
+              <li>It keeps the low-memory benefit of in-place sorting while reducing the cost of local shifts.</li>
+              <li>It gives up stability to gain that speed improvement.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> still have stronger large-input behavior overall.</li>
+              <li>Shell Sort is simpler to implement and uses less extra memory than Merge Sort.</li>
+              <li>It sits in the middle: much better than the basic classroom sorts, but usually behind the strongest production choices.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Shell Sort for medium-size arrays when you want a simple in-place algorithm that is faster than plain insertion.</li>
+              <li>It is a practical upgrade when full divide-and-conquer complexity feels unnecessary.</li>
+              <li>If you need stability or guaranteed <code>O(n log n)</code> performance, choose something else.</li>
             </ul>
           </article>
         </div>
