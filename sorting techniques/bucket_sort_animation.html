@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucket Sort - Interactive Visualizer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #14b8a6;
+      --accent-2: #5eead4;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #041715, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.45;
+        transform: scale(0.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .step-box {
+      padding: 8px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 128px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      line-height: 1.45;
+      font-size: 0.77rem;
+    }
+
+    .step-num {
+      min-width: 18px;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+      font-size: 0.66rem;
+      padding-top: 1px;
+    }
+
+    .step-item.done .step-num {
+      color: var(--good);
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #42506d;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.71rem;
+      line-height: 1.55;
+      border-left: 2px solid transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .log-entry.info {
+      color: var(--accent-2);
+      border-color: var(--accent);
+      background: rgba(20, 184, 166, 0.08);
+    }
+
+    .log-entry.warn {
+      color: #fcd34d;
+      border-color: var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .log-entry.success {
+      color: #86efac;
+      border-color: var(--good);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .log-entry .ts {
+      color: #46516d;
+      margin-right: 6px;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(20, 184, 166, 0.1), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(94, 234, 212, 0.08), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(18, 22, 31, 0.55);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(29, 36, 54, 0.7);
+      transform: none;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(29, 36, 54, 0.85);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(22, 27, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .field span {
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 240px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #5eead4);
+      color: #062321;
+      border-color: transparent;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    .field.small input {
+      width: 72px;
+    }
+
+    .viz-area {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 16px;
+      padding: 16px 18px;
+    }
+
+    .canvas-card,
+    .code-card,
+    .footer-card {
+      background: rgba(18, 22, 31, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .canvas-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .canvas-card::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .canvas-card::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .bars-wrap {
+      flex: 0 0 auto;
+      min-height: 220px;
+      height: clamp(220px, 30vh, 280px);
+      padding: 22px 18px 18px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    .bars-wrap::-webkit-scrollbar,
+    .buffer-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .bars-wrap::-webkit-scrollbar-thumb,
+    .buffer-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .bar-col {
+      flex: 1 0 52px;
+      min-width: 52px;
+      max-width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      height: calc(clamp(220px, 30vh, 280px) - 40px);
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 12px 12px 4px 4px;
+      background: linear-gradient(180deg, #475569, #0f172a);
+      position: relative;
+      transition: height 0.35s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .bar.distribute-source {
+      background: linear-gradient(180deg, #fde68a, #f59e0b);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+      transform: translateY(-8px);
+    }
+
+    .bar.concat-source {
+      background: linear-gradient(180deg, #fb7185, var(--danger));
+      transform: translateY(-10px);
+      box-shadow: 0 0 18px rgba(244, 63, 94, 0.22);
+    }
+
+    .bar.sorted {
+      background: linear-gradient(180deg, #4ade80, var(--good));
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.22);
+    }
+
+    .bar-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.74rem;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .index-badge {
+      font-size: 0.64rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .buffer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(18, 22, 31, 0.86);
+      flex-shrink: 0;
+    }
+
+    .buffer-panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(29, 36, 54, 0.42);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .buffer-panel.tight {
+      border-top: 1px solid var(--border);
+      padding: 12px 16px 14px;
+    }
+
+    .buffer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .buffer-title {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .buffer-subtitle {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .buffer-wrap {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      min-height: 58px;
+      padding-bottom: 2px;
+    }
+
+    .buffer-empty {
+      min-height: 58px;
+      width: 100%;
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      background: rgba(29, 36, 54, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .buffer-cell {
+      min-width: 58px;
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      background: rgba(29, 36, 54, 0.45);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .buffer-cell.filled {
+      border-style: solid;
+      border-color: rgba(94, 234, 212, 0.28);
+      background: rgba(20, 184, 166, 0.12);
+    }
+
+    .buffer-cell.active {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(20, 184, 166, 0.16);
+    }
+
+    .aux-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(18, 22, 31, 0.86);
+      flex-shrink: 0;
+    }
+
+    .bucket-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .bucket-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(14, 22, 31, 0.8);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 126px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .bucket-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px rgba(20, 184, 166, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .bucket-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bucket-range {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .bucket-cells {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-content: flex-start;
+      min-height: 48px;
+    }
+
+    .bucket-pill {
+      min-width: 48px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(29, 36, 54, 0.72);
+      padding: 6px 8px;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .bucket-pill.active {
+      border-color: var(--accent);
+      background: rgba(20, 184, 166, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .bucket-empty {
+      font-size: 0.75rem;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      background: rgba(29, 36, 54, 0.35);
+    }
+
+    .buffer-index {
+      font-size: 0.64rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .buffer-value {
+      font-size: 0.86rem;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .code-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .code-wrap {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .code-wrap::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .code-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .code-line.active {
+      background: rgba(20, 184, 166, 0.08);
+      border-color: rgba(20, 184, 166, 0.28);
+      color: #f8fafc;
+    }
+
+    .line-no {
+      color: #4f5d79;
+      text-align: right;
+      user-select: none;
+    }
+
+    .explain-box {
+      margin-top: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .explain-box h3 {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+    }
+
+    .explain-box p {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .bottom-row {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .theory-grid {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .theory-card {
+      background: rgba(18, 22, 31, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .theory-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--accent-2);
+    }
+
+    .theory-card p,
+    .theory-card li {
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .theory-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .theory-card code {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+    }
+
+    .footer-card {
+      padding: 14px 16px;
+    }
+
+    .footer-card h3 {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      font-size: 0.74rem;
+      color: var(--text);
+    }
+
+    .status-line {
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .status-line strong {
+      color: var(--accent-2);
+    }
+
+    @media (max-width: 1180px) {
+      .viz-area {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+
+      .theory-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .buffer-grid,
+      .bucket-board {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-body {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        width: 100%;
+        min-width: 0;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .workspace {
+        display: block;
+      }
+
+      .tab-panel.visualizer-panel.active {
+        display: block;
+        overflow-y: auto;
+      }
+
+      .field input {
+        width: 180px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-wrap: wrap;
+      }
+
+      .speed-label {
+        margin-left: 0;
+      }
+
+      .control-row {
+        padding: 14px;
+      }
+
+      .field {
+        width: 100%;
+      }
+
+      .field input {
+        width: 100%;
+      }
+
+      .button-row {
+        margin-left: 0;
+      }
+
+      .viz-area,
+      .bottom-row {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Bucket Sort</span> Visualizer</h1>
+      <p>Watch decimal values distribute into buckets, sort locally, and concatenate into a final output.</p>
+    </div>
+    <label class="speed-label">
+      Speed
+      <input id="speedRange" type="range" min="1" max="100" value="55" />
+    </label>
+  </header>
+
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Bucket Runtime Feed
+      </div>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Live Metrics</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Drops</div>
+            <div class="metric-value" id="distributeOps">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Bucket Sort</div>
+            <div class="metric-value" id="bucketSortOps">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Output</div>
+            <div class="metric-value" id="outputWrites">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Used</div>
+            <div class="metric-value" id="usedBuckets">0</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Algorithm Flow</div>
+        <div class="step-box" id="stepBox"></div>
+      </section>
+
+      <section class="panel-section" style="flex:1; min-height: 180px;">
+        <div class="panel-section-title">Execution Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+      </nav>
+
+      <section id="tab-visualizer" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Input</span>
+            <input id="inputArray" type="text" value="0.42, 0.32, 0.23, 0.52, 0.25, 0.47, 0.51, 0.79"
+              aria-label="Enter comma separated numbers" />
+          </label>
+
+          <label class="field small">
+            <span>Buckets</span>
+            <input id="bucketCountInput" type="number" min="3" max="8" value="5" aria-label="Number of buckets" />
+          </label>
+
+          <div class="button-row">
+            <button class="ghost" id="randomBtn">Randomize</button>
+            <button id="loadBtn">Load Array</button>
+            <button class="primary" id="playBtn">Start Sort</button>
+            <button id="stepBtn">Next Step</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+
+        <section class="viz-area">
+          <article class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Bar Animation</div>
+                <div class="card-subtitle" id="statusText">Ready to simulate Bucket Sort.</div>
+              </div>
+              <div class="legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b;"></span> Distributing value</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#14b8a6;"></span> Active bucket</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#f43f5e;"></span> Concatenating</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#22c55e;"></span> Final sorted array</span>
+              </div>
+            </div>
+            <div class="bars-wrap" id="barsWrap"></div>
+            <div class="aux-stack">
+              <div class="buffer-panel">
+                <div class="buffer-head">
+                  <div class="buffer-title">Buckets</div>
+                  <div class="buffer-subtitle" id="bucketStatus">Each bucket covers an interval inside [0.00, 1.00).</div>
+                </div>
+                <div class="bucket-board" id="bucketsWrap"></div>
+              </div>
+              <div class="buffer-panel">
+                <div class="buffer-head">
+                  <div class="buffer-title">Output Array</div>
+                  <div class="buffer-subtitle" id="outputStatus">Sorted values are collected bucket by bucket from left to right.</div>
+                </div>
+                <div class="buffer-wrap" id="outputWrap"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="code-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Pseudo Code</div>
+                <div class="card-subtitle">Current line follows the active animation step.</div>
+              </div>
+            </div>
+            <div class="code-wrap" id="codeWrap"></div>
+          </article>
+        </section>
+
+        <section class="bottom-row">
+          <article class="footer-card">
+            <h3>Complexity</h3>
+            <div class="badge-row">
+              <span class="badge">Best: O(n + k)</span>
+              <span class="badge">Average: O(n + k)</span>
+              <span class="badge">Worst: O(n^2)</span>
+              <span class="badge">Space: O(n + k)</span>
+              <span class="badge">Stable: Depends</span>
+            </div>
+          </article>
+
+          <article class="footer-card">
+            <h3>Current Insight</h3>
+            <p class="status-line" id="insightText">
+              <strong>Bucket Sort</strong> spreads values across interval-based buckets, sorts those smaller groups, and
+              concatenates them in order.
+            </p>
+          </article>
+        </section>
+      </section>
+
+      <section id="tab-theory" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>How Bucket Sort Works</h3>
+            <ul>
+              <li>Choose several buckets that divide the value range into smaller intervals.</li>
+              <li>Map each input value to one bucket based on its interval.</li>
+              <li>Sort each bucket separately, usually with a simple local algorithm such as insertion sort.</li>
+              <li>Concatenate the buckets from left to right to build the final sorted order.</li>
+              <li>Bucket sort works best when the input values are fairly uniformly distributed.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Pseudo Logic</h3>
+            <ul>
+              <li><code>buckets = array(bucketCount, empty list)</code></li>
+              <li><code>for value in a</code></li>
+              <li><code>bucketIndex = floor(value * bucketCount)</code></li>
+              <li><code>push value into buckets[bucketIndex]</code></li>
+              <li><code>sort each bucket</code></li>
+              <li><code>concatenate buckets into output</code></li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>When It Is Useful</h3>
+            <ul>
+              <li>Very effective when values are floating-point numbers spread evenly across a known interval.</li>
+              <li>Breaking the problem into smaller buckets can make local sorts extremely small and fast.</li>
+              <li>It is often taught for data like normalized decimals in the range <code>[0, 1)</code>.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Key Tradeoffs</h3>
+            <ul>
+              <li>If many values fall into the same bucket, bucket sort can degrade toward the cost of the inner bucket sort.</li>
+              <li>Its performance depends heavily on how well the bucket ranges match the input distribution.</li>
+              <li>It uses extra space for the buckets and for collecting the final output.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const defaultArray = [0.42, 0.32, 0.23, 0.52, 0.25, 0.47, 0.51, 0.79];
+    const defaultBucketCount = 5;
+    const maxBars = 14;
+    const minValue = 0;
+    const maxValue = 0.99;
+    const minBucketCount = 3;
+    const maxBucketCount = 8;
+
+    const stepsTemplate = [
+      'Read each input value.',
+      'Drop it into the matching bucket interval.',
+      'Sort each non-empty bucket locally.',
+      'Concatenate buckets into the output array.',
+      'Copy the output back as the final sorted order.'
+    ];
+
+    const pseudoCode = [
+      'buckets = array(bucketCount, empty list)',
+      'for value in a',
+      '  bucketIndex = floor(value * bucketCount)',
+      '  push value into buckets[bucketIndex]',
+      'sort each bucket',
+      'concatenate buckets into output',
+      'copy output back to a'
+    ];
+
+    const ui = {
+      barsWrap: document.getElementById('barsWrap'),
+      bucketsWrap: document.getElementById('bucketsWrap'),
+      outputWrap: document.getElementById('outputWrap'),
+      bucketStatus: document.getElementById('bucketStatus'),
+      outputStatus: document.getElementById('outputStatus'),
+      inputArray: document.getElementById('inputArray'),
+      bucketCountInput: document.getElementById('bucketCountInput'),
+      playBtn: document.getElementById('playBtn'),
+      stepBtn: document.getElementById('stepBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      randomBtn: document.getElementById('randomBtn'),
+      loadBtn: document.getElementById('loadBtn'),
+      speedRange: document.getElementById('speedRange'),
+      distributeOps: document.getElementById('distributeOps'),
+      bucketSortOps: document.getElementById('bucketSortOps'),
+      outputWrites: document.getElementById('outputWrites'),
+      usedBuckets: document.getElementById('usedBuckets'),
+      stepBox: document.getElementById('stepBox'),
+      logBox: document.getElementById('logBox'),
+      codeWrap: document.getElementById('codeWrap'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText')
+    };
+
+    let state = {
+      original: [...defaultArray],
+      arr: [...defaultArray],
+      bucketCount: defaultBucketCount,
+      actions: [],
+      actionIndex: 0,
+      running: false,
+      timer: null,
+      distributeOps: 0,
+      bucketSortOps: 0,
+      outputWrites: 0,
+      usedBuckets: 0,
+      activeInputIndex: null,
+      activeBucketIndex: null,
+      activeBucketValueIndex: null,
+      activeOutputIndex: null,
+      phase: null,
+      sortedIndices: [],
+      buckets: [],
+      outputArray: [],
+      currentLine: -1,
+      currentStep: 0,
+      lastInsight: 'Ready to sort.'
+    };
+
+    function init() {
+      renderSteps();
+      renderPseudoCode();
+      loadArray(defaultArray, defaultBucketCount, 'Loaded default Bucket Sort sample.');
+      bindEvents();
+    }
+
+    function bindEvents() {
+      ui.randomBtn.addEventListener('click', randomizeArray);
+      ui.loadBtn.addEventListener('click', () => {
+        const parsed = parseInput(ui.inputArray.value);
+        const bucketCount = parseBucketCount(ui.bucketCountInput.value);
+        if (!parsed.length) {
+          pushLog('warn', 'Invalid input. Enter up to 14 decimal values between 0.00 and 0.99.');
+          return;
+        }
+        loadArray(parsed, bucketCount, 'Loaded custom input array.');
+      });
+      ui.playBtn.addEventListener('click', togglePlay);
+      ui.stepBtn.addEventListener('click', stepForward);
+      ui.resetBtn.addEventListener('click', () => loadArray(state.original, state.bucketCount, 'Reset to the currently loaded array.'));
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+
+      if (id === 'tab-visualizer') {
+        requestAnimationFrame(() => renderAll());
+      }
+    }
+
+    function parseInput(raw) {
+      const parts = raw.split(',').map(part => part.trim()).filter(Boolean);
+      if (!parts.length || parts.length > maxBars) {
+        return [];
+      }
+      const nums = parts.map(Number);
+      if (nums.some(num => Number.isNaN(num) || !Number.isFinite(num))) {
+        return [];
+      }
+      return nums.map(num => Number(Math.max(minValue, Math.min(maxValue, num)).toFixed(2)));
+    }
+
+    function parseBucketCount(raw) {
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed)) {
+        return defaultBucketCount;
+      }
+      return Math.max(minBucketCount, Math.min(maxBucketCount, Math.round(parsed)));
+    }
+
+    function randomizeArray() {
+      const size = 8 + Math.floor(Math.random() * 3);
+      const random = Array.from({ length: size }, () => Number((Math.random() * 0.99).toFixed(2)));
+      ui.inputArray.value = random.map(formatValue).join(', ');
+      loadArray(random, parseBucketCount(ui.bucketCountInput.value), 'Generated a fresh random array.');
+    }
+
+    function loadArray(arr, bucketCount, message) {
+      stopRun();
+      state.original = [...arr];
+      state.arr = [...arr];
+      state.bucketCount = bucketCount;
+      state.actions = buildActions(arr, bucketCount);
+      state.actionIndex = 0;
+      state.running = false;
+      state.distributeOps = 0;
+      state.bucketSortOps = 0;
+      state.outputWrites = 0;
+      state.usedBuckets = 0;
+      state.activeInputIndex = null;
+      state.activeBucketIndex = null;
+      state.activeBucketValueIndex = null;
+      state.activeOutputIndex = null;
+      state.phase = null;
+      state.sortedIndices = [];
+      state.buckets = Array.from({ length: bucketCount }, () => []);
+      state.outputArray = Array.from({ length: arr.length }, () => null);
+      state.currentLine = -1;
+      state.currentStep = 0;
+      state.lastInsight = 'Ready to sort.';
+      ui.inputArray.value = arr.map(formatValue).join(', ');
+      ui.bucketCountInput.value = bucketCount;
+      ui.playBtn.textContent = 'Start Sort';
+      clearLogs();
+      pushLog('info', message);
+      pushLog('info', `Prepared ${state.actions.length} animation steps for ${arr.length} values across ${bucketCount} buckets.`);
+      updateStatus('Ready to simulate Bucket Sort.');
+      updateInsight('spreads values across interval-based buckets, sorts those smaller groups, and concatenates them in order.');
+      updateBucketStatus(`Each bucket spans ${formatIntervalWidth(bucketCount)} of the [0.00, 1.00) range.`);
+      updateOutputStatus('Output stays empty until the sorted buckets are concatenated.');
+      renderAll();
+    }
+
+    function buildActions(source, bucketCount) {
+      const actions = [];
+      const output = Array.from({ length: source.length }, () => null);
+      const bucketItems = Array.from({ length: bucketCount }, () => []);
+      const working = [...source];
+      const usedSet = new Set();
+
+      function snapshotBuckets(items) {
+        return items.map(bucket => bucket.map(entry => Number(entry.value.toFixed(2))));
+      }
+
+      actions.push({
+        type: 'init',
+        bucketCount,
+        bucketsSnapshot: snapshotBuckets(bucketItems),
+        outputSnapshot: [...output],
+        usedBuckets: 0,
+        line: 1,
+        step: 0
+      });
+
+      source.forEach((value, index) => {
+        const bucketIndex = getBucketIndex(value, bucketCount);
+
+        actions.push({
+          type: 'scanInput',
+          index,
+          value,
+          bucketIndex,
+          bucketsSnapshot: snapshotBuckets(bucketItems),
+          outputSnapshot: [...output],
+          usedBuckets: usedSet.size,
+          line: 2,
+          step: 0
+        });
+
+        bucketItems[bucketIndex].push({ value, sourceIndex: index });
+        usedSet.add(bucketIndex);
+
+        actions.push({
+          type: 'dropIntoBucket',
+          index,
+          value,
+          bucketIndex,
+          bucketValueIndex: bucketItems[bucketIndex].length - 1,
+          bucketsSnapshot: snapshotBuckets(bucketItems),
+          outputSnapshot: [...output],
+          usedBuckets: usedSet.size,
+          line: 4,
+          step: 1
+        });
+      });
+
+      let outputIndex = 0;
+
+      for (let bucketIndex = 0; bucketIndex < bucketCount; bucketIndex++) {
+        actions.push({
+          type: 'selectBucket',
+          bucketIndex,
+          isEmpty: bucketItems[bucketIndex].length === 0,
+          bucketsSnapshot: snapshotBuckets(bucketItems),
+          outputSnapshot: [...output],
+          usedBuckets: usedSet.size,
+          line: 5,
+          step: 2
+        });
+
+        if (!bucketItems[bucketIndex].length) {
+          continue;
+        }
+
+        bucketItems[bucketIndex].sort((a, b) => a.value - b.value || a.sourceIndex - b.sourceIndex);
+
+        actions.push({
+          type: 'sortBucket',
+          bucketIndex,
+          sortedValues: bucketItems[bucketIndex].map(item => item.value),
+          bucketsSnapshot: snapshotBuckets(bucketItems),
+          outputSnapshot: [...output],
+          usedBuckets: usedSet.size,
+          line: 5,
+          step: 2
+        });
+
+        bucketItems[bucketIndex].forEach((item, bucketValueIndex) => {
+          output[outputIndex] = item.value;
+          actions.push({
+            type: 'appendOutput',
+            bucketIndex,
+            bucketValueIndex,
+            outputIndex,
+            sourceIndex: item.sourceIndex,
+            value: item.value,
+            bucketsSnapshot: snapshotBuckets(bucketItems),
+            outputSnapshot: [...output],
+            usedBuckets: usedSet.size,
+            line: 6,
+            step: 3
+          });
+          outputIndex += 1;
+        });
+      }
+
+      for (let index = 0; index < output.length; index++) {
+        working[index] = output[index];
+        actions.push({
+          type: 'copyBackProgress',
+          index,
+          value: output[index],
+          snapshot: [...working],
+          bucketsSnapshot: snapshotBuckets(bucketItems),
+          outputSnapshot: [...output],
+          usedBuckets: usedSet.size,
+          line: 7,
+          step: 4,
+          sorted: Array.from({ length: index + 1 }, (_, i) => i)
+        });
+      }
+
+      actions.push({
+        type: 'complete',
+        finalArray: [...working],
+        bucketsSnapshot: snapshotBuckets(bucketItems),
+        outputSnapshot: [...output],
+        usedBuckets: usedSet.size,
+        line: 7,
+        step: 4,
+        sorted: working.map((_, index) => index)
+      });
+
+      return actions;
+    }
+
+    function togglePlay() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+        pushLog('warn', 'Animation paused.');
+        return;
+      }
+
+      if (state.actionIndex >= state.actions.length) {
+        loadArray(state.original, state.bucketCount, 'Restarted the loaded array.');
+      }
+
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      pushLog('info', 'Auto-play started.');
+      runLoop();
+    }
+
+    function stopRun() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function stepForward() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+      }
+      if (state.actionIndex >= state.actions.length) {
+        pushLog('success', 'All steps have already completed.');
+        return;
+      }
+      applyAction(state.actions[state.actionIndex++]);
+    }
+
+    function runLoop() {
+      if (!state.running) {
+        return;
+      }
+      if (state.actionIndex >= state.actions.length) {
+        stopRun();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+
+      applyAction(state.actions[state.actionIndex++]);
+      if (state.running) {
+        state.timer = setTimeout(runLoop, getSpeedDelay());
+      } else {
+        state.timer = null;
+      }
+    }
+
+    function getSpeedDelay() {
+      const value = Number(ui.speedRange.value);
+      return 1100 - value * 9;
+    }
+
+    function resetHighlights() {
+      state.activeInputIndex = null;
+      state.activeBucketIndex = null;
+      state.activeBucketValueIndex = null;
+      state.activeOutputIndex = null;
+      state.phase = null;
+    }
+
+    function applyAction(action) {
+      resetHighlights();
+      state.currentLine = action.line ?? -1;
+      state.currentStep = action.step ?? 0;
+      state.buckets = cloneBuckets(action.bucketsSnapshot ?? state.buckets);
+      state.outputArray = [...(action.outputSnapshot ?? state.outputArray)];
+      state.usedBuckets = action.usedBuckets ?? state.usedBuckets;
+
+      if (action.sorted) {
+        state.sortedIndices = [...action.sorted];
+      }
+
+      switch (action.type) {
+        case 'init':
+          state.bucketCount = action.bucketCount;
+          state.sortedIndices = [];
+          updateStatus(`Initialized ${action.bucketCount} buckets for the input interval.`);
+          updateInsight('creates interval-based groups so smaller local sorts can build the final global order.');
+          updateBucketStatus(`Each bucket spans ${formatIntervalWidth(action.bucketCount)} of the [0.00, 1.00) range.`);
+          updateOutputStatus('Output array is empty and ready for bucket-by-bucket concatenation.');
+          pushLog('info', `Initialized ${action.bucketCount} empty buckets.`);
+          break;
+
+        case 'scanInput':
+          state.activeInputIndex = action.index;
+          state.activeBucketIndex = action.bucketIndex;
+          state.phase = 'distribute';
+          updateStatus(`Read ${formatValue(action.value)} from input index ${action.index}.`);
+          updateInsight('maps each value to a bucket using its position inside the overall numeric interval.');
+          updateBucketStatus(`${formatValue(action.value)} belongs in Bucket ${action.bucketIndex} ${formatBucketRange(action.bucketIndex, state.bucketCount)}.`);
+          updateOutputStatus('Output stays unchanged until every non-empty bucket is sorted.');
+          pushLog('info', `Scanning input index ${action.index}: ${formatValue(action.value)} -> Bucket ${action.bucketIndex}.`);
+          break;
+
+        case 'dropIntoBucket':
+          state.activeInputIndex = action.index;
+          state.activeBucketIndex = action.bucketIndex;
+          state.activeBucketValueIndex = action.bucketValueIndex;
+          state.phase = 'distribute';
+          state.distributeOps += 1;
+          updateStatus(`Dropped ${formatValue(action.value)} into Bucket ${action.bucketIndex}.`);
+          updateInsight('after distribution, nearby values sit together so each bucket needs only a small local sort.');
+          updateBucketStatus(`Bucket ${action.bucketIndex} now holds ${state.buckets[action.bucketIndex].length} value(s).`);
+          updateOutputStatus(`Used buckets so far: ${state.usedBuckets} of ${state.bucketCount}.`);
+          pushLog('warn', `Placed ${formatValue(action.value)} into Bucket ${action.bucketIndex}.`);
+          break;
+
+        case 'selectBucket':
+          state.activeBucketIndex = action.bucketIndex;
+          state.phase = 'sort';
+          if (action.isEmpty) {
+            updateStatus(`Bucket ${action.bucketIndex} is empty, so it is skipped.`);
+            updateInsight('empty buckets cost almost nothing and help keep unrelated values apart.');
+            updateBucketStatus(`Bucket ${action.bucketIndex} ${formatBucketRange(action.bucketIndex, state.bucketCount)} has no values.`);
+            updateOutputStatus(`Output still has ${state.outputArray.filter(value => value !== null).length} filled slot(s).`);
+            pushLog('info', `Skipped empty Bucket ${action.bucketIndex}.`);
+            break;
+          }
+          updateStatus(`Selected Bucket ${action.bucketIndex} for local sorting.`);
+          updateInsight('bucket sort now relies on a smaller inner sort to order the values inside this interval.');
+          updateBucketStatus(`Sorting Bucket ${action.bucketIndex} ${formatBucketRange(action.bucketIndex, state.bucketCount)}.`);
+          updateOutputStatus('Sorted bucket values will be appended to output from left to right.');
+          pushLog('info', `Selected Bucket ${action.bucketIndex} containing ${state.buckets[action.bucketIndex].length} value(s).`);
+          break;
+
+        case 'sortBucket':
+          state.activeBucketIndex = action.bucketIndex;
+          state.phase = 'sort';
+          state.bucketSortOps += 1;
+          updateStatus(`Sorted Bucket ${action.bucketIndex}: [${action.sortedValues.map(formatValue).join(', ')}].`);
+          updateInsight('sorting inside each bucket is what turns grouped values into an ordered final sequence.');
+          updateBucketStatus(`Bucket ${action.bucketIndex} is now ordered as [${action.sortedValues.map(formatValue).join(', ')}].`);
+          updateOutputStatus('Next, these bucket values will be concatenated into the output array.');
+          pushLog('success', `Bucket ${action.bucketIndex} sorted locally.`);
+          break;
+
+        case 'appendOutput':
+          state.activeInputIndex = action.sourceIndex;
+          state.activeBucketIndex = action.bucketIndex;
+          state.activeBucketValueIndex = action.bucketValueIndex;
+          state.activeOutputIndex = action.outputIndex;
+          state.phase = 'concat';
+          state.outputWrites += 1;
+          updateStatus(`Appended ${formatValue(action.value)} to output[${action.outputIndex}].`);
+          updateInsight('concatenating buckets in order works because every earlier bucket contains smaller values than later buckets.');
+          updateBucketStatus(`Reading Bucket ${action.bucketIndex} into the output array.`);
+          updateOutputStatus(`Output[${action.outputIndex}] = ${formatValue(action.value)}.`);
+          pushLog('warn', `Output[${action.outputIndex}] receives ${formatValue(action.value)} from Bucket ${action.bucketIndex}.`);
+          break;
+
+        case 'copyBackProgress':
+          state.arr = [...action.snapshot];
+          state.activeOutputIndex = action.index;
+          state.phase = 'copy';
+          updateStatus(`Copied ${formatValue(action.value)} back to main array index ${action.index}.`);
+          updateInsight('the final copy-back stage turns the output sequence into the visible sorted array.');
+          updateBucketStatus('All buckets have been processed; the main array is now being finalized.');
+          updateOutputStatus(`Main array prefix [0..${action.index}] is now sorted.`);
+          pushLog('success', `Copied ${formatValue(action.value)} back to array index ${action.index}.`);
+          break;
+
+        case 'complete':
+          state.arr = [...action.finalArray];
+          state.buckets = cloneBuckets(action.bucketsSnapshot);
+          state.outputArray = [...action.outputSnapshot];
+          state.sortedIndices = [...action.sorted];
+          state.usedBuckets = action.usedBuckets;
+          resetHighlights();
+          updateStatus('Sorting complete.');
+          updateInsight(`finished. Final sorted array: [${state.arr.map(formatValue).join(', ')}].`);
+          updateBucketStatus(`Processed ${state.usedBuckets} non-empty bucket(s) out of ${state.bucketCount}.`);
+          updateOutputStatus(`Sorted output: [${state.outputArray.map(formatValue).join(', ')}].`);
+          pushLog('success', `Sorting complete: [${state.arr.map(formatValue).join(', ')}].`);
+          stopRun();
+          ui.playBtn.textContent = 'Replay';
+          break;
+      }
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderBars();
+      renderBuckets();
+      renderOutputArray();
+      renderMetrics();
+      renderSteps();
+      renderPseudoCode();
+    }
+
+    function renderBars() {
+      ui.barsWrap.innerHTML = '';
+      const max = Math.max(...state.arr, 1);
+
+      state.arr.forEach((value, index) => {
+        const col = document.createElement('div');
+        col.className = 'bar-col';
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = formatValue(value);
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${Math.max(28, (value / max) * 170)}px`;
+
+        if (state.sortedIndices.includes(index)) {
+          bar.classList.add('sorted');
+        } else if (state.activeInputIndex === index && state.phase === 'concat') {
+          bar.classList.add('concat-source');
+        } else if (state.activeInputIndex === index) {
+          bar.classList.add('distribute-source');
+        }
+
+        const badge = document.createElement('div');
+        badge.className = 'index-badge';
+        badge.textContent = `i:${index}`;
+
+        col.appendChild(label);
+        col.appendChild(bar);
+        col.appendChild(badge);
+        ui.barsWrap.appendChild(col);
+      });
+    }
+
+    function renderBuckets() {
+      ui.bucketsWrap.innerHTML = '';
+
+      if (!state.buckets.length) {
+        const empty = document.createElement('div');
+        empty.className = 'bucket-empty';
+        empty.textContent = 'Buckets will appear here after loading an array.';
+        ui.bucketsWrap.appendChild(empty);
+        return;
+      }
+
+      state.buckets.forEach((bucketValues, bucketIndex) => {
+        const card = document.createElement('div');
+        card.className = `bucket-card ${state.activeBucketIndex === bucketIndex ? 'active' : ''}`.trim();
+
+        const head = document.createElement('div');
+        head.className = 'buffer-head';
+
+        const label = document.createElement('div');
+        label.className = 'bucket-label';
+        label.textContent = `Bucket ${bucketIndex}`;
+
+        const range = document.createElement('div');
+        range.className = 'bucket-range';
+        range.textContent = formatBucketRange(bucketIndex, state.bucketCount);
+
+        head.appendChild(label);
+        head.appendChild(range);
+        card.appendChild(head);
+
+        const cells = document.createElement('div');
+        cells.className = 'bucket-cells';
+
+        if (!bucketValues.length) {
+          const empty = document.createElement('div');
+          empty.className = 'bucket-empty';
+          empty.textContent = 'Empty bucket';
+          cells.appendChild(empty);
+        } else {
+          bucketValues.forEach((value, valueIndex) => {
+            const pill = document.createElement('div');
+            pill.className = `bucket-pill ${state.activeBucketIndex === bucketIndex && state.activeBucketValueIndex === valueIndex ? 'active' : ''}`.trim();
+            pill.textContent = formatValue(value);
+            cells.appendChild(pill);
+          });
+        }
+
+        card.appendChild(cells);
+        ui.bucketsWrap.appendChild(card);
+      });
+    }
+
+    function renderOutputArray() {
+      ui.outputWrap.innerHTML = '';
+
+      if (!state.outputArray.length) {
+        const empty = document.createElement('div');
+        empty.className = 'buffer-empty';
+        empty.textContent = 'Output array will appear here.';
+        ui.outputWrap.appendChild(empty);
+        return;
+      }
+
+      state.outputArray.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.className = `buffer-cell ${value !== null ? 'filled' : ''} ${state.activeOutputIndex === index ? 'active' : ''}`.trim();
+
+        const slot = document.createElement('div');
+        slot.className = 'buffer-index';
+        slot.textContent = `o:${index}`;
+
+        const val = document.createElement('div');
+        val.className = 'buffer-value';
+        val.textContent = value === null ? '...' : formatValue(value);
+
+        cell.appendChild(slot);
+        cell.appendChild(val);
+        ui.outputWrap.appendChild(cell);
+      });
+    }
+
+    function renderMetrics() {
+      ui.distributeOps.textContent = state.distributeOps;
+      ui.bucketSortOps.textContent = state.bucketSortOps;
+      ui.outputWrites.textContent = state.outputWrites;
+      ui.usedBuckets.textContent = state.usedBuckets;
+    }
+
+    function renderSteps() {
+      ui.stepBox.innerHTML = '';
+      stepsTemplate.forEach((text, index) => {
+        const item = document.createElement('div');
+        let cls = 'pending';
+        if (index < state.currentStep) cls = 'done';
+        if (index === state.currentStep) cls = 'active';
+        item.className = `step-item ${cls}`;
+        item.innerHTML = `
+          <div class="step-num">0${index + 1}</div>
+          <div class="step-text">${text}</div>
+        `;
+        ui.stepBox.appendChild(item);
+      });
+    }
+
+    function renderPseudoCode() {
+      ui.codeWrap.innerHTML = '';
+      pseudoCode.forEach((text, index) => {
+        const line = document.createElement('div');
+        line.className = `code-line ${state.currentLine === index + 1 ? 'active' : ''}`;
+        line.innerHTML = `
+          <div class="line-no">${index + 1}</div>
+          <div>${text}</div>
+        `;
+        ui.codeWrap.appendChild(line);
+      });
+
+      const explain = document.createElement('div');
+      explain.className = 'explain-box';
+      explain.innerHTML = `
+        <h3>Why It Matters</h3>
+        <p>${state.lastInsight}</p>
+      `;
+      ui.codeWrap.appendChild(explain);
+    }
+
+    function updateStatus(text) {
+      ui.statusText.textContent = text;
+    }
+
+    function updateInsight(text) {
+      state.lastInsight = text;
+      ui.insightText.innerHTML = `<strong>Bucket Sort</strong> ${text}`;
+    }
+
+    function updateBucketStatus(text) {
+      ui.bucketStatus.textContent = text;
+    }
+
+    function updateOutputStatus(text) {
+      ui.outputStatus.textContent = text;
+    }
+
+    function formatValue(value) {
+      return Number(value).toFixed(2);
+    }
+
+    function formatIntervalWidth(bucketCount) {
+      return formatValue(1 / bucketCount);
+    }
+
+    function formatBucketRange(bucketIndex, bucketCount) {
+      const start = bucketIndex / bucketCount;
+      const end = (bucketIndex + 1) / bucketCount;
+      const closing = bucketIndex === bucketCount - 1 ? ']' : ')';
+      return `[${formatValue(start)}, ${formatValue(end)}${closing}`;
+    }
+
+    function getBucketIndex(value, bucketCount) {
+      return Math.min(bucketCount - 1, Math.floor(value * bucketCount));
+    }
+
+    function cloneBuckets(snapshot) {
+      return snapshot.map(bucket => [...bucket]);
+    }
+
+    function clearLogs() {
+      ui.logBox.innerHTML = '';
+    }
+
+    function pushLog(type, message) {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const ts = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      entry.innerHTML = `<span class="ts">${ts}</span>${message}`;
+      ui.logBox.prepend(entry);
+    }
+
+    init();
+  </script>
+</body>
+</html>

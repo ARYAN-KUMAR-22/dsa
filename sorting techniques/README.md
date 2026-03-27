@@ -45,7 +45,10 @@ Each algorithm will include:
 ## Interactive Pages
 
 - `bubble_sort_animation.html` - Bubble Sort visualizer with pass-by-pass animation, pseudo-code highlighting, and live metrics.
+- `bucket_sort_animation.html` - Bucket Sort visualizer with interval buckets, local bucket sorting, output concatenation, and theory tabs.
+- `count_sort_animation.html` - Counting Sort visualizer with count-array tracking, stable output placement, pseudo-code highlighting, and theory tabs.
 - `insertion_sort_animation.html` - Insertion Sort visualizer with key tracking, shift animation, pseudo-code highlighting, and theory tabs.
+- `merge_sort_animation.html` - Merge Sort visualizer with split-range tracking, merge buffer animation, pseudo-code highlighting, and theory tabs.
 - `quick_sort_animation.html` - Quick Sort visualizer with pivot tracking, recursive or iterative modes, and theory tabs.
 - `selection_sort_animation.html` - Selection Sort visualizer with minimum tracking, scan animation, pseudo-code highlighting, and theory tabs.
 
