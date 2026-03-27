@@ -20,6 +20,7 @@
       --accent-2: #fca5a5;
       --accent-3: #86efac;
       --accent-4: #fcd34d;
+      --accent-5: #67e8f9;
       --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
     }
 
@@ -177,6 +178,10 @@
       color: var(--accent-4);
     }
 
+    .accent-analysis {
+      color: var(--accent-5);
+    }
+
     .footer {
       margin-top: 18px;
       padding: 18px 20px;
@@ -219,7 +224,7 @@
   <div class="shell">
     <section class="hero">
       <div class="eyebrow">GitHub Pages Ready</div>
-      <h1>DSA visualizers for trees, graphs, and sorting from one homepage.</h1>
+      <h1>DSA visualizers for trees, graphs, sorting, and analysis from one homepage.</h1>
       <p>
         This site collects the HTML simulations from the repository so they can be opened directly after deployment.
         Use the quick links below for the main demos, or jump into the full topic sections.
@@ -232,6 +237,8 @@
         <a class="pill" href="Graph/bfs_traversal.html">BFS</a>
         <a class="pill" href="Graph/dfs_traversal.html">DFS</a>
         <a class="pill" href="Graph/disjoint_set_union.html">Disjoint Set</a>
+        <a class="pill" href="recurrence_relation.html">Recurrence Relation</a>
+        <a class="pill" href="asymptotic_notation.html">Asymptotic Notation</a>
         <a class="pill" href="sorting%20techniques/bubble_sort_animation.html">Bubble Sort</a>
         <a class="pill" href="sorting%20techniques/quick_sort_animation.html">Quick Sort</a>
       </div>
@@ -275,6 +282,15 @@
           <a class="link-btn" href="Graph/bfs_traversal.html"><span>Breadth first search (BFS)</span><span>Queue-based traversal</span></a>
           <a class="link-btn" href="Graph/dfs_traversal.html"><span>Depth first search (DFS)</span><span>Stack-based traversal</span></a>
           <a class="link-btn" href="Graph/disjoint_set_union.html"><span>Disjoint set union (DSU)</span><span>Union-Find dashboard</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2><span class="accent-analysis">Analysis</span> Topics</h2>
+        <p>Interactive dashboards for recurrence relations and asymptotic analysis from the root DSA folder.</p>
+        <div class="list">
+          <a class="link-btn" href="recurrence_relation.html"><span>Recurrence relation</span><span>Recursion tree dashboard</span></a>
+          <a class="link-btn" href="asymptotic_notation.html"><span>Asymptotic notation</span><span>Big-O, Omega, Theta</span></a>
         </div>
       </article>
 
