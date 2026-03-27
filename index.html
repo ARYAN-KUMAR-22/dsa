@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Visualizers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(14, 20, 39, 0.84);
+      --panel-2: rgba(17, 24, 45, 0.92);
+      --border: rgba(165, 180, 252, 0.18);
+      --text: #e5eefc;
+      --muted: #94a3b8;
+      --accent: #7dd3fc;
+      --accent-2: #fca5a5;
+      --accent-3: #86efac;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(252, 165, 165, 0.16), transparent 24%),
+        radial-gradient(circle at bottom center, rgba(134, 239, 172, 0.14), transparent 24%),
+        linear-gradient(160deg, #08101d 0%, #0d1426 48%, #09111e 100%);
+      padding: 28px;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 32px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(16, 23, 43, 0.94), rgba(10, 16, 30, 0.9));
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(125, 211, 252, 0.12);
+      border: 1px solid rgba(125, 211, 252, 0.22);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.03;
+      max-width: 780px;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .hero-links a,
+    .card a {
+      text-decoration: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text);
+      font-weight: 600;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .pill:hover,
+    .link-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(125, 211, 252, 0.4);
+      background: rgba(125, 211, 252, 0.12);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .link-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      background: rgba(148, 163, 184, 0.06);
+      color: var(--text);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .link-btn span:last-child {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .accent-tree {
+      color: var(--accent-3);
+    }
+
+    .accent-sort {
+      color: var(--accent);
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(10, 16, 30, 0.72);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    code {
+      padding: 2px 7px;
+      border-radius: 8px;
+      background: rgba(125, 211, 252, 0.08);
+      color: var(--text);
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px;
+      }
+
+      .hero,
+      .card {
+        padding: 20px;
+      }
+
+      .link-btn {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">GitHub Pages Ready</div>
+      <h1>DSA visualizers for trees and sorting, all from one homepage.</h1>
+      <p>
+        This site collects the HTML simulations from the repository so they can be opened directly after deployment.
+        Use the quick links below for the main demos, or jump into the full topic sections.
+      </p>
+      <div class="hero-links">
+        <a class="pill" href="tree/traversal_animation.html">Traversal Visualizer</a>
+        <a class="pill" href="tree/traversal_animation_enhanced.html">Enhanced Traversal</a>
+        <a class="pill" href="sorting%20techniques/bubble_sort_animation.html">Bubble Sort</a>
+        <a class="pill" href="sorting%20techniques/quick_sort_animation.html">Quick Sort</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2><span class="accent-tree">Tree</span> Visualizers</h2>
+        <p>Interactive pages for traversal, BST, AVL, and heap topics inside the <code>tree</code> folder.</p>
+        <div class="list">
+          <a class="link-btn" href="tree/traversal_animation.html"><span>Traversal animation</span><span>Original layout</span></a>
+          <a class="link-btn" href="tree/traversal_animation_enhanced.html"><span>Traversal animation enhanced</span><span>Separate upgraded page</span></a>
+          <a class="link-btn" href="tree/bst_animation.html"><span>BST animation</span><span>Search and structure</span></a>
+          <a class="link-btn" href="tree/avl_animation.html"><span>AVL animation</span><span>Balanced rotations</span></a>
+          <a class="link-btn" href="tree/heap_animation.html"><span>Heap animation</span><span>Heap operations</span></a>
+          <a class="link-btn" href="tree/README.md"><span>Tree notes</span><span>Markdown guide</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2><span class="accent-sort">Sorting</span> Visualizers</h2>
+        <p>Interactive sorting pages inside <code>sorting techniques</code>, covering comparison and non-comparison sorts.</p>
+        <div class="list">
+          <a class="link-btn" href="sorting%20techniques/bubble_sort_animation.html"><span>Bubble sort</span><span>Swap-based animation</span></a>
+          <a class="link-btn" href="sorting%20techniques/insertion_sort_animation.html"><span>Insertion sort</span><span>Shift-and-insert</span></a>
+          <a class="link-btn" href="sorting%20techniques/selection_sort_animation.html"><span>Selection sort</span><span>Min scan</span></a>
+          <a class="link-btn" href="sorting%20techniques/quick_sort_animation.html"><span>Quick sort</span><span>Partition view</span></a>
+          <a class="link-btn" href="sorting%20techniques/merge_sort_animation.html"><span>Merge sort</span><span>Split and merge</span></a>
+          <a class="link-btn" href="sorting%20techniques/count_sort_animation.html"><span>Count sort</span><span>Count and output arrays</span></a>
+          <a class="link-btn" href="sorting%20techniques/bucket_sort_animation.html"><span>Bucket sort</span><span>Bucket distribution</span></a>
+          <a class="link-btn" href="sorting%20techniques/radix_sort_animation.html"><span>Radix sort</span><span>Digit passes</span></a>
+          <a class="link-btn" href="sorting%20techniques/shell_sort_animation.html"><span>Shell sort</span><span>Gap reduction</span></a>
+          <a class="link-btn" href="sorting%20techniques/README.md"><span>Sorting notes</span><span>Markdown guide</span></a>
+        </div>
+      </article>
+    </section>
+
+    <section class="footer">
+      After GitHub Pages is enabled, this homepage should open at
+      <code>https://aryan-kumar-22.github.io/dsa/</code>.
+      Folder names with spaces are already linked using encoded URLs like <code>sorting%20techniques</code>.
+    </section>
+  </div>
+</body>
+
+</html>
