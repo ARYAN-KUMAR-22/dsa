@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Divide and Conquer Introduction Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0d1117;--panel:#12161f;--surface:#161b27;--card:#1d2436;--border:#2b3550;--text:#e2e8f0;--muted:#8b98b6;--accent:#f97316;--accent2:#fdba74;--shadow:0 18px 45px rgba(0,0,0,.28)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow:auto}
+    header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#241208,#0d1117)}
+    header h1{font-size:1.2rem;font-weight:700} header h1 span{color:var(--accent)} header p{color:var(--muted);font-size:.78rem;line-height:1.55}
+    .actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}.actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem}.actions a.primary{background:linear-gradient(135deg,#ea580c,var(--accent));color:#2a1102;border-color:transparent;font-weight:700}
+    .app{flex:1;display:flex;min-height:calc(100vh - 78px)}
+    .left{width:330px;min-width:330px;background:var(--panel);border-right:1px solid var(--border)}
+    .panel-head{padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+    .sec{border-bottom:1px solid var(--border)} .sec-title{padding:7px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(20,28,48,.78);color:var(--muted);line-height:1.65;font-size:.8rem}
+    .focus{color:var(--text);font-size:.92rem;font-weight:700;line-height:1.45;margin-bottom:6px}.formula{color:var(--accent2);font-family:"Fira Code",monospace}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metric{padding:8px;border:1px solid var(--border);border-radius:10px;background:rgba(20,28,48,.94)} .ml{color:var(--muted);font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px} .mv{font: .8rem "Fira Code",monospace;line-height:1.45}
+    .list,.chips{padding:0 12px 12px}.list{display:grid;gap:8px}.list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.6}.list div:before{content:"";position:absolute;left:0;top:.58rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}.chip,.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:700}.chip{border:1px solid rgba(56,189,248,.22);background:rgba(56,189,248,.08);color:#cbeafe}.badge{border:1px solid rgba(249,115,22,.22);background:rgba(249,115,22,.08);color:var(--accent2)}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(249,115,22,.08),transparent 28%),var(--bg)}
+    .tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background:rgba(18,22,31,.55);overflow-x:auto}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:600;border-bottom:2px solid transparent}.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(29,36,54,.85)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}
+    .field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(22,27,39,.92)}
+    .field span{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+    .field select,.field input{background:transparent;border:none;color:var(--text);font: .8rem "Fira Code",monospace;outline:none}.range{display:flex;align-items:center;gap:10px;min-width:220px}.range input{width:100%;accent-color:var(--accent)} .value{color:var(--accent2);font: .8rem "Fira Code",monospace;text-transform:none;letter-spacing:0}
+    .panel{display:none;padding:12px 16px 16px}.panel.active{display:block}.status{padding:0 16px 12px;color:var(--text);line-height:1.7;font-size:.82rem}
+    .grid{display:grid;grid-template-columns:1.04fr .96fr;gap:12px;align-items:start}.card{background:rgba(18,22,31,.92);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:grid;gap:14px}.card.focus{border-color:rgba(253,186,116,.38);box-shadow:0 0 0 1px rgba(253,186,116,.18),0 20px 40px rgba(249,115,22,.14)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase} .card h2{font-size:1.1rem;line-height:1.45} .sub{color:var(--muted);line-height:1.68}
+    .stage,.info,.examples,.compare{display:grid;gap:10px}.stage{grid-template-columns:repeat(3,minmax(0,1fr))}.info,.compare{grid-template-columns:repeat(2,minmax(0,1fr))}.examples{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mini,.ex,.cmp{border:1px solid rgba(148,163,184,.12);border-radius:14px;background:rgba(20,28,48,.72);padding:12px;display:grid;gap:6px}.mini h3,.ex h3,.cmp h3{font-size:.9rem}.mini p,.ex p,.cmp p,.cmp li{color:var(--muted);font-size:.82rem;line-height:1.62}.cmp ul{padding-left:18px}
+    .step{color:var(--accent2);font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    pre{white-space:pre-wrap;overflow-x:auto;padding:14px;border-radius:16px;border:1px solid var(--border);background:rgba(8,12,20,.92);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72}
+    .bars{display:grid;gap:10px}.bar{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:10px;align-items:center}.bar strong{font-size:.78rem}.bar span{color:var(--muted);font-size:.72rem;line-height:1.5}.track{height:10px;border-radius:999px;background:rgba(148,163,184,.1);overflow:hidden;border:1px solid rgba(148,163,184,.1)}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#fb923c,var(--accent))}.barv{color:var(--accent2);font: .74rem "Fira Code",monospace}.ex.active{border-color:rgba(249,115,22,.32);box-shadow:0 0 0 1px rgba(249,115,22,.16)}
+    @media (max-width:1080px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.grid,.stage,.info,.compare{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.compare{grid-template-columns:1fr}.bar{grid-template-columns:1fr}.range{min-width:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Divide and Conquer</span> Introduction Dashboard</h1>
+      <p>Learn the core idea, the divide-conquer-combine workflow, and how it turns into real algorithms.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.html">Home</a>
+      <a href="binary_search_using_divide_and_conquer.html">Binary Search</a>
+      <a href="algorithm_strategies.html">Strategy Dashboard</a>
+    </div>
+  </header>
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head">Introduction Snapshot</div>
+      <section class="sec">
+        <div class="sec-title">Core Idea</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="flowFormula"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Quick Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="ml">Example</div><div class="mv" id="metricExample"></div></div>
+          <div class="metric"><div class="ml">Recurrence</div><div class="mv" id="metricRecurrence"></div></div>
+          <div class="metric"><div class="ml">Depth</div><div class="mv" id="metricDepth"></div></div>
+          <div class="metric"><div class="ml">Leaves</div><div class="mv" id="metricLeaves"></div></div>
+        </div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">When It Helps</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">First Caution</div>
+        <div class="box" id="cautionText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Starter Examples</div>
+        <div class="chips" id="exampleChips"></div>
+      </section>
+    </aside>
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="workflow">Workflow</button>
+        <button class="tab" data-tab="examples">Examples</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+      <div class="controls">
+        <div class="field"><span>Example</span><select id="exampleSelect"></select></div>
+        <div class="field"><span>Input Size</span><div class="range"><input id="sizeRange" type="range" min="3" max="10" step="1" value="7" /><span class="value" id="sizeValue">128</span></div></div>
+      </div>
+      <section class="panel active" id="tab-overview">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus">
+            <div class="kick">What Divide and Conquer Means</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="stage">
+              <div class="mini"><div class="step">1. Divide</div><h3>Split the problem</h3><p id="divideText"></p></div>
+              <div class="mini"><div class="step">2. Conquer</div><h3>Solve smaller parts</h3><p id="conquerText"></p></div>
+              <div class="mini"><div class="step">3. Combine</div><h3>Build the answer</h3><p id="combineText"></p></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kick">Why It Works</div>
+            <div class="info">
+              <div class="cmp"><h3>Smaller subproblems</h3><p id="smallerText"></p></div>
+              <div class="cmp"><h3>Predictable structure</h3><p id="structureText"></p></div>
+              <div class="cmp"><h3>Recurrence relation</h3><p id="recurrenceExplain"></p></div>
+              <div class="cmp"><h3>Asymptotic payoff</h3><p id="payoffText"></p></div>
+            </div>
+          </article>
+          <article class="card" style="grid-column:1/span 2">
+            <div class="kick">Level Contribution Preview</div>
+            <div class="bars" id="barList"></div>
+          </article>
+        </div>
+      </section>
+      <section class="panel" id="tab-workflow">
+        <div class="card">
+          <div class="kick">Design Workflow</div>
+          <div class="examples">
+            <div class="cmp"><div class="step">Step 1</div><h3>Choose a clean split</h3><p id="workflowSplit"></p></div>
+            <div class="cmp"><div class="step">Step 2</div><h3>Define the base case</h3><p id="workflowBase"></p></div>
+            <div class="cmp"><div class="step">Step 3</div><h3>Count recursive calls</h3><p id="workflowCalls"></p></div>
+            <div class="cmp"><div class="step">Step 4</div><h3>Name the combine cost</h3><p id="workflowCombine"></p></div>
+            <div class="cmp"><div class="step">Step 5</div><h3>Write the recurrence</h3><p id="workflowRecurrence"></p></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px"><div class="kick">Starter Template</div><pre id="templateCode"></pre></div>
+      </section>
+      <section class="panel" id="tab-examples">
+        <div class="card"><div class="kick">Classic Examples</div><div class="examples" id="exampleGrid"></div></div>
+      </section>
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="compare">
+            <div class="cmp"><h3>Bad split</h3><p id="pitfallSplit"></p></div>
+            <div class="cmp"><h3>Expensive combine</h3><p id="pitfallCombine"></p></div>
+            <div class="cmp"><h3>Wrong paradigm</h3><p id="pitfallParadigm"></p></div>
+            <div class="cmp"><h3>Interview framing</h3><p id="pitfallInterview"></p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const data=[{id:"merge",name:"Merge Sort",family:"Balanced split plus linear combine",summary:"Break the array into halves, solve each half recursively, then merge them in sorted order.",recurrence:"T(n)=2T(n/2)+n",time:"O(n log n)",a:2,b:2,signs:["The left and right halves can be solved independently.","The merge step is structured and linear.","The split preserves enough order to recombine cleanly."],helps:"It turns a quadratic sorting intuition into an n log n process by balancing recursion with a controlled merge.",caution:"You gain speed, but you also pay extra memory for the merge buffer.",divide:"Split the array into two nearly equal halves.",conquer:"Recursively sort the left half and the right half.",combine:"Merge the two sorted halves with one linear scan.",smaller:"Each call handles half the input size, so the problem shrinks quickly.",structure:"Sorted halves are easy to recombine because order gives a clear invariant.",recurrenceExplain:"Two recursive calls on n/2 plus linear merge work creates T(n)=2T(n/2)+n.",payoff:"Each level costs about n work, and there are log n levels.",splitRule:"A midpoint split is safe because both halves are solved with the same algorithm.",baseCase:"When the subarray has size 0 or 1, it is already sorted.",calls:"There are two recursive calls, each on half the size.",combineCost:"Combining costs O(n) because every element is copied or compared once.",template:"divideAndConquer(problem):\n  if problem size <= 1:\n    return direct answer\n  left, right = split(problem)\n  leftAnswer = divideAndConquer(left)\n  rightAnswer = divideAndConquer(right)\n  return combine(leftAnswer, rightAnswer)"},{id:"binary",name:"Binary Search",family:"Single-branch reduction",summary:"Use sorted order to discard half the search space after each comparison.",recurrence:"T(n)=T(n/2)+1",time:"O(log n)",a:1,b:2,signs:["One comparison eliminates an entire half.","Only one recursive branch survives.","The combine step is almost free."],helps:"It is the cleanest introductory example because the answer space shrinks by half every step.",caution:"If the invariant is wrong or the array is not sorted, halving becomes invalid.",divide:"Pick the middle index and compare against the target.",conquer:"Keep only the half that can still contain the answer.",combine:"No real merge is needed because one interval survives.",smaller:"Each step halves the candidate space.",structure:"Sorted order is the proof tool that justifies discarding one side.",recurrenceExplain:"There is one recursive call and constant extra work, so T(n)=T(n/2)+1.",payoff:"The recursion becomes a short chain instead of a full branching tree.",splitRule:"Use the midpoint so the remaining interval is as small as possible.",baseCase:"Stop when the interval is empty or when the midpoint matches.",calls:"Exactly one recursive call happens after each comparison.",combineCost:"The extra work is O(1) because there is nothing to merge.",template:"divideAndConquer(problem):\n  if interval is empty:\n    return not found\n  mid = choose midpoint\n  if answer == mid:\n    return found\n  if answer < mid:\n    return divideAndConquer(left half)\n  return divideAndConquer(right half)"},{id:"karatsuba",name:"Karatsuba",family:"Algebraic shortcut",summary:"Split a large multiplication into halves, then use algebra to reduce four recursive products to three.",recurrence:"T(n)=3T(n/2)+n",time:"O(n^1.585)",a:3,b:2,signs:["An identity reduces the number of expensive recursive calls.","The combine step uses arithmetic, not just merging.","The exponent improves because the call count drops."],helps:"It shows that divide and conquer is not only about splitting data; it can also redesign the algebra.",caution:"The identity must be correct and the arithmetic bookkeeping must be careful.",divide:"Split each number into high and low halves.",conquer:"Compute only the strategically chosen recursive products.",combine:"Use additions, subtractions, and shifts to rebuild the result.",smaller:"The numbers shrink to half-size subproblems each level.",structure:"Algebraic structure makes the reduction from four products to three possible.",recurrenceExplain:"Three recursive calls on half-size inputs plus linear arithmetic gives T(n)=3T(n/2)+n.",payoff:"Saving one recursive multiplication per level changes the final exponent.",splitRule:"Split the number into high and low parts of equal length.",baseCase:"Stop when the numbers are small enough for direct multiplication.",calls:"There are three recursive multiplications instead of four naive ones.",combineCost:"The combine cost is linear in the digit length due to additions and shifts.",template:"divideAndConquer(problem):\n  if numbers are small:\n    return direct multiply\n  split into high and low halves\n  compute the reduced set of recursive products\n  recombine with an algebraic identity"}];
+    const tabs=[...document.querySelectorAll(".tab")],panels=[...document.querySelectorAll(".panel")],select=document.getElementById("exampleSelect"),range=document.getElementById("sizeRange");
+    const fmt=n=>new Intl.NumberFormat("en-US",{notation:n>=1e6?"compact":"standard",maximumFractionDigits:n>=1000?0:2}).format(n);
+    const cur=()=>data.find(x=>x.id===select.value)||data[0];
+    function levels(ex,n){const depth=Math.round(Math.log(n)/Math.log(ex.b));const out=[];for(let i=0;i<=depth;i++){const nodes=Math.pow(ex.a,i),size=Math.max(1,Math.round(n/Math.pow(ex.b,i))),work=i===depth?nodes:Math.max(nodes*size,1);out.push({i,nodes,size,work,leaf:i===depth})}return{depth,out}}
+    function render(){const ex=cur(),n=2**Number(range.value),info=levels(ex,n),leaves=Math.pow(ex.a,info.depth),max=Math.max(...info.out.map(x=>x.work));document.getElementById("sizeValue").textContent=fmt(n);document.getElementById("focusTitle").textContent=`Divide and Conquer through ${ex.name}`;document.getElementById("focusSummary").textContent=ex.summary;document.getElementById("flowFormula").textContent="Divide -> Conquer -> Combine";document.getElementById("metricExample").textContent=ex.name;document.getElementById("metricRecurrence").textContent=ex.recurrence;document.getElementById("metricDepth").textContent=`log2(${fmt(n)}) = ${info.depth}`;document.getElementById("metricLeaves").textContent=fmt(leaves);document.getElementById("signList").innerHTML=ex.signs.map(x=>`<div>${x}</div>`).join("");document.getElementById("helpsText").textContent=ex.helps;document.getElementById("cautionText").textContent=ex.caution;document.getElementById("exampleChips").innerHTML=data.map(x=>`<span class="chip">${x.name}</span>`).join("");document.getElementById("statusText").textContent=`${ex.name} is a strong first example because it clearly shows how one big problem becomes smaller subproblems. For n = ${fmt(n)}, the recursion depth is ${info.depth}.`;document.getElementById("heroTitle").textContent=`${ex.name} is a clean first model for divide and conquer.`;document.getElementById("heroSummary").textContent=ex.summary;document.getElementById("heroBadges").innerHTML=[ex.family,ex.recurrence,ex.time].map(x=>`<span class="badge">${x}</span>`).join("");document.getElementById("divideText").textContent=ex.divide;document.getElementById("conquerText").textContent=ex.conquer;document.getElementById("combineText").textContent=ex.combine;document.getElementById("smallerText").textContent=ex.smaller;document.getElementById("structureText").textContent=ex.structure;document.getElementById("recurrenceExplain").textContent=ex.recurrenceExplain;document.getElementById("payoffText").textContent=ex.payoff;document.getElementById("workflowSplit").textContent=ex.splitRule;document.getElementById("workflowBase").textContent=ex.baseCase;document.getElementById("workflowCalls").textContent=ex.calls;document.getElementById("workflowCombine").textContent=ex.combineCost;document.getElementById("workflowRecurrence").textContent=ex.recurrence;document.getElementById("templateCode").textContent=ex.template;document.getElementById("pitfallSplit").textContent="If the split is badly unbalanced or not logically justified, the recursive tree becomes inefficient or incorrect.";document.getElementById("pitfallCombine").textContent="A good split can still fail if the combine phase becomes too expensive.";document.getElementById("pitfallParadigm").textContent="If subproblems overlap heavily, dynamic programming may be better. If one local rule is always safe, greedy may be enough.";document.getElementById("pitfallInterview").textContent="Do not jump straight to time complexity. First state the split, base case, recursive calls, and combine work.";document.getElementById("barList").innerHTML=info.out.map(x=>`<div class="bar"><div><strong>${x.leaf?"Leaves":`Level ${x.i}`}</strong><br><span>${fmt(x.nodes)} nodes of size ${fmt(x.size)}</span></div><div class="track"><div class="fill" style="width:${Math.max(5,Math.round(x.work/max*100))}%"></div></div><div class="barv">${fmt(x.work)}</div></div>`).join("");document.getElementById("exampleGrid").innerHTML=data.map(x=>`<div class="ex ${x.id===ex.id?"active":""}"><h3>${x.name}</h3><p>${x.summary}</p><div class="chips" style="padding:0"><span class="badge">${x.recurrence}</span><span class="badge">${x.time}</span></div></div>`).join("")}
+    tabs.forEach(btn=>btn.addEventListener("click",()=>{const t=btn.dataset.tab;tabs.forEach(x=>x.classList.toggle("active",x===btn));panels.forEach(p=>p.classList.toggle("active",p.id===`tab-${t}`))}));
+    select.innerHTML=data.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");select.value="merge";select.addEventListener("change",render);range.addEventListener("input",render);render();
+  </script>
+</body>
+</html>
