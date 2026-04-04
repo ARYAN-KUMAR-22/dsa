@@ -19,7 +19,26 @@
       --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
       --glow: rgba(99, 102, 241, 0.10);
       --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0d9488;
+      --accent2: #0d9488;
     }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode .mini,
+    body.light-mode .cmp,
+    body.light-mode .ex {
+      background: var(--card);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+
 
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Inter,sans-serif;background:radial-gradient(circle at top left,rgba(45,212,191,.12),transparent 24%),linear-gradient(160deg,#08101d,#0c1222);color:var(--text);min-height:100vh;padding:24px}
