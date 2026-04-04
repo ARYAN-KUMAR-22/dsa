@@ -23,6 +23,9 @@
       --accent2: #c2410c;
       --good: #15803d;
       --warn: #92400e;
+    
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
 
     body.light-mode header {
@@ -142,6 +145,20 @@
       border-color: var(--accent, #7dd3fc);
       background: var(--surface, #f0f4ff);
     }
+
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
 
   </style>
 </head>

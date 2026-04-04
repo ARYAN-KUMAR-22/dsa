@@ -38,6 +38,11 @@
       --focus: rgba(99, 102, 241, 0.20);
       --accent: #6d28d9;
       --accent2: #6d28d9;
+    
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -90,7 +95,7 @@
     }
 
     header {
-      background: linear-gradient(90deg, #12001a, #0d1117);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -256,7 +261,7 @@
     }
 
     .step-item.pending .step-text {
-      color: #3a4060;
+      color: var(--muted);
     }
 
     .log-scroll {
@@ -305,7 +310,7 @@
     }
 
     .log-entry .ts {
-      color: #3a4060;
+      color: var(--muted);
       margin-right: 5px;
     }
 
@@ -571,6 +576,20 @@
       background: var(--surface, #f0f4ff);
     }
 
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
 </head>
 
@@ -592,7 +611,7 @@
       </div>
       <div class="panel-section" style="flex-shrink:0">
         <div class="panel-section-title">📋 Visit Order</div>
-        <div class="visit-order" id="visitOrder"><span style="color:#3a4060;font-size:.75rem;padding:4px 0">Run a
+        <div class="visit-order" id="visitOrder"><span style="color:var(--muted);font-size:.75rem;padding:4px 0">Run a
             traversal to see order…</span></div>
       </div>
       <div class="panel-section" style="flex-shrink:0">
@@ -791,7 +810,7 @@
       d.appendChild(c);
       setTimeout(() => c.classList.remove('new'), 400);
     }
-    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:#3a4060;font-size:.75rem;padding:4px 0">${msg}</span>`; }
+    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:var(--muted);font-size:.75rem;padding:4px 0">${msg}</span>`; }
 
     function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-item ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); d.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`; b.appendChild(d); }); }
     function clearSteps() { document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle…</div></div>'; }
