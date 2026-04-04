@@ -1,5 +1,5 @@
 TN:
-SF:src/divideAndConquer.js
+SF:src\divideAndConquer.js
 FN:11,binarySearch
 FN:26,firstOccurrence
 FN:46,lowerBound
@@ -84,7 +84,7 @@ BRF:18
 BRH:18
 end_of_record
 TN:
-SF:src/dynamicProgramming.js
+SF:src\dynamicProgramming.js
 FN:12,lcs
 FN:14,(anonymous_1)
 FN:49,knapsack01
@@ -229,7 +229,7 @@ BRF:38
 BRH:35
 end_of_record
 TN:
-SF:src/graph.js
+SF:src\graph.js
 FN:12,buildAdjList
 FN:13,(anonymous_1)
 FN:14,(anonymous_2)
@@ -405,7 +405,7 @@ BRF:47
 BRH:44
 end_of_record
 TN:
-SF:src/greedy.js
+SF:src\greedy.js
 FN:14,fractionalKnapsack
 FN:15,(anonymous_1)
 FN:18,(anonymous_2)
@@ -467,7 +467,7 @@ BRF:8
 BRH:8
 end_of_record
 TN:
-SF:src/hashing.js
+SF:src\hashing.js
 FN:12,hashMod
 FN:25,(anonymous_1)
 FN:27,(anonymous_2)
@@ -677,7 +677,7 @@ BRF:54
 BRH:46
 end_of_record
 TN:
-SF:src/sorting.js
+SF:src\sorting.js
 FN:9,bubbleSort
 FN:26,selectionSort
 FN:40,insertionSort

@@ -241,7 +241,7 @@
     }
 
     .metric {
-      background: rgba(20, 28, 48, .94);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 6px;
@@ -302,7 +302,7 @@
       gap: 2px;
       padding: 8px 16px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -333,13 +333,13 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7);
+      background: var(--surface);
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85);
+      background: var(--card);
     }
 
     .tab-panel {
@@ -372,7 +372,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(22, 27, 39, 0.92);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 10px 12px;
@@ -440,7 +440,7 @@
     .stack-card,
     .footer-card,
     .theory-card {
-      background: rgba(18, 22, 31, 0.92);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -590,7 +590,7 @@
       align-items: center;
       justify-content: center;
       padding: 28px;
-      background: rgba(3, 8, 16, 0.72);
+      background: var(--surface);
       backdrop-filter: blur(8px);
       opacity: 0;
       pointer-events: none;
@@ -608,7 +608,7 @@
       height: min(760px, calc(100vh - 56px));
       display: flex;
       flex-direction: column;
-      background: rgba(10, 16, 28, 0.98);
+      background: var(--card);
       border: 1px solid rgba(103, 232, 249, .38);
       border-radius: 24px;
       box-shadow: 0 28px 80px rgba(0, 0, 0, .48);
@@ -733,7 +733,7 @@
     .master-tile {
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: rgba(15, 23, 40, .82);
+      background: var(--surface);
       transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     }
 
@@ -848,7 +848,7 @@
       padding: 4px 10px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: rgba(15, 23, 40, .78);
+      background: var(--surface);
       line-height: 1.55;
       font-size: .76rem;
     }

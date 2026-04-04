@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -159,7 +159,7 @@
       padding: 14px 16px;
       border: 1px solid var(--border);
       border-radius: 18px;
-      background: rgba(19, 26, 40, 0.9);
+      background: var(--card);
     }
 
     .field label, .section-kicker {
@@ -200,7 +200,7 @@
     .metric, .mini-card, .level-row, .case-study, .compare {
       border: 1px solid rgba(148, 163, 184, 0.14);
       border-radius: 16px;
-      background: rgba(12, 18, 29, 0.72);
+      background: var(--surface);
     }
 
     .metric { padding: 12px; display: grid; gap: 4px; }
@@ -211,7 +211,7 @@
       padding: 14px;
       border-radius: 18px;
       border: 1px solid var(--border);
-      background: rgba(12, 18, 29, 0.78);
+      background: var(--surface);
       font: 0.92rem "Fira Code", monospace;
       line-height: 1.7;
     }
@@ -262,7 +262,7 @@
       padding: 14px;
       border-radius: 18px;
       border: 1px solid var(--border);
-      background: rgba(8, 12, 20, 0.92);
+      background: var(--card);
       color: var(--text);
       font: 0.84rem "Fira Code", monospace;
       line-height: 1.7;
@@ -430,7 +430,7 @@
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: rgba(20, 28, 48, .78);
+      background: var(--card);
       color: var(--muted);
       line-height: 1.65;
       font-size: .8rem
@@ -460,7 +460,7 @@
       gap: 2px;
       padding: 8px 16px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto
     }
@@ -485,13 +485,13 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7)
+      background: var(--surface)
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85)
+      background: var(--card)
     }
 
     .tab-panel {
@@ -587,7 +587,7 @@
       z-index: 1300;
       border: 1px solid var(--border);
       border-radius: 999px;
-      background: rgba(19, 26, 40, 0.96);
+      background: var(--card);
       color: var(--text);
       padding: 9px 12px;
       font: 700 .76rem Inter, sans-serif;
@@ -600,7 +600,7 @@
     .expand-fab:hover {
       transform: translateY(-1px);
       border-color: var(--accent);
-      background: rgba(26, 34, 52, 0.98)
+      background: var(--card)
     }
 
     body.popup-expanded {
@@ -611,7 +611,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(5, 10, 18, 0.76);
+      background: var(--surface);
       backdrop-filter: blur(6px);
       z-index: 1180
     }
@@ -632,7 +632,7 @@
     .case-row {
       border: 1px solid rgba(148, 163, 184, 0.14);
       border-radius: 14px;
-      background: rgba(12, 18, 29, 0.72);
+      background: var(--surface);
       padding: 12px
     }
 

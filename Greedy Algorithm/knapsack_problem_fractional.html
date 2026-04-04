@@ -222,7 +222,7 @@
       gap: 2px;
       padding: 10px 18px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -253,13 +253,13 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7);
+      background: var(--surface);
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85);
+      background: var(--card);
     }
 
     .tab-panel {
@@ -285,7 +285,7 @@
     }
 
     .content-card {
-      background: rgba(29, 36, 54, 0.6);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 18px;
@@ -318,7 +318,7 @@
     }
 
     .concept-box {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 12px;
       border-radius: 10px;
@@ -357,7 +357,7 @@
     }
 
     .algorithm-box {
-      background: rgba(18, 22, 31, 0.8);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px;
@@ -398,7 +398,7 @@
     }
 
     .comparison-box {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 12px;
       border-radius: 10px;
@@ -473,7 +473,7 @@
     }
 
     input[type="number"] {
-      background: rgba(29, 36, 54, 0.8) !important;
+      background: var(--surface) !important;
       border: 1px solid var(--border) !important;
       color: var(--text) !important;
       border-radius: 6px !important;
@@ -486,7 +486,7 @@
     input[type="number"]:focus {
       outline: none !important;
       border-color: var(--accent) !important;
-      background: rgba(29, 36, 54, 0.95) !important;
+      background: var(--card) !important;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     }
 
@@ -511,7 +511,7 @@
     }
 
     .knapsack-viz {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 2px solid var(--accent);
       border-radius: 12px;
       padding: 16px;
@@ -528,7 +528,7 @@
     .knapsack-bar {
       width: 100%;
       height: 40px;
-      background: rgba(18, 22, 31, 0.8);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
@@ -556,7 +556,7 @@
     }
 
     .stat-box {
-      background: rgba(29, 36, 54, 0.6);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 10px;
       border-radius: 8px;
@@ -576,7 +576,7 @@
     }
 
     .items-grid {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
@@ -596,7 +596,7 @@
     }
 
     .item-card {
-      background: rgba(29, 36, 54, 0.6);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 10px 12px;
       border-radius: 8px;
@@ -647,7 +647,7 @@
     }
 
     .log-panel {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
@@ -881,11 +881,11 @@
         <div class="content-card">
           <h3>Mathematical Formulation</h3>
           <p><strong>Maximize:</strong></p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
             ∑(x<sub>i</sub> × v<sub>i</sub>) for i = 1 to n
           </div>
           <p><strong>Subject to:</strong></p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
             ∑(x<sub>i</sub> × w<sub>i</sub>) ≤ W<br/>
             0 ≤ x<sub>i</sub> ≤ 1 for all i
           </div>
@@ -901,7 +901,7 @@
           <h3>Pseudocode</h3>
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📋 Algorithm Step-by-Step:</p>
           
-          <div style="background: rgba(18, 22, 31, 0.8); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
+          <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
             <div style="font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #86efac; line-height: 1.8;">
               <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
                 <div style="color: #60a5fa;">ALGORITHM FractionalKnapsack</div>
@@ -1031,7 +1031,7 @@
             <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
               <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; font-weight: 600;">[CONFIG] KNAPSACK CAPACITY</div>
               <div style="display: flex; gap: 8px;">
-                <input type="number" id="capacityInput" value="50" min="1" max="1000" style="flex: 1; background: rgba(29, 36, 54, 0.8); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <input type="number" id="capacityInput" value="50" min="1" max="1000" style="flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
                 <button onclick="updateCapacity()" style="background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s;">Update</button>
               </div>
             </div>
@@ -1040,19 +1040,19 @@
             <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid var(--good); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
               <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; font-weight: 600;">➕ ADD NEW ITEM</div>
               <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;">
-                <input type="number" id="newItemValue" placeholder="Value" min="1" max="10000" style="background: rgba(29, 36, 54, 0.8); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
-                <input type="number" id="newItemWeight" placeholder="Weight" min="1" max="1000" style="background: rgba(29, 36, 54, 0.8); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <input type="number" id="newItemValue" placeholder="Value" min="1" max="10000" style="background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <input type="number" id="newItemWeight" placeholder="Weight" min="1" max="1000" style="background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
                 <button onclick="addNewItem()" style="background: var(--good); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s;">Add</button>
               </div>
             </div>
 
             <!-- Current Stats -->
             <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px;">
-              <div style="background: rgba(29, 36, 54, 0.6); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+              <div style="background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
                 <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 4px;">KNAPSACK CAPACITY</div>
                 <div style="font-family: 'Fira Code', monospace; font-size: 1rem; color: var(--accent-2);" id="capacityDisplay">50 kg</div>
               </div>
-              <div style="background: rgba(29, 36, 54, 0.6); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+              <div style="background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
                 <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 4px;">NUMBER OF ITEMS</div>
                 <div style="font-family: 'Fira Code', monospace; font-size: 1rem; color: var(--accent-2);" id="itemCountDisplay">3 items</div>
               </div>
@@ -1076,7 +1076,7 @@
           <!-- Processing Section -->
           <div class="items-grid">
             <div class="items-title">[CONFIG] Processing Steps</div>
-            <div id="processingBox" style="background: rgba(29, 36, 54, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 100px;">
+            <div id="processingBox" style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 100px;">
               <div style="color: var(--muted); font-size: 0.82rem; text-align: center; padding: 20px;">
                 Click <strong>▶ Play</strong> or <strong>⊳ Step</strong> to start animation
               </div>
@@ -1130,7 +1130,7 @@
         <div class="content-card">
           <h3>Complete Example Walkthrough</h3>
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Problem Setup:</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 8px;">
               <strong style="color: var(--accent);">Knapsack Capacity:</strong> 50 kg
             </div>

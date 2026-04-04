@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Heap – Interactive Visualizer</title>
+  <meta name="description" content="Interactive Min/Max Heap visualizer — insert, extract-root, and watch heapify-up/down animations step by step." />
+  <title>Heap – Interactive Visualizer | DSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap"
     rel="stylesheet" />
@@ -60,9 +63,6 @@
     body.light-mode code {
       color: var(--text);
     }
-
-
-
 
     * {
       box-sizing: border-box;
@@ -579,6 +579,7 @@
       <h1>Heap <span>Visualizer</span></h1>
       <p>Min &amp; Max Heap — insert, extract, heapify-up/down animations</p>
     </div>
+    <a href="../index.html" style="margin-right:auto;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Home</a>
     <div class="mode-row">
       <button class="tbtn active" onclick="setMode('min',this)">Min Heap</button>
       <button class="tbtn" onclick="setMode('max',this)">Max Heap</button>
@@ -811,8 +812,8 @@
       var label = document.getElementById('dsaToggleLabel');
       var body = document.body;
       var KEY = 'dsa-theme';
-      function apply(mode) {
-        if (mode === 'light') {
+      function applyTheme(themeMode) {
+        if (themeMode === 'light') {
           body.classList.add('light-mode');
           icon.textContent = '🌙';
           label.textContent = 'Dark';
@@ -823,10 +824,10 @@
         }
       }
       var saved = localStorage.getItem(KEY);
-      if (saved) apply(saved);
+      if (saved) applyTheme(saved);
       btn.addEventListener('click', function () {
         var next = body.classList.contains('light-mode') ? 'dark' : 'light';
-        apply(next);
+        applyTheme(next);
         localStorage.setItem(KEY, next);
       });
     })();

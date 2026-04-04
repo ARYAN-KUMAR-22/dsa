@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AVL Tree – Interactive Visualizer</title>
+  <meta name="description" content="Interactive AVL Tree visualizer — insert values and watch the tree self-balance with LL, RR, LR, and RL rotations in real time." />
+  <title>AVL Tree – Interactive Visualizer | DSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap"
     rel="stylesheet" />
@@ -64,9 +67,6 @@
     body.light-mode .panel-section {
       border-bottom-color: var(--border);
     }
-
-
-
 
     * {
       box-sizing: border-box;
@@ -747,7 +747,8 @@
       <h1>AVL Tree <span>Visualizer</span></h1>
       <p>Interactive animated guide — insert values and watch the tree self-balance in real time</p>
     </div>
-    <div class="speed-label" style="margin-left:auto">
+    <a href="../index.html" style="margin-left:auto;margin-right:12px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Home</a>
+    <div class="speed-label" style="margin-left:0">
       Speed: <input type="range" id="speedSlider" min="1" max="10" value="5" style="width:80px">
     </div>
   </header>

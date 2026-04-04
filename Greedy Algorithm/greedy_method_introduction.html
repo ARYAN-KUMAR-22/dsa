@@ -219,7 +219,7 @@
       gap: 2px;
       padding: 10px 18px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -250,13 +250,13 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7);
+      background: var(--surface);
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85);
+      background: var(--card);
     }
 
     .tab-panel {
@@ -281,7 +281,7 @@
     }
 
     .content-card {
-      background: rgba(29, 36, 54, 0.6);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 18px;
@@ -314,7 +314,7 @@
     }
 
     .concept-box {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 12px;
       border-radius: 10px;
@@ -353,7 +353,7 @@
     }
 
     .code-block {
-      background: rgba(18, 22, 31, 0.8);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px;
@@ -394,7 +394,7 @@
     }
 
     .pros, .cons {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 12px;
       border-radius: 10px;
@@ -687,7 +687,7 @@ Algorithm Greedy(Problem P):
           <p style="color: #8b98b6; font-size: 0.85rem; margin-bottom: 12px;">Why? If an activity ends early, it leaves more room for other activities to happen after it!</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📋 Available Activities:</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 4px;">Activity 1: Start 1, End <strong style="color: var(--accent);">4</strong></div>
             <div style="color: var(--muted); margin-bottom: 4px;">Activity 2: Start 3, End <strong style="color: var(--accent);">5</strong></div>
             <div style="color: var(--muted); margin-bottom: 4px;">Activity 3: Start 0, End <strong style="color: var(--accent);">6</strong></div>
@@ -700,7 +700,7 @@ Algorithm Greedy(Problem P):
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1️⃣ Sort by End Time</p>
           <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 12px;">Arrange all activities by when they finish (earliest to latest):</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 1: End <strong>4</strong></div>
             <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 2: End <strong>5</strong></div>
             <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 4: End <strong>7</strong></div>
@@ -766,7 +766,7 @@ Algorithm Greedy(Problem P):
           <p style="color: #8b98b6; font-size: 0.85rem; margin-bottom: 12px;">Why this seems logical? Items with high value per kg seem most efficient. But this doesn't work for 0/1 Knapsack!</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Available Items (sorted by ratio - highest first):</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
               <strong style="color: var(--accent);">Item 1:</strong> Value = <strong>60</strong> | Weight = <strong>10 kg</strong> | Ratio = <strong style="color: #fbbf24;">6.0</strong> ⭐ Best Ratio
             </div>
@@ -832,7 +832,7 @@ Algorithm Greedy(Problem P):
           <p style="margin-top: 12px; margin-bottom: 6px;"><strong>Greedy Strategy:</strong> Always use the largest coin that doesn't exceed the remaining amount.</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">✓ Example 1: US Coins (Greedy Works!)</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
               <strong style="color: var(--accent);">Available Coins:</strong> 25¢, 10¢, 5¢, 1¢
             </div>
@@ -868,7 +868,7 @@ Algorithm Greedy(Problem P):
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--danger); margin-top: 12px; margin-bottom: 8px;">✗ Example 2: Custom Coins (Greedy Fails!)</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
               <strong style="color: var(--accent);">Available Coins:</strong> 4, 3, 1 (custom denominations)
             </div>
@@ -910,7 +910,7 @@ Algorithm Greedy(Problem P):
           <p style="margin-top: 12px; margin-bottom: 6px;"><strong>Greedy Strategy (Works!):</strong> Always pick item with highest value-to-weight ratio first, take as much as fits.</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Available Items (sorted by ratio):</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
               <strong style="color: var(--accent);">Item 1:</strong> Value = 60 | Weight = 10 | Ratio = <strong style="color: #fbbf24;">6.0</strong> ⭐ Best
             </div>

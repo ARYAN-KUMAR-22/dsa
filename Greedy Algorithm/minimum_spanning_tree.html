@@ -163,7 +163,7 @@
     }
 
     .metric {
-      background: rgba(29, 36, 54, 0.6);
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 10px;
       border-radius: 8px;
@@ -203,7 +203,7 @@
       gap: 2px;
       padding: 10px 18px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -234,13 +234,13 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7);
+      background: var(--surface);
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85);
+      background: var(--card);
     }
 
     .tab-panel {
@@ -266,7 +266,7 @@
     }
 
     .content-card {
-      background: rgba(12, 18, 34, 0.75);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
@@ -295,7 +295,7 @@
     }
 
     .content-card code {
-      background: rgba(29, 36, 54, 0.9);
+      background: var(--card);
       color: var(--accent-2);
       padding: 2px 6px;
       border-radius: 4px;
@@ -466,7 +466,7 @@
       <div id="algorithm" class="tab-panel">
         <div class="content-card">
           <h3>Kruskal's Algorithm</h3>
-          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: rgba(29, 36, 54, 0.9); padding: 12px; border-radius: 8px; margin-top: 8px;">
+          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--card); padding: 12px; border-radius: 8px; margin-top: 8px;">
             1. Sort all edges by weight (ascending)<br/>
             2. Initialize empty MST<br/>
             3. For each edge in sorted order:<br/>
@@ -483,7 +483,7 @@
 
         <div class="content-card">
           <h3>Prim's Algorithm</h3>
-          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: rgba(29, 36, 54, 0.9); padding: 12px; border-radius: 8px; margin-top: 8px;">
+          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--card); padding: 12px; border-radius: 8px; margin-top: 8px;">
             1. Start with arbitrary vertex<br/>
             2. Initialize MST with this vertex<br/>
             3. While vertices remain unvisited:<br/>
@@ -542,7 +542,7 @@
         <div class="content-card">
           <h3>Example: Network Design</h3>
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Problem Setup:</p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <p>Vertices: A, B, C, D, E (5 cities)</p>
             <p>Edges: A-B(4), A-C(2), B-C(1), B-D(5), C-D(8), D-E(3)</p>
           </div>
@@ -607,7 +607,7 @@
           <!-- Graph Canvas -->
           <div style="flex: 1; display: flex; flex-direction: column;">
             <div style="font-size: 0.85rem; font-weight: 600; color: #a78bfa; margin-bottom: 8px;">Graph Visualization</div>
-            <canvas id="mstCanvas" style="flex: 1; background: rgba(12, 18, 34, 0.9); border: 1px solid #a78bfa; border-radius: 8px;"></canvas>
+            <canvas id="mstCanvas" style="flex: 1; background: var(--card); border: 1px solid #a78bfa; border-radius: 8px;"></canvas>
           </div>
 
           <!-- Statistics Panel -->

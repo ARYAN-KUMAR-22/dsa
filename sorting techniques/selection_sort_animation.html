@@ -336,7 +336,7 @@
       gap: 2px;
       padding: 10px 18px 0;
       border-bottom: 1px solid var(--border);
-      background: rgba(18, 22, 31, 0.55);
+      background: var(--panel);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -367,14 +367,14 @@
 
     .tab-btn:hover {
       color: var(--text);
-      background: rgba(29, 36, 54, 0.7);
+      background: var(--surface);
       transform: none;
     }
 
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(29, 36, 54, 0.85);
+      background: var(--card);
     }
 
     .tab-panel {
@@ -416,7 +416,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(22, 27, 39, 0.92);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 10px 12px;
@@ -486,7 +486,7 @@
     .canvas-card,
     .code-card,
     .footer-card {
-      background: rgba(18, 22, 31, 0.92);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -708,7 +708,7 @@
     }
 
     .theory-card {
-      background: rgba(18, 22, 31, 0.92);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
