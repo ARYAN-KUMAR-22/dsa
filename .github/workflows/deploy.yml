@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Landing Page to GitHub Pages
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -27,14 +27,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp .nojekyll _site/.nojekyll
+          cp -r assets _site/assets
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Serve the entire repository root so all HTML files are included
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
