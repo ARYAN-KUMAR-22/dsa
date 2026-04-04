@@ -331,6 +331,8 @@ D,5,7</textarea>
   </div>
 
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     const fmt = v => new Intl.NumberFormat("en-US").format(v);
     const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
@@ -388,7 +390,7 @@ D,5,7</textarea>
       const startY = 40;
 
       // Draw headers
-      ctx.fillStyle = "#97abc6";
+      ctx.fillStyle = _tc("#97abc6","#52637a");
       ctx.font = "700 11px 'Fira Code'";
       ctx.textAlign = "center";
       for (let w = 0; w <= cap; w++) {
@@ -416,7 +418,7 @@ D,5,7</textarea>
           ctx.lineWidth = isHighlight ? 3 : 1;
           ctx.strokeRect(x, y, cellW, cellH);
 
-          ctx.fillStyle = isHighlight ? "#fef3c7" : isFilled ? "#bfdbfe" : "#8b98b6";
+          ctx.fillStyle = isHighlight ? _tc("#fef3c7","#92400e") : isFilled ? _tc("#bfdbfe","#1d4ed8") : _tc("#8b98b6","#52637a");
           ctx.font = "600 10px 'Fira Code'";
           ctx.fillText(String(result.table[i][w]), x + cellW/2, y + cellH/2);
         }

@@ -749,8 +749,10 @@
     </div>
   </div>
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     // ── TREE NODE ──
-    class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = '#1e2438'; } }
+    class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = _tc('#1e2438','#dde4f5'); } }
 
     let root = null;
     let running = false;
@@ -763,7 +765,7 @@
       vals.forEach(v => { root = bstIns(root, v); });
     }
     function bstIns(nd, v) { if (!nd) return new TN(v); if (v < nd.v) nd.l = bstIns(nd.l, v); else nd.r = bstIns(nd.r, v); return nd; }
-    function resetColors(nd) { if (!nd) return; nd.col = '#1e2438'; resetColors(nd.l); resetColors(nd.r); }
+    function resetColors(nd) { if (!nd) return; nd.col = _tc('#1e2438','#dde4f5'); resetColors(nd.l); resetColors(nd.r); }
 
     // ── POSITIONING ──
     function pos(nd, x, y, gap) { if (!nd) return; nd.tx = x; nd.ty = y; if (!nd.placed) { nd.x = x; nd.y = y; nd.placed = true; } pos(nd.l, x - gap, y + 65, gap / 1.65); pos(nd.r, x + gap, y + 65, gap / 1.65); }
@@ -773,18 +775,18 @@
     function drawTree() {
       const cvs = document.getElementById('travCanvas'); cvs.width = cvs.clientWidth || 800;
       const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
-      if (!root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('No tree — click Reset', cvs.width / 2, cvs.height / 2); return; }
+      if (!root) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('No tree — click Reset', cvs.width / 2, cvs.height / 2); return; }
       pos(root, cvs.width / 2, 44, cvs.width / 4.5); lerp(root); drawNode(ctx, root, null);
     }
     function drawNode(ctx, nd, par) {
       if (!nd) return;
-      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
       drawNode(ctx, nd.l, nd); drawNode(ctx, nd.r, nd);
-      const r = 21, col = nd.col || '#1e2438';
-      ctx.save(); if (col !== '#1e2438') { ctx.shadowBlur = 14; ctx.shadowColor = col; }
+      const r = 21, col = nd.col || _tc('#1e2438','#dde4f5');
+      ctx.save(); if (col !== _tc('#1e2438','#dde4f5')) { ctx.shadowBlur = 14; ctx.shadowColor = col; }
       ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
-      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = col === '#1e2438' ? '#2a3050' : 'rgba(255,255,255,.15)'; ctx.lineWidth = 1.5; ctx.stroke();
-      const textCol = col === '#1e2438' ? '#8892b0' : '#0d1117';
+      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = col === _tc('#1e2438','#dde4f5') ? _tc('#2a3050','#c7d2fe') : 'rgba(255,255,255,.15)'; ctx.lineWidth = 1.5; ctx.stroke();
+      const textCol = col === _tc('#1e2438','#dde4f5') ? _tc('#8892b0','#52637a') : _tc('#0d1117','#f5f7ff');
       ctx.fillStyle = textCol; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
     }
 

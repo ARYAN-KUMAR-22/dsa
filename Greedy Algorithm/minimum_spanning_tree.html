@@ -372,7 +372,53 @@
     body.light-mode .clr-accent{ color: var(--accent); }
     body.light-mode .clr-muted { color: var(--muted); }
 
-  </style>
+  
+    /* theme-aware legend line colors */
+    .clr-accent-orange { color: var(--warn, #f59e0b); }
+    .clr-accent-yellow { color: var(--warn, #f59e0b); }
+    .clr-accent-purple { color: var(--accent); }
+    .clr-accent-green  { color: var(--good, #22c55e); }
+    body.light-mode .clr-accent-orange { color: var(--warn); }
+    body.light-mode .clr-accent-yellow { color: var(--warn); }
+    body.light-mode .clr-accent-purple { color: var(--accent); }
+    body.light-mode .clr-accent-green  { color: var(--good); }
+    /* theme-aware button bg helpers */
+    .btn-accent-purple {
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 6px 14px;
+    }
+    .btn-accent-green {
+      background: var(--good, #22c55e);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 6px 14px;
+    }
+    body.light-mode .btn-accent-purple { background: var(--accent); }
+    body.light-mode .btn-accent-green  { background: var(--good); }
+    /* theme-aware panel highlight boxes */
+    .panel-highlight {
+      background: rgba(139, 92, 246, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 10px;
+      border-radius: 4px;
+    }
+    body.light-mode .panel-highlight {
+      background: rgba(99, 102, 241, 0.08);
+      border-left-color: var(--accent);
+    }
+    /* status/label using accent colour */
+    .accent-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .accent-value { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .good-value   { font-size: 1.1rem; font-weight: 700; color: var(--good); }
+</style>
 </head>
 <body>
   <header>
@@ -564,7 +610,7 @@
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Kruskal's Solution:</p>
-          <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #a78bfa; padding: 10px; border-radius: 4px; margin-bottom: 12px;">
+          <div class="panel-highlight" style="margin-bottom: 12px;">
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 1:</strong> Sort edges: B-C(1), A-C(2), D-E(3), A-B(4), B-D(5), C-D(8)</p>
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 2:</strong> Add B-C(1) ✓ [Components: {B,C}, {A}, {D}, {E}]</p>
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 3:</strong> Add A-C(2) ✓ [Components: {A,B,C}, {D}, {E}]</p>
@@ -583,7 +629,7 @@
         <div class="content-card">
           <h3>Example: Prim's Algorithm</h3>
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Using same graph, starting from A:</p>
-          <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #a78bfa; padding: 10px; border-radius: 4px;">
+          <div class="panel-highlight">
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Start:</strong> MST = {A}</p>
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Iter 1:</strong> Min from A: A-C(2) → MST = {A,C}</p>
             <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Iter 2:</strong> Min from {A,C}: B-C(1) → MST = {A,B,C}</p>
@@ -604,11 +650,11 @@
               <option value="prim">Prim's Algorithm</option>
             </select>
           </label>
-          <button onclick="initializeMSTAnimation()" style="padding: 6px 14px; background: #a78bfa; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">Reset</button>
+          <button onclick="initializeMSTAnimation()" class="btn-accent-purple">Reset</button>
         </div>
 
         <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-          <button onclick="playMSTAnimation()" id="playBtn" style="padding: 6px 14px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">▶ Play</button>
+          <button onclick="playMSTAnimation()" id="playBtn" class="btn-accent-green">▶ Play</button>
           <button onclick="pauseMSTAnimation()" id="pauseBtn" style="padding: 6px 14px; background: #f59e0b; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⏸ Pause</button>
           <button onclick="stepMSTAnimation()" style="padding: 6px 14px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⊞ Step</button>
           <button onclick="skipMSTAnimation()" style="padding: 6px 14px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⤵ Skip</button>
@@ -622,31 +668,31 @@
         <div style="display: flex; gap: 16px; height: 600px;">
           <!-- Graph Canvas -->
           <div style="flex: 1; display: flex; flex-direction: column;">
-            <div style="font-size: 0.85rem; font-weight: 600; color: #a78bfa; margin-bottom: 8px;">Graph Visualization</div>
-            <canvas id="mstCanvas" style="flex: 1; background: rgba(12, 18, 34, 0.9); border: 1px solid #a78bfa; border-radius: 8px;"></canvas>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 8px;">Graph Visualization</div>
+            <canvas id="mstCanvas" style="flex: 1; background: rgba(12, 18, 34, 0.9); border: 1px solid var(--accent); border-radius: 8px;"></canvas>
           </div>
 
           <!-- Statistics Panel -->
           <div style="width: 220px; display: flex; flex-direction: column; gap: 12px;">
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
-              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Status</div>
-              <div id="mstStatus" style="font-size: 1.1rem; font-weight: 700; color: #a78bfa;">Ready</div>
+            <div class="panel-highlight" style="border-radius: 8px;">
+              <div class="accent-label" style="margin-bottom: 8px;">Status</div>
+              <div id="mstStatus" class="accent-value">Ready</div>
             </div>
 
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
-              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Edges Selected</div>
-              <div style="font-size: 1.1rem; font-weight: 700; color: #10b981;" id="edgesSelected">0 / 5</div>
+            <div class="panel-highlight" style="border-radius: 8px;">
+              <div class="accent-label" style="margin-bottom: 8px;">Edges Selected</div>
+              <div class="good-value" id="edgesSelected">0 / 5</div>
             </div>
 
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
-              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Total Cost</div>
+            <div class="panel-highlight" style="border-radius: 8px;">
+              <div class="accent-label" style="margin-bottom: 8px;">Total Cost</div>
               <div style="font-size: 1.1rem; font-weight: 700;" class="clr-warn">0</div>
             </div>
 
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px; flex: 1; overflow-y: auto; min-height: 0;">
-              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Algorithm Trace</div>
+            <div class="panel-highlight" style="border-radius: 8px; flex: 1; overflow-y: auto; min-height: 0;">
+              <div class="accent-label" style="margin-bottom: 8px;">Algorithm Trace</div>
               <div id="mstLog" style="font-size: 0.8rem; color: var(--muted);">
-                <div style="color: #10b981;">Initialization complete</div>
+                <div class="clr-good">Initialization complete</div>
               </div>
             </div>
           </div>
@@ -711,6 +757,8 @@
   </div>
 
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     function switchTab(tabName, buttonElement) {
       // Hide all panels
       const panels = document.querySelectorAll('.tab-panel');
@@ -801,7 +849,7 @@
         e.selected = false;
       });
 
-      document.getElementById('mstLog').innerHTML = '<div style="color: #10b981;">Graph initialized with 5 vertices</div>';
+      document.getElementById('mstLog').innerHTML = '<div class="clr-good">Graph initialized with 5 vertices</div>';
       document.getElementById('mstStatus').textContent = 'Ready';
       document.getElementById('edgesSelected').textContent = '0 / 4';
       document.getElementById('totalCost').textContent = '0';
@@ -837,7 +885,7 @@
       mstCtx.lineTo(toVert.x, toVert.y);
 
       if (edge.selected) {
-        mstCtx.strokeStyle = '#10b981';
+        mstCtx.strokeStyle = _tc('#10b981','#059669');
         mstCtx.lineWidth = 3;
       } else if (edge.visited) {
         mstCtx.strokeStyle = '#ef4444';
@@ -852,7 +900,7 @@
       // Draw weight label
       const midX = (fromVert.x + toVert.x) / 2;
       const midY = (fromVert.y + toVert.y) / 2;
-      mstCtx.fillStyle = edge.selected ? '#10b981' : '#f59e0b';
+      mstCtx.fillStyle = edge.selected ? _tc('#10b981','#059669') : '#f59e0b';
       mstCtx.font = 'bold 12px Inter';
       mstCtx.textAlign = 'center';
       mstCtx.fillText(edge.weight, midX, midY - 10);

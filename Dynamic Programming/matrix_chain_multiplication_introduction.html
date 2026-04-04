@@ -330,6 +330,8 @@ the two subproducts (Aᵢ...Aₖ) and (Aₖ₊₁...Aⱼ).</pre>
   </div>
 
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     const fmt = v => new Intl.NumberFormat("en-US").format(v);
     const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
@@ -394,7 +396,7 @@ the two subproducts (Aᵢ...Aₖ) and (Aₖ₊₁...Aⱼ).</pre>
       const startX = 80;
       const startY = 50;
 
-      ctx.fillStyle = "#97abc6";
+      ctx.fillStyle = _tc("#97abc6","#52637a");
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.font = "700 11px 'Fira Code'";
@@ -425,7 +427,7 @@ the two subproducts (Aᵢ...Aₖ) and (Aₖ₊₁...Aⱼ).</pre>
           ctx.lineWidth = isHighlight ? 3 : 1;
           ctx.strokeRect(x, y, cellSize, cellSize);
           
-          ctx.fillStyle = isHighlight ? "#fef3c7" : "#bfdbfe";
+          ctx.fillStyle = isHighlight ? _tc("#fef3c7","#92400e") : _tc("#bfdbfe","#1d4ed8");
           ctx.font = "600 9px 'Fira Code'";
           ctx.fillText(fmt(m[i][j]), x + cellSize/2, y + cellSize/2);
         }

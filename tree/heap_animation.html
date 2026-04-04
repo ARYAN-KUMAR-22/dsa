@@ -724,6 +724,8 @@
     </div>
   </div>
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     let H = [null]; let mode = 'min'; let hlIdx = -1; let swPair = [];
 
     function cmp(a, b) { return mode === 'min' ? a < b : a > b; }
@@ -748,19 +750,19 @@
       const cvs = document.getElementById('hc'); cvs.width = cvs.clientWidth || 780;
       const ctx = cvs.getContext('2d'), W = cvs.width, Ht = cvs.height;
       ctx.clearRect(0, 0, W, Ht);
-      if (H.length <= 1) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Heap is empty — insert values!', W / 2, Ht / 2); updStats(); return; }
+      if (H.length <= 1) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Heap is empty — insert values!', W / 2, Ht / 2); updStats(); return; }
       const h = heapH(), pos = [];
       for (let i = 1; i < H.length; i++) {
         const d = Math.floor(Math.log2(i)), pir = i - Math.pow(2, d), nr = Math.pow(2, d);
         pos[i] = { x: (W / (nr + 1)) * (pir + 1), y: 50 + d * (Ht - 90) / Math.max(h, 1) };
       }
-      for (let i = 2; i < H.length; i++) { const p = Math.floor(i / 2); if (!pos[p]) continue; ctx.beginPath(); ctx.moveTo(pos[p].x, pos[p].y); ctx.lineTo(pos[i].x, pos[i].y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      for (let i = 2; i < H.length; i++) { const p = Math.floor(i / 2); if (!pos[p]) continue; ctx.beginPath(); ctx.moveTo(pos[p].x, pos[p].y); ctx.lineTo(pos[i].x, pos[i].y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
       for (let i = 1; i < H.length; i++) {
         if (!pos[i]) continue; const { x, y } = pos[i], r = 22;
-        let col = swPair.includes(i) ? '#f1c40f' : (hlIdx === i ? '#2ecc71' : '#10b981');
+        let col = swPair.includes(i) ? '#f1c40f' : (hlIdx === i ? '#2ecc71' : _tc('#10b981','#059669'));
         ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
-        ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(H[i], x, y);
-        ctx.fillStyle = '#8892b0'; ctx.font = '9px Fira Code'; ctx.fillText(`[${i}]`, x, y + r + 11);
+        ctx.fillStyle = _tc('#0d1117','#f5f7ff'); ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(H[i], x, y);
+        ctx.fillStyle = _tc('#8892b0','#52637a'); ctx.font = '9px Fira Code'; ctx.fillText(`[${i}]`, x, y + r + 11);
       }
       updStats();
     }
