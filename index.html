@@ -23,6 +23,30 @@
       --accent-5: #67e8f9;
       --accent-6: #5eead4;
       --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+      --body-bg-1: rgba(125, 211, 252, 0.18);
+      --body-bg-2: rgba(252, 165, 165, 0.16);
+      --body-bg-3: rgba(134, 239, 172, 0.14);
+      --body-bg-base: linear-gradient(160deg, #08101d 0%, #0d1426 48%, #09111e 100%);
+    }
+
+    body.light-mode {
+      --bg: #f0f4ff;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-2: rgba(240, 246, 255, 0.96);
+      --border: rgba(99, 102, 241, 0.18);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --accent: #0284c7;
+      --accent-2: #e53e3e;
+      --accent-3: #16a34a;
+      --accent-4: #d97706;
+      --accent-5: #0891b2;
+      --accent-6: #0d9488;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.10);
+      --body-bg-1: rgba(14, 165, 233, 0.10);
+      --body-bg-2: rgba(239, 68, 68, 0.08);
+      --body-bg-3: rgba(22, 163, 74, 0.08);
+      --body-bg-base: linear-gradient(160deg, #e8effe 0%, #f0f4ff 48%, #eaf1ff 100%);
     }
 
     * {
@@ -36,11 +60,12 @@
       font-family: 'Inter', sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(125, 211, 252, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(252, 165, 165, 0.16), transparent 24%),
-        radial-gradient(circle at bottom center, rgba(134, 239, 172, 0.14), transparent 24%),
-        linear-gradient(160deg, #08101d 0%, #0d1426 48%, #09111e 100%);
+        radial-gradient(circle at top left, var(--body-bg-1), transparent 28%),
+        radial-gradient(circle at top right, var(--body-bg-2), transparent 24%),
+        radial-gradient(circle at bottom center, var(--body-bg-3), transparent 24%),
+        var(--body-bg-base);
       padding: 28px;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .shell {
@@ -211,6 +236,53 @@
       font-size: 0.9em;
     }
 
+    .hero-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .hero-header .eyebrow {
+      margin-bottom: 0;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: rgba(125, 211, 252, 0.4);
+      background: rgba(125, 211, 252, 0.12);
+    }
+
+    .theme-toggle .toggle-icon {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .hero,
+    .card,
+    .footer {
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
     @media (max-width: 720px) {
       body {
         padding: 16px;
@@ -232,7 +304,13 @@
 <body>
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">GitHub Pages Ready</div>
+      <div class="hero-header">
+        <div class="eyebrow">GitHub Pages Ready</div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">
+          <span class="toggle-icon" id="toggleIcon">☀️</span>
+          <span id="toggleLabel">Light Mode</span>
+        </button>
+      </div>
       <h1>DSA visualizers for trees, graphs, sorting, dynamic programming, divide and conquer, and analysis from one homepage.</h1>
       <p>
         This site collects the HTML simulations from the repository so they can be opened directly after deployment.
@@ -368,6 +446,39 @@
       Folder names with spaces are already linked using encoded URLs like <code>sorting%20techniques</code>.
     </section>
   </div>
+  <script>
+    (function () {
+      var btn = document.getElementById('themeToggle');
+      var icon = document.getElementById('toggleIcon');
+      var label = document.getElementById('toggleLabel');
+      var body = document.body;
+      var STORAGE_KEY = 'dsa-theme';
+
+      function applyTheme(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark Mode';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light Mode';
+        }
+      }
+
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        applyTheme(saved);
+      }
+
+      btn.addEventListener('click', function () {
+        var isLight = body.classList.contains('light-mode');
+        var next = isLight ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem(STORAGE_KEY, next);
+      });
+    })();
+  </script>
 </body>
 
 </html>
