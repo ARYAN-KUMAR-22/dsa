@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matrix Chain Multiplication - Tabulation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0b1020;--panel:#11192b;--surface:#18233a;--card:#1d2943;--border:#334760;--text:#edf5ff;--muted:#97abc6;--accent:#60a5fa;--accent2:#a78bfa;--accent3:#bfdbfe;--good:#22c55e;--warn:#f59e0b}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(96,165,250,.12),transparent 25%),radial-gradient(circle at bottom left,rgba(167,139,250,.1),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
+    header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#111b3a,#0b1020)}
+    header h1{font-size:1.05rem;font-weight:800}
+    header h1 span{color:var(--accent)}
+    header p{color:var(--muted);font-size:.72rem;line-height:1.4}
+    .actions{margin-left:auto;display:flex;gap:6px}
+    .actions a{text-decoration:none;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.72rem;transition:all .18s}
+    .actions a:hover{transform:translateY(-1px);border-color:rgba(96,165,250,.36);color:var(--text)}
+    .actions a.primary{background:linear-gradient(135deg,#60a5fa,var(--accent2));border-color:transparent;color:#101625;font-weight:800}
+    .app{flex:1;display:flex;min-height:calc(100vh - 78px)}
+    .left{width:240px;min-width:240px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto}
+    .panel-head{padding:6px 10px 4px;border-bottom:1px solid var(--border);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px;position:sticky;top:0;background:var(--panel)}
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 10px rgba(34,197,94,.7);animation:pulse 1.3s infinite}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.84);opacity:.5}}
+    .sec{border-bottom:1px solid var(--border)}
+    .sec-title{padding:5px 10px 3px;color:var(--muted);font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .box{margin:0 10px 8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(24,35,58,.88);color:var(--muted);font-size:.73rem;line-height:1.5}
+    .metrics{padding:0 10px 8px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+    .metric{border:1px solid var(--border);border-radius:10px;background:rgba(24,35,58,.98);padding:8px}
+    .metric-label{color:var(--muted);font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+    .metric-value{font-size:.72rem;line-height:1.3;font-family:"Fira Code",monospace;color:var(--accent)}
+    .tabs{display:flex;gap:1px;padding:6px 12px 0;border-bottom:1px solid var(--border);background:rgba(17,25,43,.55);overflow-x:auto}
+    .tab{padding:7px 12px;border:none;background:transparent;color:var(--muted);border-radius:6px 6px 0 0;cursor:pointer;font-size:.76rem;font-weight:700;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap}
+    .tab:hover{color:var(--text);background:rgba(29,41,67,.6)}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(29,41,67,.85)}
+    .controls{display:flex;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;flex-shrink:0;flex-wrap:nowrap}
+    .field{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:rgba(24,35,58,.94);white-space:nowrap}
+    .field span{color:var(--muted);font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+    .field select{border:none;background:transparent;color:var(--text);outline:none;font:.73rem "Fira Code",monospace;min-width:100px}
+    .field input[type="range"]{accent-color:var(--accent);cursor:pointer;width:120px;margin:0}
+    .sim-btn{padding:6px 11px;border-radius:10px;border:1px solid var(--border);background:rgba(24,35,58,.92);color:var(--text);font:600 .73rem "Inter",sans-serif;cursor:pointer;transition:all .2s}
+    .sim-btn:hover{border-color:rgba(96,165,250,.34);background:rgba(24,35,58,1)}
+    .sim-btn.primary{background:linear-gradient(135deg,#60a5fa,var(--accent2));border-color:transparent;color:#101625;font-weight:800}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+    .viz-container{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px;overflow:hidden}
+    .viz-box{border:1px solid var(--border);border-radius:10px;background:rgba(24,35,58,.8);display:flex;flex-direction:column;overflow:hidden}
+    .viz-head{padding:8px 12px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700;color:var(--accent)}
+    .viz-content{flex:1;overflow:auto;padding:10px;font-family:"Fira Code",monospace;font-size:.7rem;line-height:1.5}
+    .code-line{padding:6px 8px;margin:2px 0;border-radius:6px;background:rgba(29,41,67,.4);color:var(--text);cursor:pointer;transition:all .2s}
+    .code-line.active{background:linear-gradient(90deg,rgba(96,165,250,.4),transparent);border-left:3px solid var(--accent);color:#60a5fa;font-weight:600}
+    .dp-table{display:inline-grid;gap:2px;background:var(--border);padding:4px;border-radius:8px;margin:8px 0}
+    .dp-row{display:grid;gap:2px}
+    .dp-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:.58rem;font-weight:700;background:rgba(29,41,67,.6);color:var(--muted);border:1px solid var(--border)}
+    .dp-cell.current{background:var(--warn);color:#0b1020;box-shadow:0 0 12px rgba(245,158,11,.8);animation:pulse2 .6s infinite}
+    .dp-cell.computed{background:var(--good);color:#0b1020;box-shadow:0 0 8px rgba(34,197,94,.4)}
+    @keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    .panel{display:none;padding:10px 12px;overflow-y:auto;flex:1}
+    .panel.active{display:flex;flex-direction:column}
+    .note{color:var(--muted);font-size:.8rem;line-height:1.6;margin:8px 0}
+    .editor-field{display:grid;gap:6px}
+    .editor-field strong{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .editor-field input{width:100%;border:1px solid var(--border);border-radius:10px;background:rgba(24,35,58,.94);color:var(--text);padding:8px 10px;font:.75rem "Fira Code",monospace;outline:none;transition:border-color .2s}
+    .editor-field input:focus{border-color:var(--accent)}
+    @media(max-width:1200px){.viz-container{grid-template-columns:1fr;height:300px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Matrix Chain</span> Multiplication - Tabulation</h1>
+      <p>Bottom-up DP - build solution iteratively by filling a table systematically</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.html">Home</a>
+      <a href="matrix_chain_multiplication_introduction.html">MCM Intro</a>
+      <a href="matrix_chain_multiplication_recursion.html">MCM Recursion</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head"><span class="pulse"></span>Metrics</div>
+      <section class="sec">
+        <div class="sec-title">Stats</div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Step</div><div class="metric-value" id="metricStep">0</div></div>
+          <div class="metric"><div class="metric-label">Computed</div><div class="metric-value" id="metricComputed">0</div></div>
+          <div class="metric"><div class="metric-label">Result</div><div class="metric-value" id="metricResult">0</div></div>
+          <div class="metric"><div class="metric-label">Time</div><div class="metric-value" id="metricTime">0ms</div></div>
+        </div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Complexity</div>
+        <div class="box" style="text-align:center;font-size:.8rem;line-height:1.6">
+          <div style="color:var(--accent);font-weight:700">O(n³)</div>
+          <div style="color:var(--muted);margin-top:4px">Time: 3 nested loops</div>
+        </div>
+      </section>
+      <section class="sec" style="border:none">
+        <div class="sec-title">Problem</div>
+        <div class="box" id="problemBox">Ready</div>
+      </section>
+    </aside>
+
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="visualizer">🔍 DP Table</button>
+        <button class="tab" data-tab="input">⚙️ Input</button>
+        <button class="tab" data-tab="learn">📖 Learn</button>
+      </div>
+
+      <div class="controls">
+        <div class="field"><span>Matrices</span><select id="presetSelect"></select></div>
+        <div class="field"><span>Speed</span><input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="1" /><span id="speedLabel" style="min-width:38px;text-align:center;color:var(--accent);font-size:.68rem;font-weight:700">1.0x</span></div>
+        <div style="margin-left:auto"></div>
+        <button class="sim-btn primary" id="runBtn">▶ Run</button>
+        <button class="sim-btn" id="resetBtn">⟲ Reset</button>
+      </div>
+
+      <div class="panel active" id="tab-visualizer">
+        <div class="viz-container">
+          <div class="viz-box">
+            <div class="viz-head">📝 Code Execution</div>
+            <div class="viz-content" id="codeArea"></div>
+          </div>
+          <div class="viz-box">
+            <div class="viz-head">📊 DP Table (i,j)</div>
+            <div class="viz-content" id="tableArea"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="tab-input">
+        <div class="note" style="color:var(--accent3)">
+          <strong>Format:</strong> Comma-separated dimensions (2-5 matrices)<br/>
+          Example: 10,30,5,60 = matrices A(10×30), B(30×5), C(5×60)
+        </div>
+        <div class="editor-field">
+          <strong>Dimensions</strong>
+          <input id="customDims" type="text" value="10,30,5,60" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="sim-btn primary" id="applyBtn">✓ Apply</button>
+          <button class="sim-btn" id="resetInputBtn">↻ Reset</button>
+        </div>
+        <div id="inputStatus" class="note"></div>
+      </div>
+
+      <div class="panel" id="tab-learn">
+        <div style="overflow-y:auto;padding-right:10px">
+          <h3 style="color:var(--accent);margin:10px 0 6px;font-size:.95rem">How Tabulation Works</h3>
+          <div class="box">
+            <strong>Build table iteratively!</strong> We compute the DP table row by row (or chain length by length). Each cell [i,j] represents the cost to multiply matrices i through j.
+          </div>
+          <h3 style="color:var(--accent);margin:14px 0 6px;font-size:.95rem">Bottom-Up Approach</h3>
+          <div class="box">
+            <strong>Iterative, no recursion!</strong><br/>
+            • No function call overhead<br/>
+            • Predictable order of computation<br/>
+            • Cache-friendly (sequential access)<br/>
+            • O(n³) guaranteed - 3 nested loops
+          </div>
+          <h3 style="color:var(--accent);margin:14px 0 6px;font-size:.95rem">Watch the Table Build</h3>
+          <div class="box">
+            The table fills diagonally: first all chains of length 2, then length 3, etc. Each cell shows the minimum cost to multiply that chain. Bottom-right cell = final answer!
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const fmt = v => new Intl.NumberFormat("en-US").format(v);
+
+    const state = {
+      dims: [10, 30, 5, 60], n: 0, result: 0, step: 0, computed: 0,
+      running: false, table: [], currentCell: null, startTime: 0, speed: 1
+    };
+
+    const codeLines = [
+      "dp = array[n][n]",
+      "for len from 2 to n:",
+      "  for i from 1 to n-len+1:",
+      "    j = i + len - 1",
+      "    dp[i][j] = ∞",
+      "    for k from i to j-1:",
+      "      left = dp[i][k]",
+      "      right = dp[k+1][j]",
+      "      m = dims[i-1]×dims[k]×dims[j]",
+      "      cost = left + right + m",
+      "      if cost < dp[i][j]:",
+      "        dp[i][j] = cost",
+      "return dp[1][n]"
+    ];
+
+    function initTable(n) {
+      state.table = [];
+      for (let i = 0; i < n; i++) {
+        state.table[i] = [];
+        for (let j = 0; j < n; j++) {
+          state.table[i][j] = null;
+        }
+      }
+    }
+
+    async function runTabulation() {
+      state.result = 0;
+      state.step = 0;
+      state.computed = 0;
+      state.running = true;
+
+      const n = state.dims.length - 1;
+      state.n = n;
+      initTable(n + 1);
+
+      state.startTime = performance.now();
+
+      let currentLine = 1;
+      
+      for (let len = 2; len <= n; len++) {
+        currentLine = 2;
+        state.step++;
+        updateDisplay(currentLine);
+        await sleep(100);
+
+        for (let i = 1; i <= n - len + 1; i++) {
+          currentLine = 3;
+          state.step++;
+          updateDisplay(currentLine);
+          await sleep(80);
+
+          currentLine = 4;
+          const j = i + len - 1;
+          state.currentCell = { i, j };
+          updateDisplay(currentLine);
+          await sleep(60);
+
+          currentLine = 5;
+          state.table[i][j] = Infinity;
+          updateDisplay(currentLine);
+          await sleep(60);
+
+          currentLine = 6;
+          updateDisplay(currentLine);
+          await sleep(80);
+
+          for (let k = i; k < j; k++) {
+            currentLine = 7;
+            const left = state.table[i][k];
+            updateDisplay(currentLine);
+            await sleep(50);
+
+            currentLine = 8;
+            const right = state.table[k + 1][j];
+            updateDisplay(currentLine);
+            await sleep(50);
+
+            currentLine = 9;
+            const mult = state.dims[i - 1] * state.dims[k] * state.dims[j];
+            updateDisplay(currentLine);
+            await sleep(50);
+
+            currentLine = 10;
+            const cost = left + right + mult;
+            updateDisplay(currentLine);
+            await sleep(50);
+
+            currentLine = 11;
+            if (cost < state.table[i][j]) {
+              currentLine = 12;
+              state.table[i][j] = cost;
+              state.computed++;
+            }
+            updateDisplay(currentLine);
+            await sleep(60);
+          }
+        }
+      }
+
+      currentLine = 13;
+      state.result = state.table[1][n];
+      updateDisplay(currentLine);
+      await sleep(100);
+
+      const elapsed = Math.round(performance.now() - state.startTime);
+      state.running = false;
+
+      document.getElementById("metricStep").textContent = fmt(state.step);
+      document.getElementById("metricComputed").textContent = fmt(state.computed);
+      document.getElementById("metricResult").textContent = fmt(state.result);
+      document.getElementById("metricTime").textContent = elapsed + "ms";
+
+      const descs = [];
+      for (let i = 0; i < n; i++) {
+        descs.push(String.fromCharCode(65 + i) + "(" + state.dims[i] + "×" + state.dims[i+1] + ")");
+      }
+      document.getElementById("problemBox").textContent = descs.join(" · ");
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms / state.speed));
+    }
+
+    function updateDisplay(currentLine) {
+      // Code
+      let codeHtml = '';
+      codeLines.forEach((line, idx) => {
+        const lineNum = idx + 1;
+        const isActive = currentLine === lineNum;
+        codeHtml += `<div class="code-line ${isActive ? 'active' : ''}">${lineNum.toString().padStart(2, '0')}. ${line}</div>`;
+      });
+      document.getElementById("codeArea").innerHTML = codeHtml;
+
+      // Table
+      let tableHtml = '';
+      if (state.n > 0) {
+        for (let i = 1; i <= state.n; i++) {
+          let rowHtml = '<div class="dp-row">';
+          for (let j = 1; j <= state.n; j++) {
+            const val = state.table[i][j];
+            const isCurrent = state.currentCell && state.currentCell.i === i && state.currentCell.j === j;
+            const isComputed = val !== null && val !== Infinity;
+            const cellClass = isCurrent ? 'current' : isComputed ? 'computed' : '';
+            const display = val === null ? '—' : val === Infinity ? '∞' : fmt(val);
+            rowHtml += `<div class="dp-cell ${cellClass}" title="[${i},${j}]=${display}">${i},${j}</div>`;
+          }
+          rowHtml += '</div>';
+          tableHtml += rowHtml;
+        }
+      }
+      document.getElementById("tableArea").innerHTML = tableHtml || '<div style="color:var(--muted)">Table will appear here</div>';
+    }
+
+    function reset() {
+      state.step = 0;
+      state.computed = 0;
+      state.result = 0;
+      state.currentCell = null;
+      initTable(state.n + 1);
+      
+      document.getElementById("metricStep").textContent = "0";
+      document.getElementById("metricComputed").textContent = "0";
+      document.getElementById("metricResult").textContent = "0";
+      document.getElementById("metricTime").textContent = "0ms";
+      document.getElementById("codeArea").innerHTML = codeLines.map((l,i) => `<div class="code-line">${(i+1).toString().padStart(2,'0')}. ${l}</div>`).join("");
+      document.getElementById("tableArea").innerHTML = '<div style="color:var(--muted)">Table will appear here</div>';
+    }
+
+    function loadPreset(key) {
+      const presets = [
+        { key: "three", label: "3 Matrices", dims: [10, 30, 5, 60] },
+        { key: "four", label: "4 Matrices", dims: [5, 10, 3, 12, 5] },
+        { key: "five", label: "5 Matrices", dims: [2, 3, 4, 5, 6, 7] }
+      ];
+      const preset = presets.find(p => p.key === key);
+      if (preset) { state.dims = preset.dims; state.n = state.dims.length - 1; reset(); }
+    }
+
+    function applyCustom() {
+      try {
+        const raw = document.getElementById("customDims").value.trim();
+        const parts = raw.split(",").map(p => parseInt(p.trim()));
+        if (parts.some(isNaN)) throw "Invalid";
+        if (parts.length < 3 || parts.length > 6) throw "2-5 matrices";
+        if (parts.some(p => p < 1)) throw "Positive only";
+        state.dims = parts;
+        state.n = state.dims.length - 1;
+        document.getElementById("presetSelect").value = "custom";
+        reset();
+        document.getElementById("inputStatus").textContent = "✓ Applied!";
+        document.getElementById("inputStatus").style.color = "var(--good)";
+      } catch (err) {
+        document.getElementById("inputStatus").textContent = "✗ " + err;
+        document.getElementById("inputStatus").style.color = "var(--warn)";
+      }
+    }
+
+    // Tab switching
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Event listeners
+    const presets = [
+      { key: "three", label: "3 Matrices", dims: [10, 30, 5, 60] },
+      { key: "four", label: "4 Matrices", dims: [5, 10, 3, 12, 5] },
+      { key: "five", label: "5 Matrices", dims: [2, 3, 4, 5, 6, 7] }
+    ];
+    document.getElementById("presetSelect").innerHTML = presets.map(p => `<option value="${p.key}">${p.label}</option>`).join("") + `<option value="custom">Custom</option>`;
+    document.getElementById("presetSelect").addEventListener("change", e => loadPreset(e.target.value));
+    document.getElementById("speedSlider").addEventListener("input", e => {
+      state.speed = parseFloat(e.target.value);
+      document.getElementById("speedLabel").textContent = state.speed.toFixed(2) + "x";
+    });
+    document.getElementById("runBtn").addEventListener("click", async () => {
+      if (!state.running) {
+        document.getElementById("runBtn").disabled = true;
+        await runTabulation();
+        document.getElementById("runBtn").disabled = false;
+      }
+    });
+    document.getElementById("resetBtn").addEventListener("click", reset);
+    document.getElementById("applyBtn").addEventListener("click", applyCustom);
+    document.getElementById("resetInputBtn").addEventListener("click", () => {
+      document.getElementById("customDims").value = "10,30,5,60";
+    });
+
+    loadPreset("three");
+  </script>
+</body>
+</html>

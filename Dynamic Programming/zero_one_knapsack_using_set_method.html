@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>0/1 Knapsack Using Set Method</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0c1118;--panel:#121923;--surface:#182230;--card:#1f2c3d;--border:#36475d;--text:#edf5ff;--muted:#93a7bd;--accent:#14b8a6;--accent2:#f59e0b;--accent3:#99f6e4;--good:#22c55e;--shadow:0 22px 48px rgba(0,0,0,.3)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(20,184,166,.1),transparent 24%),radial-gradient(circle at bottom left,rgba(245,158,11,.08),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
+    header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#0b2926,#0c1118)}
+    header h1{font-size:1.2rem;font-weight:800} header h1 span{color:var(--accent)} header p{color:var(--muted);font-size:.8rem;line-height:1.6}
+    .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:10px}.actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}.actions a:hover{transform:translateY(-1px);border-color:rgba(20,184,166,.36);color:var(--text)}.actions a.primary{background:linear-gradient(135deg,#14b8a6,var(--accent2));border-color:transparent;color:#132014;font-weight:800}
+    .app{flex:1;display:flex;min-height:calc(100vh - 80px)} .left{width:330px;min-width:330px;background:var(--panel);border-right:1px solid var(--border)} .panel-head{padding:9px 12px 7px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 10px rgba(34,197,94,.7);animation:pulse 1.3s infinite;flex-shrink:0} @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.84);opacity:.5}}
+    .sec{border-bottom:1px solid var(--border)} .sec-title{padding:8px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:12px;border-radius:14px;border:1px solid var(--border);background:rgba(24,34,48,.88);color:var(--muted);font-size:.8rem;line-height:1.65} .focus{color:var(--text);font-size:.94rem;font-weight:800;line-height:1.5;margin-bottom:6px}.formula{color:var(--accent3);font-family:"Fira Code",monospace}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{border:1px solid var(--border);border-radius:12px;background:rgba(24,34,48,.98);padding:10px;box-shadow:var(--shadow)} .metric-label{color:var(--muted);font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px} .metric-value{font-size:.8rem;line-height:1.45;font-family:"Fira Code",monospace}
+    .list{padding:0 12px 12px;display:grid;gap:8px}.list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.58}.list div:before{content:"";position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{padding:0 12px 12px;display:flex;flex-wrap:wrap;gap:8px}.chip,.badge,.pick,.pair{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:800}.chip{color:#d1fae5;background:rgba(20,184,166,.09);border:1px solid rgba(20,184,166,.22)}.badge{color:#ffe9c4;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.22)}.pick{color:#d1fae5;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22)}.pair{color:#f0fdfa;background:rgba(15,118,110,.18);border:1px solid rgba(20,184,166,.22);font-family:"Fira Code",monospace}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column}.tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background:rgba(18,25,35,.55);overflow-x:auto}.tabs::-webkit-scrollbar{height:5px}.tabs::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:700;border-bottom:2px solid transparent;transition:color .18s ease,background .18s ease;white-space:nowrap}.tab:hover{color:var(--text);background:rgba(31,44,61,.7)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(31,44,61,.9)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}.field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:rgba(24,34,48,.94)} .field span{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase} .field select,.field input{border:none;background:transparent;color:var(--text);outline:none;font:.8rem "Fira Code",monospace}
+    .range{display:flex;align-items:center;gap:10px;min-width:220px}.range input{width:100%;accent-color:var(--accent)} .value{color:var(--accent2);font:.8rem "Fira Code",monospace;letter-spacing:0;text-transform:none}
+    .panel{display:none;padding:12px 16px 16px;overflow-y:auto}.panel.active{display:block}.status{padding:0 0 12px;color:var(--text);line-height:1.7;font-size:.84rem}
+    .grid{display:grid;grid-template-columns:1.04fr .96fr;gap:12px;align-items:start}.card{display:grid;gap:14px;padding:18px;border-radius:20px;border:1px solid var(--border);background:rgba(18,25,35,.92);box-shadow:var(--shadow)}.focus-card{border-color:rgba(20,184,166,.3);box-shadow:0 0 0 1px rgba(20,184,166,.12),0 20px 42px rgba(0,0,0,.28)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.card h2{font-size:1.1rem;line-height:1.45}.sub{color:var(--muted);line-height:1.7;font-size:.9rem}
+    .stage,.info,.examples,.compare,.result-grid,.pair-grid,.editor-grid{display:grid;gap:10px}.stage{grid-template-columns:repeat(4,minmax(0,1fr))}.info,.compare,.result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.examples,.pair-grid,.editor-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mini,.cmp,.ex,.result,.pair-card{display:grid;gap:6px;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,.12);background:rgba(24,34,48,.72)} .mini h3,.cmp h3,.ex h3,.result h3,.pair-card h3{font-size:.92rem} .mini p,.cmp p,.ex p,.result p,.pair-card p,.cmp li{color:var(--muted);font-size:.82rem;line-height:1.62}.cmp ul{padding-left:18px}
+    .step{color:var(--accent3);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase} pre{padding:14px;border-radius:16px;border:1px solid var(--border);background:rgba(8,14,23,.94);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72;white-space:pre-wrap;overflow-x:auto}
+    .bars{display:grid;gap:10px}.bar{display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:10px;align-items:center}.bar strong{font-size:.78rem}.bar span{color:var(--muted);font-size:.72rem;line-height:1.5}.track{height:10px;border-radius:999px;overflow:hidden;border:1px solid rgba(148,163,184,.12);background:rgba(148,163,184,.08)}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}.barv{color:var(--accent2);font:.76rem "Fira Code",monospace}.ex.active{border-color:rgba(20,184,166,.34);box-shadow:0 0 0 1px rgba(20,184,166,.14)}.note{color:var(--muted);font-size:.82rem;line-height:1.7}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;background:rgba(9,14,22,.92)} table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:640px} th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(148,163,184,.12);border-right:1px solid rgba(148,163,184,.08)} th{background:rgba(20,184,166,.08);color:var(--accent3)}
+    .sim-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.sim-btn{padding:9px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(24,34,48,.92);color:var(--text);font:600 .78rem "Inter",sans-serif;cursor:pointer}.sim-btn:hover{border-color:rgba(20,184,166,.34)}
+    .editor-field{display:grid;gap:6px}.editor-field strong{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.editor-field input,.editor-field textarea{width:100%;border:1px solid var(--border);border-radius:12px;background:rgba(24,34,48,.94);color:var(--text);padding:10px 12px;font:0.8rem "Fira Code",monospace;outline:none}.editor-field textarea{min-height:140px;resize:vertical}
+    code{padding:2px 6px;border-radius:8px;background:rgba(20,184,166,.08);color:var(--text);font-family:"Fira Code",monospace;font-size:.9em}
+    @media (max-width:1120px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.grid,.stage,.info,.compare,.result-grid{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.compare,.result-grid{grid-template-columns:1fr}.bar{grid-template-columns:1fr}.range{min-width:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>0/1 Knapsack</span> Using Set Method</h1>
+      <p>Build a frontier of non-dominated <span class="formula">(weight, value)</span> pairs, merge each new item into that set, and prune dominated states instead of filling the full DP table.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.html">Home</a>
+      <a href="zero_one_knapsack_problem.html">0/1 Knapsack DP</a>
+      <a href="zero_one_knapsack_recursion.html">Recursion View</a>
+      <a href="dynamic_programming_introduction.html">DP Intro</a>
+      <a href="recursion_and_dynamic_programming.html">Recursion + DP</a>
+      <a href="../Greedy%20Algorithm/knapsack_problem_fractional.html">Fractional Knapsack</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head"><span class="pulse"></span>Set Method Snapshot</div>
+
+      <section class="sec">
+        <div class="sec-title">Core Idea</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="flowFormula"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Quick Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Scenario</div><div class="metric-value" id="metricScenario"></div></div>
+          <div class="metric"><div class="metric-label">Capacity</div><div class="metric-value" id="metricCapacity"></div></div>
+          <div class="metric"><div class="metric-label">Final Frontier</div><div class="metric-value" id="metricFrontier"></div></div>
+          <div class="metric"><div class="metric-label">Optimum</div><div class="metric-value" id="metricBest"></div></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Why It Helps</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">Pruning Rule</div>
+        <div class="box" id="pruneText"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Current Items</div>
+        <div class="chips" id="itemChips"></div>
+      </section>
+    </aside>
+
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="setmethod">Set Method</button>
+        <button class="tab" data-tab="simulation">Simulation</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+
+      <div class="controls">
+        <div class="field"><span>Scenario</span><select id="scenarioSelect"></select></div>
+        <div class="field"><span>Capacity</span><div class="range"><input id="capacityRange" type="range" min="3" max="12" step="1" value="5" /><span class="value" id="capacityValue"></span></div></div>
+      </div>
+
+      <section class="panel active" id="tab-overview">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus-card">
+            <div class="kick">How the Set Method Works</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="stage">
+              <div class="mini"><div class="step">1. Start</div><h3>Seed the frontier</h3><p id="stageStart"></p></div>
+              <div class="mini"><div class="step">2. Generate</div><h3>Add the item</h3><p id="stageGenerate"></p></div>
+              <div class="mini"><div class="step">3. Merge</div><h3>Combine candidates</h3><p id="stageMerge"></p></div>
+              <div class="mini"><div class="step">4. Prune</div><h3>Drop dominated pairs</h3><p id="stagePrune"></p></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="kick">Current Outcome</div>
+            <div class="result-grid">
+              <div class="result"><h3>Set-method optimum</h3><p id="setResult"></p><div class="chips" style="padding:0" id="setPicks"></div></div>
+              <div class="result"><h3>DP cross-check</h3><p id="dpCheck"></p><div class="chips" style="padding:0" id="checkBadges"></div></div>
+              <div class="result"><h3>Frontier health</h3><p id="frontierHealth"></p><div class="chips" style="padding:0" id="frontierBadges"></div></div>
+              <div class="result"><h3>Interpretation</h3><p id="decisionNote"></p><div class="chips" style="padding:0" id="decisionBadges"></div></div>
+            </div>
+          </article>
+
+          <article class="card" style="grid-column:1/span 2">
+            <div class="kick">Work Comparison</div>
+            <div class="bars" id="barList"></div>
+            <p class="note" id="previewNote"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-setmethod">
+        <div class="grid">
+          <article class="card">
+            <div class="kick">Core Recurrence Without a Table</div>
+            <h2>Keep only non-dominated pairs.</h2>
+            <pre id="methodCode"></pre>
+            <div class="compare">
+              <div class="cmp"><h3>State meaning</h3><p id="stateExplain"></p></div>
+              <div class="cmp"><h3>Dominated pair</h3><p id="dominatedExplain"></p></div>
+              <div class="cmp"><h3>Why sorting helps</h3><p id="sortingExplain"></p></div>
+              <div class="cmp"><h3>Reconstruction</h3><p id="reconstructExplain"></p></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="kick">Final Frontier</div>
+            <div class="pair-grid" id="frontierGrid"></div>
+          </article>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Frontier History</div>
+          <div class="table-wrap" id="historyTable"></div>
+          <p class="note">The frontier after each item contains only pairs that are not dominated by another reachable pair with lower or equal weight and greater or equal value.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-simulation">
+        <div class="card">
+          <div class="kick">Animated Frontier Update</div>
+          <div class="sim-controls">
+            <button class="sim-btn" id="simPlayBtn">Play</button>
+            <button class="sim-btn" id="simStepBtn">Step</button>
+            <button class="sim-btn" id="simResetBtn">Reset</button>
+            <span class="badge" id="simProgress"></span>
+          </div>
+          <h2 id="simTitle"></h2>
+          <p class="sub" id="simSummary"></p>
+          <div class="compare">
+            <div class="cmp"><h3>Current Event</h3><p id="simExplain"></p></div>
+            <div class="cmp"><h3>Current Counts</h3><p id="simStats"></p></div>
+          </div>
+
+          <div class="card" style="padding:14px">
+            <div class="kick">Custom Scenario Input</div>
+            <div class="editor-grid">
+              <label class="editor-field">
+                <strong>Scenario Name</strong>
+                <input id="customScenarioName" type="text" value="Custom Set Scenario" />
+              </label>
+              <label class="editor-field">
+                <strong>Capacity</strong>
+                <input id="customScenarioCapacity" type="number" min="1" max="30" value="5" />
+              </label>
+              <label class="editor-field" style="grid-column:1/-1">
+                <strong>Items</strong>
+                <textarea id="customScenarioItems">A,1,60
+B,2,100
+C,3,120</textarea>
+              </label>
+            </div>
+            <div class="sim-controls" style="margin-top:12px">
+              <button class="sim-btn" id="applyCustomScenarioBtn">Apply Custom Scenario</button>
+              <button class="sim-btn" id="resetCustomScenarioBtn">Reset Editor</button>
+              <span class="badge" id="customScenarioMode"></span>
+            </div>
+            <p class="note">Use one item per line as <code>Name,Weight,Value</code>. Applying custom input updates the overview, history, and simulation together.</p>
+          </div>
+
+          <div class="examples">
+            <article class="card"><div class="kick">Previous Frontier</div><div class="chips" style="padding:0" id="simPrevFrontier"></div></article>
+            <article class="card"><div class="kick">Generated Pairs</div><div class="chips" style="padding:0" id="simGenerated"></div></article>
+            <article class="card"><div class="kick">Pruned Frontier</div><div class="chips" style="padding:0" id="simNextFrontier"></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="compare">
+            <div class="cmp"><h3>Skipping sort before prune</h3><p>If pairs are not processed in weight order, the domination check becomes unreliable.</p></div>
+            <div class="cmp"><h3>Keeping overweight pairs</h3><p>The set should drop pairs whose weight already exceeds the knapsack capacity.</p></div>
+            <div class="cmp"><h3>Wrong domination test</h3><p>A pair is dominated when another pair has lower or equal weight and greater or equal value, not just when values differ.</p></div>
+            <div class="cmp"><h3>Assuming it is greedy</h3><p>The set method is still an exact dynamic programming technique. It does not rely on a local selection rule.</p></div>
+            <div class="cmp"><h3>Losing reconstruction info</h3><p>If you store only weights and values, you may lose track of which items created the optimal pair.</p></div>
+            <div class="cmp"><h3>Expecting a tiny frontier always</h3><p>Pruning often shrinks the state space a lot, but worst-case growth can still be significant.</p></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Quick Reference</div>
+          <div class="compare">
+            <div class="cmp"><h3>State set</h3><p>Keep a set of reachable <code>(weight, value)</code> pairs after each processed item.</p></div>
+            <div class="cmp"><h3>Transition</h3><p>Create shifted pairs by adding the current item to every existing pair, then merge them back.</p></div>
+            <div class="cmp"><h3>Pruning</h3><p>After sorting by weight, keep only pairs whose value is strictly better than every lighter pair seen so far.</p></div>
+            <div class="cmp"><h3>When it shines</h3><p>Useful when the reachable frontier stays much smaller than the full <code>(n+1)(W+1)</code> table.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const fmt=(value)=>new Intl.NumberFormat("en-US",{maximumFractionDigits:value%1===0?0:2}).format(value);
+
+    function cloneStates(states){return states.map((state)=>({weight:state.weight,value:state.value,picks:[...state.picks]}));}
+
+    function solveDP(items,capacity){
+      const dp=Array.from({length:items.length+1},()=>Array(capacity+1).fill(0));
+      for(let i=1;i<=items.length;i++){
+        const item=items[i-1];
+        for(let w=0;w<=capacity;w++){
+          dp[i][w]=dp[i-1][w];
+          if(item.weight<=w){
+            dp[i][w]=Math.max(dp[i][w],item.value+dp[i-1][w-item.weight]);
+          }
+        }
+      }
+      const picks=[];let w=capacity;
+      for(let i=items.length;i>0;i--){
+        const item=items[i-1];
+        if(item.weight<=w&&dp[i][w]===item.value+dp[i-1][w-item.weight]&&dp[i][w]!==dp[i-1][w]){
+          picks.unshift(item);
+          w-=item.weight;
+        }
+      }
+      return{value:dp[items.length][capacity],picks};
+    }
+
+    function pruneStates(states,capacity){
+      const feasible=states.filter((state)=>state.weight<=capacity).sort((a,b)=>a.weight-b.weight||b.value-a.value);
+      const kept=[];let bestValue=-Infinity;
+      feasible.forEach((state)=>{
+        if(state.value>bestValue){
+          kept.push({weight:state.weight,value:state.value,picks:[...state.picks]});
+          bestValue=state.value;
+        }
+      });
+      return kept;
+    }
+
+    function solveSetMethod(items,capacity){
+      let frontier=[{weight:0,value:0,picks:[]}];
+      const history=[{item:null,stage:"start",previous:[],generated:[],pruned:cloneStates(frontier),message:"Start with the empty choice only."}];
+      items.forEach((item,index)=>{
+        const previous=cloneStates(frontier);
+        const generated=frontier.map((state)=>({weight:state.weight+item.weight,value:state.value+item.value,picks:[...state.picks,item.name]}));
+        const pruned=pruneStates([...frontier,...generated],capacity);
+        history.push({item,itemIndex:index+1,stage:"generate",previous:cloneStates(previous),generated:cloneStates(generated),pruned:cloneStates(pruned),message:`Generate shifted pairs by adding item ${item.name}.`});
+        history.push({item,itemIndex:index+1,stage:"prune",previous:cloneStates(previous),generated:cloneStates(generated),pruned:cloneStates(pruned),message:`Merge and prune dominated pairs after processing ${item.name}.`});
+        frontier=pruned;
+      });
+      const best=frontier.reduce((bestState,state)=>state.value>bestState.value||state.value===bestState.value&&state.weight<bestState.weight?state:bestState,frontier[0]);
+      const maxFrontier=Math.max(...history.map((entry)=>entry.pruned.length));
+      return{frontier,history,best,maxFrontier};
+    }
+
+    const scenarios=[
+      {id:"classic",name:"Classic Counterexample",family:"Small but revealing frontier",summary:"This is the same famous 0/1 knapsack counterexample, but here we solve it by maintaining a frontier of non-dominated pairs rather than by filling the full table.",helps:"The set method stays exact but often keeps fewer states than the full table because many reachable pairs are dominated and can be discarded immediately.",prune:"If one pair has lower weight and at least as much value as another, the heavier weaker pair can never help later.",signs:["The problem still has 0/1 take-or-skip choices.","Many reachable combinations end up dominated by lighter, better combinations.","You want an exact answer but may prefer frontier pruning over filling every capacity cell."],items:[{name:"A",weight:1,value:60},{name:"B",weight:2,value:100},{name:"C",weight:3,value:120}],minCapacity:3,maxCapacity:6,defaultCapacity:5},
+      {id:"backpack",name:"Backpack Packing",family:"Frontier grows, then shrinks",summary:"This scenario shows how the frontier can expand after one item and then compress again once dominated states are removed.",helps:"The set method is easy to explain as reachable outcome compression: only keep the partial packings that still matter for future decisions.",prune:"After sorting by weight, sweep left to right and keep only states whose value is better than all lighter states seen so far.",signs:["Some item combinations are obviously worse than others before the algorithm even ends.","The frontier representation is often easier to inspect than a dense DP table.","You care about pruning useless partial solutions early."],items:[{name:"Tent",weight:4,value:10},{name:"Stove",weight:3,value:7},{name:"Rope",weight:2,value:4},{name:"Water",weight:5,value:13},{name:"Jacket",weight:3,value:8}],minCapacity:6,maxCapacity:12,defaultCapacity:10},
+      {id:"study",name:"Study Plan Abstraction",family:"Same technique, new story",summary:"The method is identical even when the story changes. Here the pairs represent study hours used and score gained.",helps:"This makes the abstraction clear: the set method is not about bags specifically, it is about pruning dominated partial outcomes.",prune:"A study plan using more hours but scoring no better than another plan is dominated and should be removed from the frontier.",signs:["The story can be mapped to weight and value without changing the algorithm.","Whole-choice constraints still block a greedy ratio strategy.","The frontier can be interpreted as the best achievable score at different resource levels."],items:[{name:"Arrays",weight:2,value:40},{name:"Graphs",weight:3,value:55},{name:"DP",weight:4,value:70},{name:"Trees",weight:5,value:78}],minCapacity:4,maxCapacity:10,defaultCapacity:8}
+    ];
+
+    const tabs=[...document.querySelectorAll(".tab")],panels=[...document.querySelectorAll(".panel")],select=document.getElementById("scenarioSelect"),range=document.getElementById("capacityRange");
+    const simPlayBtn=document.getElementById("simPlayBtn"),simStepBtn=document.getElementById("simStepBtn"),simResetBtn=document.getElementById("simResetBtn");
+    const applyCustomScenarioBtn=document.getElementById("applyCustomScenarioBtn"),resetCustomScenarioBtn=document.getElementById("resetCustomScenarioBtn");
+    const customScenarioName=document.getElementById("customScenarioName"),customScenarioCapacity=document.getElementById("customScenarioCapacity"),customScenarioItems=document.getElementById("customScenarioItems");
+    let customScenario=null;
+    let setSimulation={steps:[],index:0,timer:null,title:"",summary:""};
+
+    function selectedPreset(){return scenarios.find((item)=>item.id===select.value)||scenarios[0];}
+    function currentScenario(){return select.value==="custom"&&customScenario?customScenario:selectedPreset();}
+    function scenarioItemsToText(items){return items.map((item)=>`${item.name},${item.weight},${item.value}`).join("\n");}
+    function pairLabel(state){return `(${state.weight}, ${state.value})`;}
+
+    function parseScenarioItems(text){
+      const lines=text.split(/\r?\n/).map((line)=>line.trim()).filter(Boolean);
+      if(!lines.length) throw new Error("Enter at least one item using Name,Weight,Value.");
+      return lines.map((line,index)=>{
+        const parts=line.split(",").map((part)=>part.trim());
+        if(parts.length<3) throw new Error(`Line ${index+1} must use Name,Weight,Value.`);
+        const weight=Number(parts[1]),value=Number(parts[2]);
+        if(!Number.isFinite(weight)||weight<=0||!Number.isFinite(value)||value<0) throw new Error(`Line ${index+1} must have positive weight and non-negative value.`);
+        return{name:parts[0]||`Item ${index+1}`,weight,value};
+      });
+    }
+
+    function buildCustomScenario(name,items,capacity){
+      const totalWeight=items.reduce((sum,item)=>sum+item.weight,0);
+      return{id:"custom",name:name||"Custom Set Scenario",family:"User-defined frontier",summary:"A custom 0/1 knapsack instance solved with the frontier/set method.",helps:"Custom input lets you test your own dominated-pair pruning behavior and compare frontier size against table size.",prune:"Prune any pair that is heavier and no more valuable than another reachable pair.",signs:["The frontier is built from your own take-or-skip item list.","Dominated outcomes are removed after each item.","The resulting optimum is still exact."],items,minCapacity:1,maxCapacity:Math.max(capacity,Math.min(30,totalWeight||capacity)),defaultCapacity:capacity};
+    }
+
+    function stopSetSimulation(){
+      if(setSimulation.timer){
+        clearInterval(setSimulation.timer);
+        setSimulation.timer=null;
+      }
+      simPlayBtn.textContent="Play";
+    }
+
+    function buildSetSimulation(scenario,capacity){
+      const result=solveSetMethod(scenario.items,capacity);
+      return{title:`Frontier simulation for ${scenario.name}`,summary:`Watch how the reachable pair set expands and is pruned after every item while keeping the exact optimum for capacity ${capacity}.`,steps:result.history};
+    }
+
+    function renderSetSimulation(){
+      const step=setSimulation.steps[setSimulation.index]||setSimulation.steps[0];
+      if(!step) return;
+      document.getElementById("simTitle").textContent=setSimulation.title;
+      document.getElementById("simSummary").textContent=setSimulation.summary;
+      document.getElementById("simExplain").textContent=step.message;
+      document.getElementById("simStats").textContent=`Previous frontier: ${step.previous.length}. Generated pairs: ${step.generated.length}. Pruned frontier: ${step.pruned.length}.`;
+      document.getElementById("simProgress").textContent=`Step ${setSimulation.index+1} / ${setSimulation.steps.length}`;
+      document.getElementById("simPrevFrontier").innerHTML=step.previous.length?step.previous.map((state)=>`<span class="pair">${pairLabel(state)}</span>`).join(""):`<span class="pair">(0, 0)</span>`;
+      document.getElementById("simGenerated").innerHTML=step.generated.length?step.generated.map((state)=>`<span class="pair">${pairLabel(state)}</span>`).join(""):`<span class="badge">No generated pairs yet</span>`;
+      document.getElementById("simNextFrontier").innerHTML=step.pruned.length?step.pruned.map((state)=>`<span class="pair">${pairLabel(state)}</span>`).join(""):`<span class="badge">No frontier</span>`;
+      document.getElementById("customScenarioMode").textContent=select.value==="custom"&&customScenario?"Editing active custom scenario":"Editing selected scenario";
+    }
+
+    function resetSetSimulation(scenario,capacity){
+      stopSetSimulation();
+      setSimulation={...buildSetSimulation(scenario,capacity),index:0,timer:null};
+      renderSetSimulation();
+    }
+
+    function loadScenarioEditor(scenario,capacity){
+      customScenarioName.value=scenario.name;
+      customScenarioCapacity.value=String(capacity);
+      customScenarioItems.value=scenarioItemsToText(scenario.items);
+      document.getElementById("customScenarioMode").textContent=select.value==="custom"&&customScenario?"Editing active custom scenario":"Editing selected scenario";
+    }
+
+    function render(){
+      const scenario=currentScenario(),capacity=Number(range.value),setResult=solveSetMethod(scenario.items,capacity),dpResult=solveDP(scenario.items,capacity);
+      const subsets=Math.pow(2,scenario.items.length),dpStates=(scenario.items.length+1)*(capacity+1),finalFrontier=setResult.frontier.length,match=setResult.best.value===dpResult.value;
+      const bars=[{label:"Subset count",value:subsets,note:"Brute force would examine every subset."},{label:"DP table states",value:dpStates,note:"Classic table DP fills every item-capacity state."},{label:"Max frontier size",value:setResult.maxFrontier,note:"Largest non-dominated frontier kept during pruning."},{label:"Final frontier size",value:finalFrontier,note:"Non-dominated pairs left after all items."},{label:"Optimum value",value:setResult.best.value,note:"Exact best value found by the set method."}];
+      const maxBar=Math.max(...bars.map((item)=>item.value),1);
+
+      document.getElementById("capacityValue").textContent=`W = ${capacity}`;
+      document.getElementById("focusTitle").textContent=`0/1 knapsack through ${scenario.name}`;
+      document.getElementById("focusSummary").textContent=scenario.summary;
+      document.getElementById("flowFormula").textContent="Frontier -> add item -> merge -> prune dominated pairs";
+      document.getElementById("metricScenario").textContent=scenario.name;
+      document.getElementById("metricCapacity").textContent=`W = ${capacity}`;
+      document.getElementById("metricFrontier").textContent=String(finalFrontier);
+      document.getElementById("metricBest").textContent=String(setResult.best.value);
+      document.getElementById("signList").innerHTML=scenario.signs.map((item)=>`<div>${item}</div>`).join("");
+      document.getElementById("helpsText").textContent=scenario.helps;
+      document.getElementById("pruneText").textContent=scenario.prune;
+      document.getElementById("itemChips").innerHTML=scenario.items.map((item)=>`<span class="chip">${item.name}: w${item.weight}, v${item.value}</span>`).join("");
+
+      document.getElementById("statusText").textContent=`For capacity ${capacity}, the set method keeps only ${finalFrontier} frontier pairs at the end and still reaches the exact optimum ${setResult.best.value}${match?`, matching the standard DP answer.`:"."}`;
+      document.getElementById("heroTitle").textContent=`${scenario.name} shows how exact DP can be frontier-based instead of table-based.`;
+      document.getElementById("heroSummary").textContent=scenario.summary;
+      document.getElementById("heroBadges").innerHTML=[scenario.family,`W = ${capacity}`,`Frontier ${finalFrontier}`].map((item)=>`<span class="badge">${item}</span>`).join("");
+      document.getElementById("stageStart").textContent="Begin with only the empty choice, represented by the pair (0, 0).";
+      document.getElementById("stageGenerate").textContent="For the current item, shift every frontier pair by that item's weight and value.";
+      document.getElementById("stageMerge").textContent="Combine the old frontier with the newly generated candidate pairs.";
+      document.getElementById("stagePrune").textContent="After sorting by weight, remove every pair that is dominated by a lighter and at least as valuable pair.";
+
+      document.getElementById("setResult").textContent=`Best pair ${pairLabel(setResult.best)} with weight ${setResult.best.weight}/${capacity}.`;
+      document.getElementById("setPicks").innerHTML=(setResult.best.picks.length?setResult.best.picks:["No item"]).map((pick)=>`<span class="pick">${pick}</span>`).join("");
+      document.getElementById("dpCheck").textContent=`Standard DP gives value ${dpResult.value}.`;
+      document.getElementById("checkBadges").innerHTML=`<span class="badge">${match?"Exact match":"Mismatch"}</span>`;
+      document.getElementById("frontierHealth").textContent=`Maximum frontier size was ${setResult.maxFrontier}; final frontier size is ${finalFrontier}.`;
+      document.getElementById("frontierBadges").innerHTML=`<span class="badge">Subsets ${subsets}</span><span class="badge">DP states ${dpStates}</span>`;
+      document.getElementById("decisionNote").textContent=match?"The frontier pruning preserved all information needed for the exact optimum while skipping many dominated states.":"The cross-check should match; if it does not, the frontier logic needs attention.";
+      document.getElementById("decisionBadges").innerHTML=`<span class="badge">${match?"Exact method":"Check implementation"}</span>`;
+
+      document.getElementById("barList").innerHTML=bars.map((item)=>`<div class="bar"><div><strong>${item.label}</strong><br /><span>${item.note}</span></div><div class="track"><div class="fill" style="width:${Math.max(5,Math.round(item.value/maxBar*100))}%"></div></div><div class="barv">${fmt(item.value)}</div></div>`).join("");
+      document.getElementById("previewNote").textContent="This method is still exact dynamic programming. The difference is representation: it keeps only non-dominated reachable outcomes rather than every table cell.";
+
+      document.getElementById("methodCode").textContent=`frontier = {(0, 0)}\nfor each item (w, v):\n  shifted = {(x.weight + w, x.value + v) for x in frontier}\n  merged = frontier U shifted\n  remove pairs whose weight > W\n  sort by weight ascending\n  prune dominated pairs\nreturn best remaining pair`;
+      document.getElementById("stateExplain").textContent="Each frontier element is a reachable (weight, value) outcome after processing some prefix of items.";
+      document.getElementById("dominatedExplain").textContent="If pair A is no heavier and at least as valuable as pair B, then B can never improve a future solution and should be removed.";
+      document.getElementById("sortingExplain").textContent="Sorting by weight makes the domination sweep simple: keep a pair only if its value beats every lighter pair seen so far.";
+      document.getElementById("reconstructExplain").textContent="Store the item choices alongside each pair, or store parent links, so the optimal set of items can be rebuilt at the end.";
+      document.getElementById("frontierGrid").innerHTML=setResult.frontier.map((state)=>`<div class="pair-card"><h3>${pairLabel(state)}</h3><p>Items: ${state.picks.length?state.picks.join(", "):"none"}</p></div>`).join("");
+
+      const historyHead=`<tr><th>Step</th><th>Item</th><th>Generated</th><th>Frontier After Prune</th></tr>`;
+      const historyBody=setResult.history.map((entry,index)=>{
+        const item=entry.item?entry.item.name:"Start";
+        const generated=entry.generated.length?entry.generated.map((state)=>pairLabel(state)).join(", "):"-";
+        const pruned=entry.pruned.map((state)=>pairLabel(state)).join(", ");
+        return `<tr><td>${index}</td><td>${item}</td><td>${generated}</td><td>${pruned}</td></tr>`;
+      }).join("");
+      document.getElementById("historyTable").innerHTML=`<table><thead>${historyHead}</thead><tbody>${historyBody}</tbody></table>`;
+
+      loadScenarioEditor(scenario,capacity);
+      resetSetSimulation(scenario,capacity);
+    }
+
+    function syncRangeForScenario(){
+      const scenario=currentScenario();
+      range.min=String(scenario.minCapacity);
+      range.max=String(scenario.maxCapacity);
+      if(Number(range.value)<scenario.minCapacity||Number(range.value)>scenario.maxCapacity){
+        range.value=String(scenario.defaultCapacity);
+      }
+    }
+
+    tabs.forEach((button)=>button.addEventListener("click",()=>{const target=button.dataset.tab;if(target!=="simulation") stopSetSimulation();tabs.forEach((item)=>item.classList.toggle("active",item===button));panels.forEach((panel)=>panel.classList.toggle("active",panel.id===`tab-${target}`))}));
+    select.innerHTML=`${scenarios.map((item)=>`<option value="${item.id}">${item.name}</option>`).join("")}<option value="custom">Custom Scenario</option>`;
+    select.value="classic";
+    select.addEventListener("change",()=>{syncRangeForScenario();render();});
+    range.addEventListener("input",render);
+    applyCustomScenarioBtn.addEventListener("click",()=>{
+      try{
+        const items=parseScenarioItems(customScenarioItems.value);
+        const capacity=Math.max(1,Math.min(30,Number(customScenarioCapacity.value)||5));
+        customScenario=buildCustomScenario((customScenarioName.value||"Custom Set Scenario").trim(),items,capacity);
+        select.value="custom";
+        syncRangeForScenario();
+        range.value=String(capacity);
+        render();
+      }catch(error){
+        alert(error.message);
+      }
+    });
+    resetCustomScenarioBtn.addEventListener("click",()=>{loadScenarioEditor(currentScenario(),Number(range.value));});
+    simPlayBtn.addEventListener("click",()=>{if(setSimulation.timer){stopSetSimulation();return;}simPlayBtn.textContent="Pause";setSimulation.timer=setInterval(()=>{if(setSimulation.index>=setSimulation.steps.length-1){stopSetSimulation();return;}setSimulation.index+=1;renderSetSimulation();},700);});
+    simStepBtn.addEventListener("click",()=>{stopSetSimulation();if(setSimulation.index<setSimulation.steps.length-1){setSimulation.index+=1;renderSetSimulation();}});
+    simResetBtn.addEventListener("click",()=>{stopSetSimulation();setSimulation.index=0;renderSetSimulation();});
+    syncRangeForScenario();
+    render();
+  </script>
+</body>
+</html>

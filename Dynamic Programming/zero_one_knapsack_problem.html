@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>0/1 Knapsack Problem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0c1118;--panel:#121923;--surface:#182230;--card:#1f2c3d;--border:#36475d;--text:#edf5ff;--muted:#93a7bd;--accent:#f59e0b;--accent2:#fb7185;--accent3:#fde68a;--good:#22c55e;--shadow:0 22px 48px rgba(0,0,0,.3)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(245,158,11,.1),transparent 24%),radial-gradient(circle at bottom left,rgba(251,113,133,.08),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
+    header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#2a1606,#0c1118)}
+    header h1{font-size:1.2rem;font-weight:800} header h1 span{color:var(--accent)} header p{color:var(--muted);font-size:.8rem;line-height:1.6}
+    .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:10px}.actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}.actions a:hover{transform:translateY(-1px);border-color:rgba(245,158,11,.36);color:var(--text)}.actions a.primary{background:linear-gradient(135deg,#f59e0b,var(--accent2));border-color:transparent;color:#221206;font-weight:800}
+    .app{flex:1;display:flex;min-height:calc(100vh - 80px)} .left{width:330px;min-width:330px;background:var(--panel);border-right:1px solid var(--border)} .panel-head{padding:9px 12px 7px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 10px rgba(34,197,94,.7);animation:pulse 1.3s infinite;flex-shrink:0} @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.84);opacity:.5}}
+    .sec{border-bottom:1px solid var(--border)} .sec-title{padding:8px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:12px;border-radius:14px;border:1px solid var(--border);background:rgba(24,34,48,.88);color:var(--muted);font-size:.8rem;line-height:1.65} .focus{color:var(--text);font-size:.94rem;font-weight:800;line-height:1.5;margin-bottom:6px}.formula{color:var(--accent3);font-family:"Fira Code",monospace}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{border:1px solid var(--border);border-radius:12px;background:rgba(24,34,48,.98);padding:10px;box-shadow:var(--shadow)} .metric-label{color:var(--muted);font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px} .metric-value{font-size:.8rem;line-height:1.45;font-family:"Fira Code",monospace}
+    .list{padding:0 12px 12px;display:grid;gap:8px}.list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.58}.list div:before{content:"";position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{padding:0 12px 12px;display:flex;flex-wrap:wrap;gap:8px}.chip,.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:800}.chip{color:#fff1c9;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.22)}.badge{color:#ffd8e1;background:rgba(251,113,133,.09);border:1px solid rgba(251,113,133,.22)}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column}.tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background:rgba(18,25,35,.55);overflow-x:auto}.tabs::-webkit-scrollbar{height:5px}.tabs::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:700;border-bottom:2px solid transparent;transition:color .18s ease,background .18s ease;white-space:nowrap}.tab:hover{color:var(--text);background:rgba(31,44,61,.7)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(31,44,61,.9)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}.field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:rgba(24,34,48,.94)} .field span{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase} .field select,.field input{border:none;background:transparent;color:var(--text);outline:none;font:.8rem "Fira Code",monospace}
+    .range{display:flex;align-items:center;gap:10px;min-width:220px}.range input{width:100%;accent-color:var(--accent)} .value{color:var(--accent2);font:.8rem "Fira Code",monospace;letter-spacing:0;text-transform:none}
+    .panel{display:none;padding:12px 16px 16px;overflow-y:auto}.panel.active{display:block}.status{padding:0 0 12px;color:var(--text);line-height:1.7;font-size:.84rem}
+    .grid{display:grid;grid-template-columns:1.04fr .96fr;gap:12px;align-items:start}.card{display:grid;gap:14px;padding:18px;border-radius:20px;border:1px solid var(--border);background:rgba(18,25,35,.92);box-shadow:var(--shadow)}.focus-card{border-color:rgba(245,158,11,.3);box-shadow:0 0 0 1px rgba(245,158,11,.12),0 20px 42px rgba(0,0,0,.28)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.card h2{font-size:1.1rem;line-height:1.45}.sub{color:var(--muted);line-height:1.7;font-size:.9rem}
+    .stage,.info,.examples,.compare,.result-grid,.item-grid{display:grid;gap:10px}.stage{grid-template-columns:repeat(4,minmax(0,1fr))}.info,.compare,.result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.examples,.item-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mini,.cmp,.ex,.item-card,.result{display:grid;gap:6px;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,.12);background:rgba(24,34,48,.72)} .mini h3,.cmp h3,.ex h3,.item-card h3,.result h3{font-size:.92rem} .mini p,.cmp p,.ex p,.item-card p,.result p,.cmp li{color:var(--muted);font-size:.82rem;line-height:1.62}.cmp ul{padding-left:18px}
+    .step{color:var(--accent3);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase} pre{padding:14px;border-radius:16px;border:1px solid var(--border);background:rgba(8,14,23,.94);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72;white-space:pre-wrap;overflow-x:auto}
+    .bars{display:grid;gap:10px}.bar{display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:10px;align-items:center}.bar strong{font-size:.78rem}.bar span{color:var(--muted);font-size:.72rem;line-height:1.5}.track{height:10px;border-radius:999px;overflow:hidden;border:1px solid rgba(148,163,184,.12);background:rgba(148,163,184,.08)}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}.barv{color:var(--accent2);font:.76rem "Fira Code",monospace}.ex.active{border-color:rgba(245,158,11,.34);box-shadow:0 0 0 1px rgba(245,158,11,.14)}.note{color:var(--muted);font-size:.82rem;line-height:1.7}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;background:rgba(9,14,22,.92)} table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:620px} th,td{padding:8px 10px;text-align:center;border-bottom:1px solid rgba(148,163,184,.12);border-right:1px solid rgba(148,163,184,.08)} th{background:rgba(245,158,11,.08);color:var(--accent3);position:sticky;top:0;z-index:1} td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:rgba(18,25,35,.98);z-index:2} .hit{background:rgba(245,158,11,.12);color:var(--text);font-weight:800} .best{background:rgba(34,197,94,.12);color:#d1fae5;font-weight:800}
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px}.pick{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid rgba(34,197,94,.22);background:rgba(34,197,94,.08);color:#d1fae5;font-size:.74rem;font-weight:800}
+    .tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:800}.tag.good{background:rgba(34,197,94,.1);color:#bbf7d0;border:1px solid rgba(34,197,94,.24)}.tag.warn{background:rgba(245,158,11,.1);color:#fde68a;border:1px solid rgba(245,158,11,.24)}.tag.bad{background:rgba(251,113,133,.1);color:#fecdd3;border:1px solid rgba(251,113,133,.24)}
+    .sim-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.sim-btn{padding:9px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(24,34,48,.92);color:var(--text);font:600 .78rem "Inter",sans-serif;cursor:pointer}.sim-btn:hover{border-color:rgba(245,158,11,.34)}.item-card.current{border-color:rgba(245,158,11,.34);box-shadow:0 0 0 1px rgba(245,158,11,.14)}.item-card.done{border-color:rgba(34,197,94,.24)}.table-wrap td.pending{color:rgba(147,167,189,.42)}.table-wrap td.current-sim{background:rgba(245,158,11,.14);color:var(--text);font-weight:800}.table-wrap td.done-sim{color:var(--text)}.editor-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.editor-field{display:grid;gap:6px}.editor-field strong{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.editor-field input,.editor-field textarea{width:100%;border:1px solid var(--border);border-radius:12px;background:rgba(24,34,48,.94);color:var(--text);padding:10px 12px;font:0.8rem "Fira Code",monospace;outline:none}.editor-field textarea{min-height:140px;resize:vertical}
+    code{padding:2px 6px;border-radius:8px;background:rgba(245,158,11,.08);color:var(--text);font-family:"Fira Code",monospace;font-size:.9em}
+    @media (max-width:1120px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.grid,.stage,.info,.compare,.result-grid{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.compare,.result-grid{grid-template-columns:1fr}.bar{grid-template-columns:1fr}.range{min-width:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>0/1 Knapsack</span> Problem</h1>
+      <p>Choose each item either fully or not at all, maximize total value, and use dynamic programming when greedy choices are not reliable.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.html">Home</a>
+      <a href="dynamic_programming_introduction.html">DP Intro</a>
+      <a href="recursion_and_dynamic_programming.html">Recursion + DP</a>
+      <a href="zero_one_knapsack_recursion.html">Recursion View</a>
+      <a href="zero_one_knapsack_using_set_method.html">Set Method</a>
+      <a href="../Greedy%20Algorithm/knapsack_problem_fractional.html">Fractional Knapsack</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head"><span class="pulse"></span>Knapsack Snapshot</div>
+
+      <section class="sec">
+        <div class="sec-title">Core Idea</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="flowFormula"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Quick Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Scenario</div><div class="metric-value" id="metricScenario"></div></div>
+          <div class="metric"><div class="metric-label">State</div><div class="metric-value" id="metricState"></div></div>
+          <div class="metric"><div class="metric-label">Time</div><div class="metric-value" id="metricTime"></div></div>
+          <div class="metric"><div class="metric-label">Space</div><div class="metric-value" id="metricSpace"></div></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Why DP Helps</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">Greedy Contrast</div>
+        <div class="box" id="compareText"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-title">Current Items</div>
+        <div class="chips" id="itemChips"></div>
+      </section>
+    </aside>
+
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="table">DP Table</button>
+        <button class="tab" data-tab="simulation">Simulation</button>
+        <button class="tab" data-tab="examples">Examples</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+
+      <div class="controls">
+        <div class="field"><span>Scenario</span><select id="scenarioSelect"></select></div>
+        <div class="field"><span>Capacity</span><div class="range"><input id="capacityRange" type="range" min="3" max="12" step="1" value="5" /><span class="value" id="capacityValue"></span></div></div>
+      </div>
+
+      <section class="panel active" id="tab-overview">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus-card">
+            <div class="kick">What 0/1 Knapsack Means</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="stage">
+              <div class="mini"><div class="step">1. State</div><h3>Define a subproblem</h3><p id="stateText"></p></div>
+              <div class="mini"><div class="step">2. Choice</div><h3>Take or skip</h3><p id="choiceText"></p></div>
+              <div class="mini"><div class="step">3. Base</div><h3>Start from zero</h3><p id="baseText"></p></div>
+              <div class="mini"><div class="step">4. Order</div><h3>Fill by items and capacity</h3><p id="orderText"></p></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="kick">Current Outcome</div>
+            <div class="result-grid">
+              <div class="result"><h3>DP optimum</h3><p id="dpResult"></p><div class="pill-row" id="dpPicks"></div></div>
+              <div class="result"><h3>Greedy 0/1</h3><p id="greedyResult"></p><div class="pill-row" id="greedyPicks"></div></div>
+              <div class="result"><h3>Fractional upper bound</h3><p id="fractionalResult"></p><div class="pill-row" id="fractionalPicks"></div></div>
+              <div class="result"><h3>Decision note</h3><p id="decisionNote"></p><div class="pill-row"><span class="tag good" id="gapTag"></span></div></div>
+            </div>
+          </article>
+
+          <article class="card" style="grid-column:1/span 2">
+            <div class="kick">Strategy Comparison</div>
+            <div class="bars" id="barList"></div>
+            <p class="note" id="previewNote"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-table">
+        <div class="grid">
+          <article class="card">
+            <div class="kick">Transition Rule</div>
+            <h2>Each state compares <code>skip</code> and <code>take</code>.</h2>
+            <pre id="formulaCode"></pre>
+            <div class="compare">
+              <div class="cmp"><h3>State meaning</h3><p id="tableStateExplain"></p></div>
+              <div class="cmp"><h3>Base cases</h3><p id="tableBaseExplain"></p></div>
+              <div class="cmp"><h3>Backtracking</h3><p id="backtrackExplain"></p></div>
+              <div class="cmp"><h3>1D compression</h3><p id="compressionExplain"></p></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kick">Items At This Capacity</div>
+            <div class="item-grid" id="itemGrid"></div>
+          </article>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="kick">DP Table</div>
+          <div class="table-wrap" id="tableWrap"></div>
+          <p class="note">Highlighted cells trace the final reconstruction path from the optimum cell back to a base case.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-simulation">
+        <div class="card">
+          <div class="kick">Animated DP Fill</div>
+          <div class="sim-controls">
+            <button class="sim-btn" id="simPlayBtn">Play</button>
+            <button class="sim-btn" id="simStepBtn">Step</button>
+            <button class="sim-btn" id="simResetBtn">Reset</button>
+            <span class="badge" id="simProgress"></span>
+          </div>
+          <h2 id="simTitle"></h2>
+          <p class="sub" id="simSummary"></p>
+          <div class="compare">
+            <div class="cmp"><h3>Current Transition</h3><p id="simExplain"></p></div>
+            <div class="cmp"><h3>Current Cell</h3><p id="simStats"></p></div>
+          </div>
+          <div class="card" style="padding:14px">
+            <div class="kick">Custom Scenario Input</div>
+            <div class="editor-grid">
+              <label class="editor-field">
+                <strong>Scenario Name</strong>
+                <input id="customScenarioName" type="text" value="Custom Scenario" />
+              </label>
+              <label class="editor-field">
+                <strong>Starting Capacity</strong>
+                <input id="customScenarioCapacity" type="number" min="1" max="30" value="5" />
+              </label>
+              <label class="editor-field" style="grid-column:1/-1">
+                <strong>Items</strong>
+                <textarea id="customScenarioItems">A,1,60
+B,2,100
+C,3,120</textarea>
+              </label>
+            </div>
+            <div class="sim-controls" style="margin-top:12px">
+              <button class="sim-btn" id="applyCustomScenarioBtn">Apply Custom Scenario</button>
+              <button class="sim-btn" id="resetCustomScenarioBtn">Reset Editor</button>
+              <span class="badge" id="customScenarioMode"></span>
+            </div>
+            <p class="note" id="customScenarioHelp">Use one item per line in the format <code>Name,Weight,Value</code>. Applying custom input updates the overview, table, and animation together.</p>
+          </div>
+          <div class="item-grid" id="simItemGrid"></div>
+          <div class="table-wrap" id="simTableWrap"></div>
+          <p class="note">This animation reveals the exact moment each cell chooses between the previous-row value and the take transition.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-examples">
+        <div class="card"><div class="kick">Scenario Set</div><div class="examples" id="exampleGrid"></div></div>
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Why This Problem Matters</div>
+          <div class="compare">
+            <div class="cmp"><h3>Greedy temptation</h3><p>Sorting by value, weight, or ratio feels natural, but 0/1 constraints mean a locally good pick can block a better pair later.</p></div>
+            <div class="cmp"><h3>State design</h3><p>The pair <code>(i, w)</code> is enough because after choosing among the first <code>i</code> items, only remaining capacity still matters.</p></div>
+            <div class="cmp"><h3>Why recursion repeats</h3><p>Recursive take-or-skip branches often revisit the same item index and remaining capacity from different paths.</p></div>
+            <div class="cmp"><h3>Why 1D DP works</h3><p>When processing one item at a time, backward capacity iteration preserves the previous row logically without storing it explicitly.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="compare">
+            <div class="cmp"><h3>Using greedy ratio</h3><p>That rule solves fractional knapsack, not 0/1 knapsack. Whole-item constraints change the answer space.</p></div>
+            <div class="cmp"><h3>Wrong state meaning</h3><p>If you mix 'remaining items' and 'processed items' inconsistently, the recurrence becomes hard to trust.</p></div>
+            <div class="cmp"><h3>Forward iteration in 1D</h3><p>For 0/1 knapsack, iterating capacity upward can accidentally reuse the same item multiple times.</p></div>
+            <div class="cmp"><h3>Forgetting reconstruction</h3><p>The maximum value alone is not always enough. Many problems also want the selected items.</p></div>
+            <div class="cmp"><h3>Huge capacity tables</h3><p>If capacity is very large, classic <code>O(nW)</code> DP may be too expensive and another formulation may be needed.</p></div>
+            <div class="cmp"><h3>Ignoring the contrast</h3><p>Always say why this is not fractional knapsack. That contrast is often the key teaching point.</p></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Quick Reference</div>
+          <div class="compare">
+            <div class="cmp"><h3>State</h3><p><code>dp[i][w]</code> = best value using first <code>i</code> items with capacity <code>w</code>.</p></div>
+            <div class="cmp"><h3>Transition</h3><p><code>max(dp[i-1][w], value[i] + dp[i-1][w-weight[i]])</code> when the item fits.</p></div>
+            <div class="cmp"><h3>Time</h3><p><code>O(nW)</code> because each item-capacity pair is evaluated once.</p></div>
+            <div class="cmp"><h3>Space</h3><p><code>O(nW)</code> for the full table or <code>O(W)</code> with backward iteration.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const fmt=(value)=>new Intl.NumberFormat("en-US",{maximumFractionDigits:value%1===0?0:2}).format(value);
+
+    function ratio(item){return item.value/item.weight}
+
+    function solveDP(items,capacity){
+      const n=items.length;
+      const dp=Array.from({length:n+1},()=>Array(capacity+1).fill(0));
+      for(let i=1;i<=n;i++){
+        const item=items[i-1];
+        for(let w=0;w<=capacity;w++){
+          dp[i][w]=dp[i-1][w];
+          if(item.weight<=w){
+            dp[i][w]=Math.max(dp[i][w],item.value+dp[i-1][w-item.weight]);
+          }
+        }
+      }
+      const picks=[],path=new Set();
+      let w=capacity;
+      for(let i=n;i>0;i--){
+        path.add(`${i}-${w}`);
+        const item=items[i-1];
+        const canTake=item.weight<=w&&dp[i][w]===item.value+dp[i-1][w-item.weight];
+        if(canTake&&dp[i][w]!==dp[i-1][w]){
+          picks.unshift(item);
+          w-=item.weight;
+        }
+      }
+      path.add(`0-${w}`);
+      const totalWeight=picks.reduce((sum,item)=>sum+item.weight,0);
+      return{dp,picks,value:dp[n][capacity],weight:totalWeight,path};
+    }
+
+    function solveGreedy(items,capacity){
+      const sorted=[...items].sort((a,b)=>ratio(b)-ratio(a)||a.weight-b.weight||b.value-a.value);
+      let remain=capacity,value=0,weight=0;
+      const picks=[];
+      sorted.forEach((item)=>{
+        if(item.weight<=remain){
+          picks.push(item);
+          remain-=item.weight;
+          value+=item.value;
+          weight+=item.weight;
+        }
+      });
+      return{picks,value,weight};
+    }
+
+    function solveFractional(items,capacity){
+      const sorted=[...items].sort((a,b)=>ratio(b)-ratio(a)||a.weight-b.weight||b.value-a.value);
+      let remain=capacity,value=0,weight=0;
+      const picks=[];
+      sorted.forEach((item)=>{
+        if(remain<=0) return;
+        if(item.weight<=remain){
+          picks.push({label:item.name,fraction:1});
+          remain-=item.weight;
+          weight+=item.weight;
+          value+=item.value;
+        }else{
+          const fraction=remain/item.weight;
+          picks.push({label:item.name,fraction});
+          weight+=remain;
+          value+=item.value*fraction;
+          remain=0;
+        }
+      });
+      return{picks,value,weight};
+    }
+
+    const scenarios=[
+      {id:"classic",name:"Classic Counterexample",family:"Greedy ratio fails",summary:"This scaled version of the textbook counterexample shows exactly why 0/1 knapsack needs dynamic programming: the best ratio-first choice is not the best final set.",state:"dp[i][w]",time:"O(nW)",space:"O(nW) or O(W)",minCapacity:3,maxCapacity:6,defaultCapacity:5,signs:["Every item is either taken fully or skipped entirely.","The same remaining capacity appears under many take-or-skip branches.","Greedy by ratio looks tempting, but whole-item constraints can block the best pair."],helps:"The state pair (item index, capacity) captures everything the future needs. That lets the DP table reuse smaller answers instead of exploring the same branches repeatedly.",compare:"At capacity 5, ratio-first greedy takes A and B for value 160, but DP finds B and C for value 220. Fractional knapsack could do even better, which is exactly why the two problems must be separated.",stateText:"Use dp[i][w] as the best value using the first i items with capacity w.",choiceText:"For each item, compare skipping it with taking it if the current capacity allows.",baseText:"When there are no items or no capacity, the best value is 0.",orderText:"Fill rows by items and columns by capacities so each new cell reads from the previous row.",items:[{name:"A",weight:1,value:60},{name:"B",weight:2,value:100},{name:"C",weight:3,value:120}]},
+      {id:"backpack",name:"Backpack Packing",family:"Practical capacity tradeoff",summary:"This version looks more like a real packing problem. Several medium items together can beat a single attractive-looking heavy item.",state:"dp[i][w]",time:"O(nW)",space:"O(nW) or O(W)",minCapacity:6,maxCapacity:12,defaultCapacity:10,signs:["The resource is bounded by backpack capacity.","Each item contributes both cost and benefit.","Different item orders can lead to the same remaining capacity, so overlap appears naturally."],helps:"Dynamic programming compares many partial packings safely and keeps the best one for each capacity instead of trusting a single ordering rule.",compare:"Greedy may still look okay on some capacities here, but DP is the dependable method because it checks all structured take-or-skip combinations once.",stateText:"Each cell stores the best value reachable from the first i gear items under capacity w.",choiceText:"Either keep the best solution from the previous row or include the current gear item and add its value.",baseText:"The top row and left column stay zero because no items or no capacity means no value.",orderText:"Build the table one item row at a time; every take choice looks one row upward and some columns leftward.",items:[{name:"Tent",weight:4,value:10},{name:"Stove",weight:3,value:7},{name:"Rope",weight:2,value:4},{name:"Water",weight:5,value:13},{name:"Jacket",weight:3,value:8}]},
+      {id:"study",name:"Study Plan Abstraction",family:"Same pattern, different story",summary:"0/1 knapsack is not only about bags. Here the items are study topics, the weight is hours, and the value is exam payoff.",state:"dp[i][w]",time:"O(nW)",space:"O(nW) or O(W)",minCapacity:4,maxCapacity:10,defaultCapacity:8,signs:["The story changes, but the take-or-skip structure stays the same.","Each topic uses limited time and yields a score benefit.","A reusable state appears once you track topic index and remaining hours."],helps:"This example makes the abstraction visible: the algorithm does not care whether the items are objects, jobs, ads, or study topics.",compare:"Greedy by score-per-hour can miss a stronger combination of whole topics. DP stays correct because it evaluates both skip and take transitions systematically.",stateText:"Let dp[i][w] mean the best total score using the first i topics within w study hours.",choiceText:"For each topic, either skip it or include it and combine it with the best smaller-hours state.",baseText:"Zero topics or zero available hours give zero total score.",orderText:"Tabulation works because every state depends only on the previous row and smaller-hour columns.",items:[{name:"Arrays",weight:2,value:40},{name:"Graphs",weight:3,value:55},{name:"DP",weight:4,value:70},{name:"Trees",weight:5,value:78}]}
+    ];
+
+    const tabs=[...document.querySelectorAll(".tab")],panels=[...document.querySelectorAll(".panel")],select=document.getElementById("scenarioSelect"),range=document.getElementById("capacityRange");
+    const simPlayBtn=document.getElementById("simPlayBtn"),simStepBtn=document.getElementById("simStepBtn"),simResetBtn=document.getElementById("simResetBtn");
+    const applyCustomScenarioBtn=document.getElementById("applyCustomScenarioBtn"),resetCustomScenarioBtn=document.getElementById("resetCustomScenarioBtn");
+    const customScenarioName=document.getElementById("customScenarioName"),customScenarioCapacity=document.getElementById("customScenarioCapacity"),customScenarioItems=document.getElementById("customScenarioItems");
+    const current=()=>scenarios.find((item)=>item.id===select.value)||scenarios[0];
+    let knapsackSimulation={steps:[],index:0,timer:null,title:"",summary:""};
+    let customScenario=null;
+
+    function selectedPreset(){
+      return scenarios.find((item)=>item.id===select.value)||scenarios[0];
+    }
+
+    function currentScenario(){
+      return select.value==="custom"&&customScenario?customScenario:selectedPreset();
+    }
+
+    const cloneTable=(table)=>table.map((row)=>row.slice());
+
+    function stopKnapsackSimulation(){
+      if(knapsackSimulation.timer){
+        clearInterval(knapsackSimulation.timer);
+        knapsackSimulation.timer=null;
+      }
+      simPlayBtn.textContent="Play";
+    }
+
+    function buildKnapsackSimulation(scenario,capacity){
+      const dp=Array.from({length:scenario.items.length+1},()=>Array(capacity+1).fill(0)),steps=[];
+      steps.push({scenario,capacity,dp:cloneTable(dp),current:[0,0],stats:`Prepared ${(scenario.items.length+1)} x ${capacity+1} table.`,explain:"Begin with the zero row and zero column. They act as the base cases for the whole DP."});
+      for(let i=1;i<=scenario.items.length;i++){
+        const item=scenario.items[i-1];
+        for(let w=0;w<=capacity;w++){
+          const skip=dp[i-1][w];
+          const take=item.weight<=w?item.value+dp[i-1][w-item.weight]:null;
+          dp[i][w]=Math.max(skip,take??-Infinity);
+          const explain=take===null?`${item.name} does not fit in capacity ${w}, so copy the previous-row value ${skip}.`:`Compare skip ${skip} with take ${take}. The better value ${dp[i][w]} becomes dp[${i}][${w}].`;
+          steps.push({scenario,capacity,dp:cloneTable(dp),current:[i,w],item,skip,take,best:dp[i][w],stats:`Filling dp[${i}][${w}] for item ${item.name}.`,explain});
+        }
+      }
+      return{title:`Cell-by-cell fill for ${scenario.name}`,summary:`Watch the table grow row by row as each state compares the previous-row value against the take transition for capacity ${capacity}.`,steps};
+    }
+
+    function renderKnapsackSimulation(){
+      const step=knapsackSimulation.steps[knapsackSimulation.index]||knapsackSimulation.steps[0];
+      if(!step) return;
+      const [ci,cw]=step.current;
+      document.getElementById("simTitle").textContent=knapsackSimulation.title;
+      document.getElementById("simSummary").textContent=knapsackSimulation.summary;
+      document.getElementById("simExplain").textContent=step.explain;
+      document.getElementById("simStats").textContent=step.item?`Item ${step.item.name}, weight ${step.item.weight}, value ${step.item.value}. skip = ${step.skip}, take = ${step.take===null?"not allowed":step.take}, best = ${step.best}.`:"Base state initialization.";
+      document.getElementById("simProgress").textContent=`Step ${knapsackSimulation.index+1} / ${knapsackSimulation.steps.length}`;
+      document.getElementById("simItemGrid").innerHTML=step.scenario.items.map((item,index)=>`<div class="item-card ${index+1===ci?"current":index+1<ci?"done":""}"><h3>${item.name}</h3><p>Weight ${item.weight}, value ${item.value}, ratio ${fmt(ratio(item))}.</p><div class="pill-row">${index+1===ci?'<span class="tag warn">Current row</span>':index+1<ci?'<span class="tag good">Already processed</span>':'<span class="tag bad">Pending row</span>'}</div></div>`).join("");
+      const header=`<tr><th>Item / W</th>${Array.from({length:step.capacity+1},(_,w)=>`<th>${w}</th>`).join("")}</tr>`;
+      const body=step.dp.map((row,i)=>{
+        const label=i===0?"0 items":`${i}. ${step.scenario.items[i-1].name}`;
+        const cells=row.map((value,w)=>{
+          const pending=i>ci||(i===ci&&w>cw);
+          const cls=[pending?"pending":"done-sim",i===ci&&w===cw?"current-sim":""].filter(Boolean).join(" ");
+          return `<td class="${cls}">${pending?"?":value}</td>`;
+        }).join("");
+        return `<tr><td>${label}</td>${cells}</tr>`;
+      }).join("");
+      document.getElementById("simTableWrap").innerHTML=`<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
+    }
+
+    function resetKnapsackSimulation(scenario,capacity){
+      stopKnapsackSimulation();
+      knapsackSimulation={...buildKnapsackSimulation(scenario,capacity),index:0,timer:null};
+      renderKnapsackSimulation();
+    }
+
+    function scenarioItemsToText(items){
+      return items.map((item)=>`${item.name},${item.weight},${item.value}`).join("\n");
+    }
+
+    function parseScenarioItems(text){
+      const lines=text.split(/\r?\n/).map((line)=>line.trim()).filter(Boolean);
+      if(!lines.length) throw new Error("Enter at least one item using Name,Weight,Value.");
+      return lines.map((line,index)=>{
+        const parts=line.split(",").map((part)=>part.trim());
+        if(parts.length<3) throw new Error(`Line ${index+1} must use Name,Weight,Value.`);
+        const weight=Number(parts[1]),value=Number(parts[2]);
+        if(!Number.isFinite(weight)||weight<=0||!Number.isFinite(value)||value<0) throw new Error(`Line ${index+1} must have positive weight and non-negative value.`);
+        return{name:parts[0]||`Item ${index+1}`,weight,value};
+      });
+    }
+
+    function buildCustomScenario(name,items,capacity){
+      const totalWeight=items.reduce((sum,item)=>sum+item.weight,0);
+      return{
+        id:"custom",
+        name:name||"Custom Scenario",
+        family:"User-defined input",
+        summary:"A custom 0/1 knapsack scenario entered from the simulation editor.",
+        state:"dp[i][w]",
+        time:"O(nW)",
+        space:"O(nW) or O(W)",
+        minCapacity:1,
+        maxCapacity:Math.max(capacity,Math.min(30,totalWeight||capacity)),
+        defaultCapacity:capacity,
+        signs:["Each item is still a full take-or-skip choice.","Remaining capacity is still the resource that defines future options.","Dynamic programming remains the reliable method after you change the story or numbers."],
+        helps:"Custom input makes it easier to test your own counterexamples and see how the DP table adapts immediately.",
+        compare:"Greedy may or may not tie on a custom dataset, but DP remains the safe exact method for 0/1 knapsack because it checks structured combinations rather than trusting one ordering rule.",
+        stateText:"Use dp[i][w] as the best value using the first i custom items with capacity w.",
+        choiceText:"Every row still compares skipping the current item with taking it when weight allows.",
+        baseText:"The empty-item row and zero-capacity column remain 0 for custom inputs too.",
+        orderText:"Fill the table row by row because each take transition reads from the previous row.",
+        items
+      };
+    }
+
+    function loadScenarioEditor(scenario,capacity){
+      customScenarioName.value=scenario.name;
+      customScenarioCapacity.value=String(capacity);
+      customScenarioItems.value=scenarioItemsToText(scenario.items);
+      document.getElementById("customScenarioMode").textContent=select.value==="custom"&&customScenario?"Editing active custom scenario":"Editing selected scenario";
+    }
+
+    function render(){
+      const scenario=currentScenario(),capacity=Number(range.value),dp=solveDP(scenario.items,capacity),greedy=solveGreedy(scenario.items,capacity),fractional=solveFractional(scenario.items,capacity);
+      const subsets=Math.pow(2,scenario.items.length),states=(scenario.items.length+1)*(capacity+1),gap=dp.value-greedy.value;
+      const bars=[{label:"Greedy 0/1 value",value:greedy.value,note:"Sort by ratio and take full items while they fit."},{label:"DP optimum",value:dp.value,note:"Best valid whole-item combination for this capacity."},{label:"Fractional upper bound",value:fractional.value,note:"Useful contrast only; it allows partial items."},{label:"DP states",value:states,note:"Item-capacity states considered once in the table."},{label:"Subset count",value:subsets,note:"Brute force would examine every possible subset."}];
+      const maxBar=Math.max(...bars.map((item)=>item.value),1);
+      const greedyText=greedy.picks.length?greedy.picks.map((item)=>item.name).join(", "):"No item";
+      const dpText=dp.picks.length?dp.picks.map((item)=>item.name).join(", "):"No item";
+      const fractionalText=fractional.picks.length?fractional.picks.map((item)=>item.fraction===1?item.label:`${item.label} (${fmt(item.fraction)}x)`).join(", "):"No item";
+
+      document.getElementById("capacityValue").textContent=`W = ${capacity}`;
+      document.getElementById("focusTitle").textContent=`0/1 knapsack through ${scenario.name}`;
+      document.getElementById("focusSummary").textContent=scenario.summary;
+      document.getElementById("flowFormula").textContent="dp[i][w] = max(skip, value + previous-row remainder)";
+      document.getElementById("metricScenario").textContent=scenario.name;
+      document.getElementById("metricState").textContent=scenario.state;
+      document.getElementById("metricTime").textContent=scenario.time;
+      document.getElementById("metricSpace").textContent=scenario.space;
+      document.getElementById("signList").innerHTML=scenario.signs.map((item)=>`<div>${item}</div>`).join("");
+      document.getElementById("helpsText").textContent=scenario.helps;
+      document.getElementById("compareText").textContent=scenario.compare;
+      document.getElementById("itemChips").innerHTML=scenario.items.map((item)=>`<span class="chip">${item.name}: w${item.weight}, v${item.value}</span>`).join("");
+
+      document.getElementById("statusText").textContent=`With capacity ${capacity}, ${scenario.name} produces a dynamic-programming optimum of ${dp.value}. Greedy 0/1 gives ${greedy.value}${gap>0?`, missing the optimum by ${gap}.`:" and happens to match the optimum on this capacity."}`;
+      document.getElementById("heroTitle").textContent=`${scenario.name} is a clean example of why 0/1 choices need DP.`;
+      document.getElementById("heroSummary").textContent=scenario.summary;
+      document.getElementById("heroBadges").innerHTML=[scenario.family,scenario.time,scenario.space].map((item)=>`<span class="badge">${item}</span>`).join("");
+      document.getElementById("stateText").textContent=scenario.stateText;
+      document.getElementById("choiceText").textContent=scenario.choiceText;
+      document.getElementById("baseText").textContent=scenario.baseText;
+      document.getElementById("orderText").textContent=scenario.orderText;
+
+      document.getElementById("dpResult").textContent=`Value ${dp.value} using weight ${dp.weight}/${capacity}.`;
+      document.getElementById("greedyResult").textContent=`Value ${greedy.value} using weight ${greedy.weight}/${capacity}.`;
+      document.getElementById("fractionalResult").textContent=`Value ${fmt(fractional.value)} using weight ${fmt(fractional.weight)}/${capacity}.`;
+      document.getElementById("decisionNote").textContent=gap>0?`DP beats greedy here because the best final set is a combination greedy never considers after committing too early.`:`Greedy happens to tie on this capacity, but that does not make greedy correct for the problem in general.`;
+      document.getElementById("gapTag").textContent=gap>0?`Greedy gap = ${gap}`:"Greedy tie on this W";
+      document.getElementById("dpPicks").innerHTML=(dp.picks.length?dp.picks:[{name:"No item"}]).map((item)=>`<span class="pick">${item.name}</span>`).join("");
+      document.getElementById("greedyPicks").innerHTML=(greedy.picks.length?greedy.picks:[{name:"No item"}]).map((item)=>`<span class="pick">${item.name}</span>`).join("");
+      document.getElementById("fractionalPicks").innerHTML=(fractional.picks.length?fractional.picks:[{label:"No item",fraction:1}]).map((item)=>`<span class="pick">${item.fraction===1?item.label:`${item.label} ${fmt(item.fraction)}x`}</span>`).join("");
+      document.getElementById("barList").innerHTML=bars.map((item)=>`<div class="bar"><div><strong>${item.label}</strong><br /><span>${item.note}</span></div><div class="track"><div class="fill" style="width:${Math.max(5,Math.round(item.value/maxBar*100))}%"></div></div><div class="barv">${fmt(item.value)}</div></div>`).join("");
+      document.getElementById("previewNote").textContent=`For ${scenario.items.length} items and capacity ${capacity}, the full table has ${states} states, while brute force would inspect ${subsets} subsets. That is the structural reason DP is reliable here.`;
+
+      document.getElementById("formulaCode").textContent=`dp[i][w] = dp[i - 1][w]\nif weight[i] <= w:\n  dp[i][w] = max(dp[i][w], value[i] + dp[i - 1][w - weight[i]])`;
+      document.getElementById("tableStateExplain").textContent=`${scenario.state} stores the best value from the first i items when the available capacity is w.`;
+      document.getElementById("tableBaseExplain").textContent="Row 0 and column 0 stay at 0 because no items or no capacity means no value can be collected.";
+      document.getElementById("backtrackExplain").textContent="Walk backward from the bottom-right cell. If the current value differs from the value above, that item was taken.";
+      document.getElementById("compressionExplain").textContent="A 1D array is possible, but capacities must be processed backward so the current item is not reused multiple times.";
+      document.getElementById("itemGrid").innerHTML=scenario.items.map((item)=>{
+        const chosenDP=dp.picks.some((pick)=>pick.name===item.name);
+        const chosenGreedy=greedy.picks.some((pick)=>pick.name===item.name);
+        return `<div class="item-card"><h3>${item.name}</h3><p>Weight ${item.weight}, value ${item.value}, ratio ${fmt(ratio(item))}.</p><div class="pill-row">${chosenDP?'<span class="tag good">DP pick</span>':''}${chosenGreedy?'<span class="tag warn">Greedy pick</span>':''}${!chosenDP&&!chosenGreedy?'<span class="tag bad">Skipped now</span>':''}</div></div>`;
+      }).join("");
+
+      const header=`<tr><th>Item / W</th>${Array.from({length:capacity+1},(_,w)=>`<th>${w}</th>`).join("")}</tr>`;
+      const body=dp.dp.map((row,i)=>{
+        const label=i===0?"0 items":`${i}. ${scenario.items[i-1].name}`;
+        const cells=row.map((value,w)=>{
+          const classes=[i===scenario.items.length&&w===capacity?"best":"",dp.path.has(`${i}-${w}`)?"hit":""].filter(Boolean).join(" ");
+          return `<td class="${classes}">${value}</td>`;
+        }).join("");
+        return `<tr><td>${label}</td>${cells}</tr>`;
+      }).join("");
+      document.getElementById("tableWrap").innerHTML=`<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
+
+      document.getElementById("exampleGrid").innerHTML=scenarios.map((item)=>{
+        const cap=item.id===scenario.id?capacity:item.defaultCapacity;
+        const solved=solveDP(item.items,cap),greedySolved=solveGreedy(item.items,cap);
+        return `<div class="ex ${item.id===scenario.id?"active":""}"><h3>${item.name}</h3><p>${item.summary}</p><div class="chips" style="padding:0"><span class="badge">W = ${cap}</span><span class="badge">DP ${solved.value}</span><span class="badge">Greedy ${greedySolved.value}</span></div></div>`;
+      }).join("");
+      resetKnapsackSimulation(scenario,capacity);
+      loadScenarioEditor(scenario,capacity);
+    }
+
+    function syncRangeForScenario(){
+      const scenario=currentScenario();
+      range.min=String(scenario.minCapacity);
+      range.max=String(scenario.maxCapacity);
+      if(Number(range.value)<scenario.minCapacity||Number(range.value)>scenario.maxCapacity){
+        range.value=String(scenario.defaultCapacity);
+      }
+    }
+
+    tabs.forEach((button)=>button.addEventListener("click",()=>{const target=button.dataset.tab;if(target!=="simulation") stopKnapsackSimulation();tabs.forEach((item)=>item.classList.toggle("active",item===button));panels.forEach((panel)=>panel.classList.toggle("active",panel.id===`tab-${target}`))}));
+    select.innerHTML=`${scenarios.map((item)=>`<option value="${item.id}">${item.name}</option>`).join("")}<option value="custom">Custom Scenario</option>`;
+    select.value="classic";
+    syncRangeForScenario();
+    select.addEventListener("change",()=>{syncRangeForScenario();render();});
+    range.addEventListener("input",render);
+    applyCustomScenarioBtn.addEventListener("click",()=>{
+      try{
+        const items=parseScenarioItems(customScenarioItems.value);
+        const capacity=Math.max(1,Math.min(30,Number(customScenarioCapacity.value)||5));
+        customScenario=buildCustomScenario((customScenarioName.value||"Custom Scenario").trim(),items,capacity);
+        select.value="custom";
+        syncRangeForScenario();
+        range.value=String(capacity);
+        render();
+      }catch(error){
+        alert(error.message);
+      }
+    });
+    resetCustomScenarioBtn.addEventListener("click",()=>{
+      const scenario=currentScenario();
+      loadScenarioEditor(scenario,Number(range.value));
+    });
+    simPlayBtn.addEventListener("click",()=>{if(knapsackSimulation.timer){stopKnapsackSimulation();return;}simPlayBtn.textContent="Pause";knapsackSimulation.timer=setInterval(()=>{if(knapsackSimulation.index>=knapsackSimulation.steps.length-1){stopKnapsackSimulation();return;}knapsackSimulation.index+=1;renderKnapsackSimulation();},520);});
+    simStepBtn.addEventListener("click",()=>{stopKnapsackSimulation();if(knapsackSimulation.index<knapsackSimulation.steps.length-1){knapsackSimulation.index+=1;renderKnapsackSimulation();}});
+    simResetBtn.addEventListener("click",()=>{stopKnapsackSimulation();knapsackSimulation.index=0;renderKnapsackSimulation();});
+    render();
+  </script>
+</body>
+</html>
