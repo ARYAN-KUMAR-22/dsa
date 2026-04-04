@@ -36,6 +36,11 @@
       --glow: rgba(99, 102, 241, 0.10);
       --focus: rgba(99, 102, 241, 0.20);
     }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
 
 
     * {
@@ -554,7 +559,7 @@
         <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
           <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
             <strong>Algorithm:</strong>
-            <select id="algorithmSelect" style="padding: 6px 10px; background: rgba(139, 92, 246, 0.2); border: 1px solid #a78bfa; color: white; border-radius: 4px; cursor: pointer;">
+            <select id="algorithmSelect" style="padding: 6px 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 4px; cursor: pointer;">
               <option value="kruskal">Kruskal's Algorithm</option>
               <option value="prim">Prim's Algorithm</option>
             </select>
