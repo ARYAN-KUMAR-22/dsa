@@ -40,8 +40,6 @@
       --good: #15803d;
       --warn: #b45309;
       --danger: #b91c1c;
-    
-      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -97,7 +95,7 @@
       gap: 14px;
       padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+      background: linear-gradient(90deg, #1f1107, #0d1117);
       flex-shrink: 0;
     }
 
@@ -362,7 +360,7 @@
       margin-top: 10px;
       font-family: 'Fira Code', monospace;
       font-size: 0.78rem;
-      color: var(--good);
+      color: #86efac;
       overflow-x: auto;
       line-height: 1.6;
     }
@@ -403,12 +401,12 @@
     }
 
     .pros h4 {
-      color: var(--good);
+      color: #86efac;
       margin-bottom: 8px;
     }
 
     .cons h4 {
-      color: var(--danger);
+      color: #fca5a5;
       margin-bottom: 8px;
     }
 
@@ -453,20 +451,6 @@
       border-color: var(--accent, #7dd3fc);
       background: var(--surface, #f0f4ff);
     }
-
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
 
   </style>
 </head>
@@ -700,7 +684,7 @@ Algorithm Greedy(Problem P):
           <p style="margin-top: 10px;"><strong>Real-World Example:</strong> You have a conference room and many teams want to book it. Each team has a start and end time. How can you fit the maximum number of meetings without them overlapping?</p>
           
           <p style="margin-top: 12px; margin-bottom: 6px;"><strong>Greedy Strategy:</strong> Always select the activity that ends earliest.</p>
-          <p style="font-size: 0.85rem; margin-bottom: 12px;" class="clr-muted">Why? If an activity ends early, it leaves more room for other activities to happen after it!</p>
+          <p style="color: #8b98b6; font-size: 0.85rem; margin-bottom: 12px;">Why? If an activity ends early, it leaves more room for other activities to happen after it!</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📋 Available Activities:</p>
           <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
@@ -717,37 +701,37 @@ Algorithm Greedy(Problem P):
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1️⃣ Sort by End Time</p>
           <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 12px;">Arrange all activities by when they finish (earliest to latest):</p>
           <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 1: End <strong>4</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 2: End <strong>5</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 4: End <strong>7</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 3: End <strong>6</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 5: End <strong>8</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 6: End <strong>9</strong></div>
-            <div style="margin-bottom: 3px;" class="clr-good">✓ Activity 7: End <strong>10</strong></div>
-            <div class="clr-good">✓ Activity 8: End <strong>11</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 1: End <strong>4</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 2: End <strong>5</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 4: End <strong>7</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 3: End <strong>6</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 5: End <strong>8</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 6: End <strong>9</strong></div>
+            <div style="color: #86efac; margin-bottom: 3px;">✓ Activity 7: End <strong>10</strong></div>
+            <div style="color: #86efac;">✓ Activity 8: End <strong>11</strong></div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 2️⃣ Select Activities Using Greedy Approach</p>
           
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong class="clr-good">✓ SELECTED: Activity 1 (Time 1-4)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong style="color: #86efac;">✓ SELECTED: Activity 1 (Time 1-4)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted);">Why? It ends earliest (at time 4). Pick it first to give plenty of time for other activities.</div>
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong class="clr-good">✓ SELECTED: Activity 4 (Time 5-7)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong style="color: #86efac;">✓ SELECTED: Activity 4 (Time 5-7)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted);">✗ Skip Activity 2 (3-5) - overlaps with Activity 1 ❌<br/>✗ Skip Activity 3 (0-6) - overlaps with Activity 1 ❌<br/>✓ Activity 4 starts at 5 (right after Activity 1 ends) - No overlap! ✓</div>
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong class="clr-good">✓ SELECTED: Activity 8 (Time 8-11)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 8px;"><strong style="color: #86efac;">✓ SELECTED: Activity 8 (Time 8-11)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted);">✗ Skip Activity 5 (3-8) - overlaps with previous selections ❌<br/>✗ Skip Activity 6 (5-9) - overlaps with Activity 4 ❌<br/>✗ Skip Activity 7 (6-10) - overlaps with Activity 4 ❌<br/>✓ Activity 8 starts at 8 (right after Activity 4 ends) - No overlap! ✓</div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Final Result</p>
           <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--accent); padding: 12px; border-radius: 8px;">
             <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: var(--accent-2);">Selected Activities:</strong> Activity 1, Activity 4, Activity 8</div>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong style="color: var(--accent-2);">Total Activities Scheduled:</strong> <strong class="clr-good">3 activities</strong> (Maximum Possible!)</div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong style="color: var(--accent-2);">Total Activities Scheduled:</strong> <strong style="color: #86efac;">3 activities</strong> (Maximum Possible!)</div>
           </div>
 
           <p style="margin-top: 12px;"><strong>Why it works:</strong> By choosing the activity that ends earliest, we leave the maximum amount of time for future activities. This greedy choice consistently gives us the best result!</p>
@@ -779,58 +763,58 @@ Algorithm Greedy(Problem P):
           <p style="margin-top: 10px;"><strong>Real-World Example:</strong> Packing a suitcase for travel. You need to fit the most valuable items without exceeding weight limit.</p>
 
           <p style="margin-top: 12px; margin-bottom: 6px;"><strong>Greedy Strategy (That Fails!):</strong> Always pick item with highest value-to-weight ratio first.</p>
-          <p style="font-size: 0.85rem; margin-bottom: 12px;" class="clr-muted">Why this seems logical? Items with high value per kg seem most efficient. But this doesn't work for 0/1 Knapsack!</p>
+          <p style="color: #8b98b6; font-size: 0.85rem; margin-bottom: 12px;">Why this seems logical? Items with high value per kg seem most efficient. But this doesn't work for 0/1 Knapsack!</p>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Available Items (sorted by ratio - highest first):</p>
           <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
-              <strong style="color: var(--accent);">Item 1:</strong> Value = <strong>60</strong> | Weight = <strong>10 kg</strong> | Ratio = <strong class="clr-warn">6.0</strong> ⭐ Best Ratio
+              <strong style="color: var(--accent);">Item 1:</strong> Value = <strong>60</strong> | Weight = <strong>10 kg</strong> | Ratio = <strong style="color: #fbbf24;">6.0</strong> ⭐ Best Ratio
             </div>
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
-              <strong style="color: var(--accent);">Item 2:</strong> Value = <strong>100</strong> | Weight = <strong>20 kg</strong> | Ratio = <strong class="clr-warn">5.0</strong>
+              <strong style="color: var(--accent);">Item 2:</strong> Value = <strong>100</strong> | Weight = <strong>20 kg</strong> | Ratio = <strong style="color: #fbbf24;">5.0</strong>
             </div>
             <div style="color: var(--muted);">
-              <strong style="color: var(--accent);">Item 3:</strong> Value = <strong>120</strong> | Weight = <strong>30 kg</strong> | Ratio = <strong class="clr-warn">4.0</strong>
+              <strong style="color: var(--accent);">Item 3:</strong> Value = <strong>120</strong> | Weight = <strong>30 kg</strong> | Ratio = <strong style="color: #fbbf24;">4.0</strong>
             </div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--danger); margin-bottom: 8px;">❌ Greedy Approach (Fails!)</p>
           <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-danger">Step 1: Pick Item 1 (Ratio 6.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #fca5a5;">Step 1: Pick Item 1 (Ratio 6.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 6px;">✓ Added to backpack: Value = 60 | Weight = 10 kg</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">Capacity remaining: 50 - 10 = <strong>40 kg</strong></div>
             
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-danger">Step 2: Pick Item 2 (Ratio 5.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #fca5a5;">Step 2: Pick Item 2 (Ratio 5.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 6px;">✓ Added to backpack: Value = 60 + 100 = <strong>160</strong> | Weight = 10 + 20 = <strong>30 kg</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">Capacity remaining: 50 - 30 = <strong>20 kg</strong></div>
             
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-danger">Step 3: Try Item 3 (Ratio 4.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #fca5a5;">Step 3: Try Item 3 (Ratio 4.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 6px;">✗ Can't fit! Item 3 weighs 30 kg but only 20 kg space left.</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Stop here (no more items fit).</div>
           </div>
 
           <div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-danger">Greedy Result:</strong> Items 1 + 2</div>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong class="clr-danger">Total Value:</strong> 60 + 100 = <strong>160</strong></div>
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-danger">Total Weight:</strong> 10 + 20 = <strong>30 kg (out of 50 kg)</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #fca5a5;">Greedy Result:</strong> Items 1 + 2</div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong style="color: #fca5a5;">Total Value:</strong> 60 + 100 = <strong>160</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #fca5a5;">Total Weight:</strong> 10 + 20 = <strong>30 kg (out of 50 kg)</strong></div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--good); margin-bottom: 8px;">✓ Better Solution (Not Greedy!)</p>
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">What if we think differently and skip Item 1?</strong></div>
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Step 1: Pick Item 2</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">What if we think differently and skip Item 1?</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Step 1: Pick Item 2</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">✓ Value = 100 | Weight = 20 kg | Remaining: 30 kg</div>
             
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Step 2: Pick Item 3</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Step 2: Pick Item 3</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">✓ Value = 100 + 120 = <strong>220</strong> | Weight = 20 + 30 = <strong>50 kg</strong> | Remaining: 0 kg</div>
             
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Backpack is perfectly full!</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Backpack is perfectly full!</strong></div>
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.15); border-left: 3px solid var(--good); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-good">Better Result:</strong> Items 2 + 3</div>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong class="clr-good">Total Value:</strong> 100 + 120 = <strong>220</strong> ⭐ 60 more value!</div>
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-good">Total Weight:</strong> 20 + 30 = <strong>50 kg (using full capacity)</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #86efac;">Better Result:</strong> Items 2 + 3</div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong style="color: #86efac;">Total Value:</strong> 100 + 120 = <strong>220</strong> ⭐ 60 more value!</div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #86efac;">Total Weight:</strong> 20 + 30 = <strong>50 kg (using full capacity)</strong></div>
           </div>
 
           <p style="margin-top: 12px;"><strong>❌ Why Greedy Fails:</strong> The knapsack problem doesn't have the "greedy choice property". Picking the item with the best ratio at each step doesn't lead to the overall best solution. You need to consider which <strong>combination</strong> of items is best, not just individual items.</p>
@@ -857,21 +841,21 @@ Algorithm Greedy(Problem P):
             </div>
 
             <div style="color: var(--muted); margin-bottom: 6px;">
-              <strong class="clr-warn">Step 1:</strong> Use largest coin (25¢)
+              <strong style="color: #fbbf24;">Step 1:</strong> Use largest coin (25¢)
             </div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✓ Use one 25¢ coin | Remaining: 30 - 25 = <strong>5¢</strong>
             </div>
 
             <div style="color: var(--muted); margin-bottom: 6px;">
-              <strong class="clr-warn">Step 2:</strong> Next largest coin is 10¢ (too big, skip)
+              <strong style="color: #fbbf24;">Step 2:</strong> Next largest coin is 10¢ (too big, skip)
             </div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✗ 10¢ > 5¢ remaining, can't use it
             </div>
 
             <div style="color: var(--muted); margin-bottom: 6px;">
-              <strong class="clr-warn">Step 3:</strong> Use 5¢
+              <strong style="color: #fbbf24;">Step 3:</strong> Use 5¢
             </div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✓ Use one 5¢ coin | Remaining: 5 - 5 = <strong>0¢</strong> ✓
@@ -879,8 +863,8 @@ Algorithm Greedy(Problem P):
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.15); border-left: 3px solid var(--good); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-good">Greedy Result:</strong> 1 × 25¢ + 1 × 5¢</div>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong class="clr-good">Total Coins:</strong> <strong>2 coins</strong> (OPTIMAL!) ✓</div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #86efac;">Greedy Result:</strong> 1 × 25¢ + 1 × 5¢</div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;"><strong style="color: #86efac;">Total Coins:</strong> <strong>2 coins</strong> (OPTIMAL!) ✓</div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--danger); margin-top: 12px; margin-bottom: 8px;">✗ Example 2: Custom Coins (Greedy Fails!)</p>
@@ -892,7 +876,7 @@ Algorithm Greedy(Problem P):
               <strong style="color: var(--accent);">Goal:</strong> Make 6 with minimum coins
             </div>
 
-            <div style="margin-bottom: 6px;" class="clr-danger">
+            <div style="color: #fca5a5; margin-bottom: 6px;">
               <strong>Greedy Approach (Fails!):</strong>
             </div>
             <div style="color: var(--muted); margin-bottom: 6px; margin-left: 12px;">
@@ -901,11 +885,11 @@ Algorithm Greedy(Problem P):
             <div style="color: var(--muted); margin-bottom: 6px; margin-left: 12px;">
               Step 2: Can't use 4 (too big), use 3? No, 3 > 2. Use 1 twice
             </div>
-            <div style="margin-left: 12px;" class="clr-danger">
+            <div style="color: #fca5a5; margin-left: 12px;">
               Total: 4 + 1 + 1 = <strong>3 coins</strong> ❌
             </div>
 
-            <div style="margin-top: 8px; margin-bottom: 6px;" class="clr-good">
+            <div style="color: #86efac; margin-top: 8px; margin-bottom: 6px;">
               <strong>Better Solution:</strong>
             </div>
             <div style="color: var(--muted); margin-left: 12px;">
@@ -928,29 +912,29 @@ Algorithm Greedy(Problem P):
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Available Items (sorted by ratio):</p>
           <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
-              <strong style="color: var(--accent);">Item 1:</strong> Value = 60 | Weight = 10 | Ratio = <strong class="clr-warn">6.0</strong> ⭐ Best
+              <strong style="color: var(--accent);">Item 1:</strong> Value = 60 | Weight = 10 | Ratio = <strong style="color: #fbbf24;">6.0</strong> ⭐ Best
             </div>
             <div style="color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
-              <strong style="color: var(--accent);">Item 2:</strong> Value = 100 | Weight = 20 | Ratio = <strong class="clr-warn">5.0</strong>
+              <strong style="color: var(--accent);">Item 2:</strong> Value = 100 | Weight = 20 | Ratio = <strong style="color: #fbbf24;">5.0</strong>
             </div>
             <div style="color: var(--muted);">
-              <strong style="color: var(--accent);">Item 3:</strong> Value = 120 | Weight = 30 | Ratio = <strong class="clr-warn">4.0</strong>
+              <strong style="color: var(--accent);">Item 3:</strong> Value = 120 | Weight = 30 | Ratio = <strong style="color: #fbbf24;">4.0</strong>
             </div>
           </div>
 
           <p style="font-size: 0.85rem; margin-bottom: 8px;"><strong style="color: var(--accent-2);">Greedy Selection Process:</strong></p>
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Step 1: Take Item 1 (Ratio 6.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Step 1: Take Item 1 (Ratio 6.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✓ Take <strong>ALL 10 kg</strong> of Item 1 | Value gained: 60 | Capacity used: 10 | Remaining: 40 kg
             </div>
 
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Step 2: Take Item 2 (Ratio 5.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Step 2: Take Item 2 (Ratio 5.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✓ Take <strong>ALL 20 kg</strong> of Item 2 | Value gained: 100 | Total value: 60 + 100 = 160 | Capacity used: 30 | Remaining: 20 kg
             </div>
 
-            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong class="clr-good">Step 3: Take Item 3 (Ratio 4.0)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px;"><strong style="color: #86efac;">Step 3: Take Item 3 (Ratio 4.0)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px; margin-bottom: 8px;">
               ✓ Can't take all 30 kg (only 20 kg space) → Take <strong>PARTIAL: 20 kg out of 30 kg</strong>
             </div>
@@ -960,15 +944,15 @@ Algorithm Greedy(Problem P):
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.15); border-left: 3px solid var(--good); padding: 12px; border-radius: 8px;">
-            <div style="font-size: 0.82rem; color: var(--muted);"><strong class="clr-good">Greedy Result (Optimal!):</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: #86efac;">Greedy Result (Optimal!):</strong></div>
             <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;">
               ✓ 10 kg Item 1 + 20 kg Item 2 + 20 kg of Item 3 (2/3 of it)
             </div>
             <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;">
-              <strong class="clr-good">Total Value:</strong> 60 + 100 + 80 = <strong>240</strong> ⭐
+              <strong style="color: #86efac;">Total Value:</strong> 60 + 100 + 80 = <strong>240</strong> ⭐
             </div>
             <div style="font-size: 0.82rem; color: var(--muted);">
-              <strong class="clr-good">Total Weight:</strong> 10 + 20 + 20 = <strong>50 kg (perfectly full!)</strong>
+              <strong style="color: #86efac;">Total Weight:</strong> 10 + 20 + 20 = <strong>50 kg (perfectly full!)</strong>
             </div>
           </div>
 

@@ -40,8 +40,6 @@
       --good: #15803d;
       --warn: #b45309;
       --danger: #b91c1c;
-    
-      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -100,7 +98,7 @@
       gap: 14px;
       padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+      background: linear-gradient(90deg, #0f172e, #0d1117);
       flex-shrink: 0;
     }
 
@@ -366,7 +364,7 @@
       margin-top: 10px;
       font-family: 'Fira Code', monospace;
       font-size: 0.78rem;
-      color: var(--good);
+      color: #86efac;
       overflow-x: auto;
       line-height: 1.6;
     }
@@ -639,7 +637,7 @@
       padding: 3px 8px;
       border-radius: 999px;
       background: rgba(34, 197, 94, 0.3);
-      color: var(--good);
+      color: #86efac;
       margin-left: 8px;
     }
 
@@ -674,7 +672,7 @@
       background: rgba(59, 130, 246, 0.1);
       padding: 4px 6px;
       border-radius: 4px;
-      color: var(--warn);
+      color: #fbbf24;
     }
 
     @keyframes slideIn {
@@ -711,20 +709,6 @@
       border-color: var(--accent, #7dd3fc);
       background: var(--surface, #f0f4ff);
     }
-
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
 
   </style>
 </head>
@@ -897,11 +881,11 @@
         <div class="content-card">
           <h3>Mathematical Formulation</h3>
           <p><strong>Maximize:</strong></p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace;font-size: 0.87rem;" class="clr-good">
+          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
             ∑(x<sub>i</sub> × v<sub>i</sub>) for i = 1 to n
           </div>
           <p><strong>Subject to:</strong></p>
-          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace;font-size: 0.87rem;" class="clr-good">
+          <div style="background: rgba(12, 18, 34, 0.75); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
             ∑(x<sub>i</sub> × w<sub>i</sub>) ≤ W<br/>
             0 ≤ x<sub>i</sub> ≤ 1 for all i
           </div>
@@ -918,53 +902,53 @@
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📋 Algorithm Step-by-Step:</p>
           
           <div style="background: rgba(18, 22, 31, 0.8); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
-            <div style="font-family: 'Fira Code', monospace; font-size: 0.78rem;line-height: 1.8;" class="clr-good">
+            <div style="font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #86efac; line-height: 1.8;">
               <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
-                <div class="clr-info">ALGORITHM FractionalKnapsack</div>
+                <div style="color: #60a5fa;">ALGORITHM FractionalKnapsack</div>
               </div>
 
-              <div style="margin-bottom: 8px;"><strong class="clr-warn">INPUT:</strong> items array, knapsack capacity</div>
-              <div style="margin-bottom: 12px;"><strong class="clr-warn">OUTPUT:</strong> maximum total value</div>
+              <div style="margin-bottom: 8px;"><strong style="color: #fbbf24;">INPUT:</strong> items array, knapsack capacity</div>
+              <div style="margin-bottom: 12px;"><strong style="color: #fbbf24;">OUTPUT:</strong> maximum total value</div>
 
               <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 1:</span> <span class="clr-good">totalValue ← 0</span></div>
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 2:</span> <span class="clr-good">totalWeight ← 0</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 1:</span> <span style="color: #86efac;">totalValue ← 0</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 2:</span> <span style="color: #86efac;">totalWeight ← 0</span></div>
                 <div style="color: var(--muted); font-size: 0.75rem;">Initialize result variables to zero</div>
               </div>
 
               <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 3-4:</span> <span class="clr-good">FOR each item i in items[]:</span></div>
-                <div style="margin-left: 20px; margin-bottom: 6px;"><span class="clr-good">ratio[i] ← value[i] / weight[i]</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 3-4:</span> <span style="color: #86efac;">FOR each item i in items[]:</span></div>
+                <div style="margin-left: 20px; margin-bottom: 6px;"><span style="color: #86efac;">ratio[i] ← value[i] / weight[i]</span></div>
                 <div style="color: var(--muted); font-size: 0.75rem;">Calculate efficiency (value per kg) for each item</div>
               </div>
 
               <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 5:</span> <span class="clr-good">Sort items by ratio in DESCENDING order</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 5:</span> <span style="color: #86efac;">Sort items by ratio in DESCENDING order</span></div>
                 <div style="color: var(--muted); font-size: 0.75rem;">Highest value-to-weight ratio comes first</div>
               </div>
 
               <div style="margin-bottom: 12px; padding: 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;">
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 6:</span> <span class="clr-danger">FOR each item i in sorted order:</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 6:</span> <span style="color: #fca5a5;">FOR each item i in sorted order:</span></div>
                 <div style="margin-bottom: 12px;">
                   <div style="margin-left: 20px; margin-bottom: 6px;">
-                    <div style="margin-bottom: 6px;"><span class="clr-warn">Line 7:</span> <span class="clr-danger">IF totalWeight + weight[i] ≤ capacity:</span></div>
+                    <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 7:</span> <span style="color: #fca5a5;">IF totalWeight + weight[i] ≤ capacity:</span></div>
                     <div style="margin-left: 20px;">
-                      <div style="margin-bottom: 6px;"><span class="clr-good">// Item fits completely</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">totalWeight ← totalWeight + weight[i]</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">totalValue ← totalValue + value[i]</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">// Item fits completely</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalWeight ← totalWeight + weight[i]</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalValue ← totalValue + value[i]</span></div>
                       <div style="color: var(--muted); font-size: 0.75rem;">Add entire item to knapsack</div>
                     </div>
                   </div>
 
                   <div style="margin-left: 20px; margin-top: 8px;">
-                    <div style="margin-bottom: 6px;"><span class="clr-warn">Line 8:</span> <span class="clr-danger">ELSE:</span></div>
+                    <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 8:</span> <span style="color: #fca5a5;">ELSE:</span></div>
                     <div style="margin-left: 20px;">
-                      <div style="margin-bottom: 6px;"><span class="clr-good">// Item doesn't fit completely</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">remaining ← capacity - totalWeight</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">fraction ← remaining / weight[i]</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">totalValue ← totalValue + (fraction × value[i])</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">totalWeight ← capacity</span></div>
-                      <div style="margin-bottom: 6px;"><span class="clr-good">BREAK</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">// Item doesn't fit completely</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">remaining ← capacity - totalWeight</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">fraction ← remaining / weight[i]</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalValue ← totalValue + (fraction × value[i])</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalWeight ← capacity</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">BREAK</span></div>
                       <div style="color: var(--muted); font-size: 0.75rem;">Take partial item and stop (knapsack is full)</div>
                     </div>
                   </div>
@@ -973,7 +957,7 @@
               </div>
 
               <div style="margin-bottom: 8px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
-                <div style="margin-bottom: 6px;"><span class="clr-warn">Line 9:</span> <span class="clr-good">RETURN totalValue</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 9:</span> <span style="color: #86efac;">RETURN totalValue</span></div>
                 <div style="color: var(--muted); font-size: 0.75rem;">Return the maximum value achieved</div>
               </div>
             </div>
@@ -981,11 +965,11 @@
 
           <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);"><strong style="color: var(--accent-2);">Key Points:</strong></p>
           <ul style="font-size: 0.82rem; margin-top: 8px;">
-            <li><span class="clr-warn"><strong>Lines 1-2:</strong></span> Initialize counters</li>
-            <li><span class="clr-warn"><strong>Lines 3-4:</strong></span> Calculate value/weight ratio for efficiency</li>
-            <li><span class="clr-warn"><strong>Line 5:</strong></span> Sort by efficiency (best value first)</li>
-            <li><span class="clr-warn"><strong>Lines 6-8:</strong></span> Main loop: greedily select items</li>
-            <li><span class="clr-warn"><strong>Line 9:</strong></span> Return result</li>
+            <li><span style="color: #fbbf24;"><strong>Lines 1-2:</strong></span> Initialize counters</li>
+            <li><span style="color: #fbbf24;"><strong>Lines 3-4:</strong></span> Calculate value/weight ratio for efficiency</li>
+            <li><span style="color: #fbbf24;"><strong>Line 5:</strong></span> Sort by efficiency (best value first)</li>
+            <li><span style="color: #fbbf24;"><strong>Lines 6-8:</strong></span> Main loop: greedily select items</li>
+            <li><span style="color: #fbbf24;"><strong>Line 9:</strong></span> Return result</li>
           </ul>
         </div>
 
@@ -1163,34 +1147,34 @@
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1: Calculate Ratios</p>
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;">
-            <div style="color: var(--muted); margin-bottom: 4px;">Item 1: 60 ÷ 10 = <strong class="clr-good">6.0</strong> [TOP] Best</div>
-            <div style="color: var(--muted); margin-bottom: 4px;">Item 2: 100 ÷ 20 = <strong class="clr-good">5.0</strong></div>
-            <div style="color: var(--muted);">Item 3: 120 ÷ 30 = <strong class="clr-good">4.0</strong></div>
+            <div style="color: var(--muted); margin-bottom: 4px;">Item 1: 60 ÷ 10 = <strong style="color: #86efac;">6.0</strong> [TOP] Best</div>
+            <div style="color: var(--muted); margin-bottom: 4px;">Item 2: 100 ÷ 20 = <strong style="color: #86efac;">5.0</strong></div>
+            <div style="color: var(--muted);">Item 3: 120 ÷ 30 = <strong style="color: #86efac;">4.0</strong></div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 2: Sort by Ratio (Descending)</p>
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;">
-            <div class="clr-good">1. Item 1 (Ratio 6.0)</div>
-            <div class="clr-good">2. Item 2 (Ratio 5.0)</div>
-            <div class="clr-good">3. Item 3 (Ratio 4.0)</div>
+            <div style="color: #86efac;">1. Item 1 (Ratio 6.0)</div>
+            <div style="color: #86efac;">2. Item 2 (Ratio 5.0)</div>
+            <div style="color: #86efac;">3. Item 3 (Ratio 4.0)</div>
           </div>
 
           <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 3: Greedy Selection</p>
           
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;" class="clr-good"><strong>Take Item 1 (Entire)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 1 (Entire)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 10 kg ≤ 50 kg ✓ Take all</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += 60 | Used: 10 kg | Remaining: 40 kg</div>
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;" class="clr-good"><strong>Take Item 2 (Entire)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 2 (Entire)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 20 kg ≤ 40 kg ✓ Take all</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += 100 (Total: 160) | Used: 30 kg | Remaining: 20 kg</div>
           </div>
 
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
-            <div style="font-size: 0.82rem; margin-bottom: 6px;" class="clr-good"><strong>Take Item 3 (Partial)</strong></div>
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 3 (Partial)</strong></div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 30 kg > 20 kg ✗ Can't take all</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Fraction: 20 ÷ 30 = 2/3 of Item 3</div>
             <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += (2/3) × 120 = 80 (Total: 240)</div>
@@ -1209,10 +1193,10 @@
               ✓ 20 kg of Item 3 (Value: 80)
             </div>
             <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;">
-              <strong class="clr-good">Maximum Value: 60 + 100 + 80 = 240</strong>
+              <strong style="color: #86efac;">Maximum Value: 60 + 100 + 80 = 240</strong>
             </div>
             <div style="font-size: 0.82rem; color: var(--muted);">
-              <strong class="clr-good">Total Weight: 10 + 20 + 20 = 50 kg (Perfect!)</strong>
+              <strong style="color: #86efac;">Total Weight: 10 + 20 + 20 = 50 kg (Perfect!)</strong>
             </div>
           </div>
         </div>
@@ -1251,11 +1235,11 @@
             </tbody>
           </table>
           <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 0.82rem;">
-            <strong class="clr-good">Selection:</strong>
+            <strong style="color: #86efac;">Selection:</strong>
             <div style="color: var(--muted); margin-top: 6px;">1. Take Gold Bar (50 kg) → Value: 500, Remaining: 50 kg</div>
             <div style="color: var(--muted);">2. Take Silver Bar (40 kg) → Value: 500 + 300 = 800, Remaining: 10 kg</div>
             <div style="color: var(--muted);">3. Take 10/60 of Bronze Bar → Value: 800 + (10/60)×150 = 825</div>
-            <div style="margin-top: 8px;" class="clr-good"><strong>Maximum Value: 825 ✓</strong></div>
+            <div style="color: #86efac; margin-top: 8px;"><strong>Maximum Value: 825 ✓</strong></div>
           </div>
         </div>
       </div>
@@ -1593,9 +1577,9 @@
           <div style="font-size: 0.82rem; color: var(--muted);">
             <div style="font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1: Calculate Efficiency Ratios</div>
             <div style="padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
-              <div>Item 1: 60 ÷ 10 = <strong class="clr-good">6.0</strong> [TOP]</div>
-              <div>Item 2: 100 ÷ 20 = <strong class="clr-good">5.0</strong></div>
-              <div>Item 3: 120 ÷ 30 = <strong class="clr-good">4.0</strong></div>
+              <div>Item 1: 60 ÷ 10 = <strong style="color: #86efac;">6.0</strong> [TOP]</div>
+              <div>Item 2: 100 ÷ 20 = <strong style="color: #86efac;">5.0</strong></div>
+              <div>Item 3: 120 ÷ 30 = <strong style="color: #86efac;">4.0</strong></div>
             </div>
           </div>
         `;
@@ -1611,7 +1595,7 @@
           '<div style="padding: 8px; background: rgba(34, 197, 94, 0.1); border-radius: 6px;">';
         
         animationData.items.forEach((item, i) => {
-          sortedHTML += `<div>Position ${i + 1}: ${item.name} (Ratio: <strong class="clr-good">${item.ratio.toFixed(1)}</strong>)</div>`;
+          sortedHTML += `<div>Position ${i + 1}: ${item.name} (Ratio: <strong style="color: #86efac;">${item.ratio.toFixed(1)}</strong>)</div>`;
           addLog(`  Position ${i + 1}: ${item.name} (Ratio: ${item.ratio.toFixed(1)})`);
         });
         
@@ -1649,7 +1633,7 @@
             animationData.selectedItems.push({ index: i, amount: remaining_space, partial: true });
             processingHTML += `<div style="padding: 6px; margin-top: 6px; background: rgba(59, 130, 246, 0.15); border-left: 3px solid #60a5fa; border-radius: 4px;">
               ⚠ Take ${fraction.toFixed(2)} of ${item.name}: +${partial_value.toFixed(0)} value, +${remaining_space} kg<br/>
-              <span style="font-size: 0.75rem;" class="clr-warn">🛑 Knapsack is FULL</span>
+              <span style="color: #fbbf24; font-size: 0.75rem;">🛑 Knapsack is FULL</span>
             </div>`;
             addLog(`  ⚠ Take ${fraction.toFixed(2)} of ${item.name}: +${partial_value.toFixed(0)} value, +${remaining_space} kg`);
             addLog(`  🛑 Knapsack is FULL`);
@@ -1676,19 +1660,19 @@
             <div style="font-weight: 600; color: var(--accent-2); margin-bottom: 12px; font-size: 1rem;">[ADDED] Algorithm Complete!</div>
             <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
               <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-weight: 600; font-size: 0.9rem;" class="clr-good">${animationData.totalValue.toFixed(0)}</div>
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.totalValue.toFixed(0)}</div>
                 <div style="font-size: 0.7rem; margin-top: 2px;">Maximum Value</div>
               </div>
               <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-weight: 600; font-size: 0.9rem;" class="clr-good">${animationData.usedWeight.toFixed(1)} kg</div>
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.usedWeight.toFixed(1)} kg</div>
                 <div style="font-size: 0.7rem; margin-top: 2px;">Total Weight Used</div>
               </div>
               <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-weight: 600; font-size: 0.9rem;" class="clr-good">${animationData.selectedItems.length}</div>
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.selectedItems.length}</div>
                 <div style="font-size: 0.7rem; margin-top: 2px;">Items Selected</div>
               </div>
               <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-weight: 600; font-size: 0.9rem;" class="clr-good">100%</div>
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">100%</div>
                 <div style="font-size: 0.7rem; margin-top: 2px;">Capacity Used</div>
               </div>
             </div>
