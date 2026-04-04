@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root{--bg:#0d1117;--surface:#151c2b;--card:#1d2537;--panel:#12161f;--border:#2d3852;--accent:#14b8a6;--accent2:#5eead4;--good:#22c55e;--warn:#f59e0b;--danger:#ef4444;--graph:#60a5fa;--text:#e2e8f0;--muted:#8b98b6;--shadow:0 18px 50px rgba(0,0,0,.25)}
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+    }
+
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
     header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#041916,#0d1117);flex-shrink:0}
@@ -123,6 +137,33 @@
     @media (max-height:920px){.control-row{padding-bottom:10px}.viz-layout{padding-top:12px;padding-bottom:8px}.side-stack{grid-template-rows:minmax(160px,.85fr) minmax(160px,.95fr)}.bottom-row{padding-bottom:14px}}
     @media (max-width:900px){body{overflow:auto}.app-body{flex-direction:column}.left-panel{width:100%;min-width:0;max-height:none;border-right:none;border-bottom:1px solid var(--border)}.workspace{display:block}.tab-panel.visualizer-panel.active{display:block;overflow-y:auto}.field input{width:200px}}
     @media (max-width:640px){header{flex-wrap:wrap}.speed-label{margin-left:0}.control-row{padding:14px}.field{width:100%}.field input,.field.small input{width:100%}.button-row{margin-left:0}.viz-layout,.bottom-row,.writeup-shell{padding-left:14px;padding-right:14px}.mini-grid{grid-template-columns:1fr}.bucket-row{grid-template-columns:1fr}.bucket-index{border-right:none;border-bottom:1px solid var(--border)}}
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
   </style>
 </head>
 <body>
@@ -508,6 +549,37 @@ int main() {
     function clearLogs(){ui.logBox.innerHTML=''}
     init();
     window.hashingHarness={parseKeys,parseTableSize,buildActions};
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
   </script>
 </body>
 </html>
