@@ -24,6 +24,8 @@
       --good: #15803d;
       --warn: #b45309;
       --danger: #b91c1c;
+    
+      --info: #0369a1;
     }
 
     body.light-mode header {
@@ -62,7 +64,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html{height:auto;min-height:100%;overflow-y:auto}
     body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh;height:auto;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
-    header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#071d2c,#0d1117)}
+    header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel))}
     header h1{font-size:1.2rem;font-weight:700}
     header h1 span{color:var(--accent)}
     header p{color:var(--muted);font-size:.78rem;line-height:1.55}
@@ -158,6 +160,20 @@
       background: var(--surface, #f0f4ff);
     }
 
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
   <style>
     .matrix-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -213,6 +229,21 @@
     @media (max-width:1280px){.grid{grid-template-columns:1fr}.full-span{grid-column:auto}}
     @media (max-width:1080px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.info,.pitfalls,.compare-grid{grid-template-columns:1fr}}
     @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.pitfalls,.compare-grid{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}.range{min-width:0}.bars-view,.buffer-grid{grid-template-columns:repeat(var(--cols,4),minmax(56px,1fr))}.expand-fab{right:12px;bottom:12px;padding:8px 11px}body.popup-expanded .app{inset:112px 10px 10px}}
+
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
 </head>
 <body>

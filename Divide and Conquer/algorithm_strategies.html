@@ -36,6 +36,9 @@
       --accent2: #c2410c;
       --good: #15803d;
       --warn: #b45309;
+    
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -311,7 +314,7 @@
       gap: 14px;
       padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(90deg, #241208, #0d1117);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
       flex-shrink: 0
     }
 
@@ -756,6 +759,20 @@
       border-color: var(--accent, #7dd3fc);
       background: var(--surface, #f0f4ff);
     }
+
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
 
   </style>
 </head>

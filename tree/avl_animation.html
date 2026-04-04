@@ -38,6 +38,11 @@
       --focus: rgba(99, 102, 241, 0.20);
       --accent: #5b21b6;
       --accent2: #0891b2;
+    
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -86,7 +91,7 @@
 
     /* ── TOP HEADER ── */
     header {
-      background: linear-gradient(90deg, #1a1d2e 0%, #12152a 100%);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -230,7 +235,7 @@
     }
 
     .step-item.pending .step-text {
-      color: #3a4060;
+      color: var(--muted);
     }
 
     /* Process log */
@@ -290,7 +295,7 @@
     }
 
     .log-entry .ts {
-      color: #3a4060;
+      color: var(--muted);
       margin-right: 5px;
     }
 
@@ -735,7 +740,67 @@
       background: var(--surface, #f0f4ff);
     }
 
-  </style>
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
+  
+    /* theme-aware legend line colors */
+    .clr-accent-orange { color: var(--warn, #f59e0b); }
+    .clr-accent-yellow { color: var(--warn, #f59e0b); }
+    .clr-accent-purple { color: var(--accent); }
+    .clr-accent-green  { color: var(--good, #22c55e); }
+    body.light-mode .clr-accent-orange { color: var(--warn); }
+    body.light-mode .clr-accent-yellow { color: var(--warn); }
+    body.light-mode .clr-accent-purple { color: var(--accent); }
+    body.light-mode .clr-accent-green  { color: var(--good); }
+    /* theme-aware button bg helpers */
+    .btn-accent-purple {
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 6px 14px;
+    }
+    .btn-accent-green {
+      background: var(--good, #22c55e);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 6px 14px;
+    }
+    body.light-mode .btn-accent-purple { background: var(--accent); }
+    body.light-mode .btn-accent-green  { background: var(--good); }
+    /* theme-aware panel highlight boxes */
+    .panel-highlight {
+      background: rgba(139, 92, 246, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 10px;
+      border-radius: 4px;
+    }
+    body.light-mode .panel-highlight {
+      background: rgba(99, 102, 241, 0.08);
+      border-left-color: var(--accent);
+    }
+    /* status/label using accent colour */
+    .accent-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .accent-value { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .good-value   { font-size: 1.1rem; font-weight: 700; color: var(--good); }
+</style>
 </head>
 
 <body>
@@ -1038,6 +1103,8 @@
   </div><!-- end app-body -->
 
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     // ═══════════════════════════════════════
     //  AVL TREE DATA STRUCTURE
     // ═══════════════════════════════════════
@@ -1126,7 +1193,7 @@
       if (!n) return;
       if (par) {
         ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(n.x, n.y);
-        ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke();
       }
       drawN(ctx, n.l, n); drawN(ctx, n.r, n);
       const r = 21;
@@ -1147,7 +1214,7 @@
 
       const b = bf(n);
       ctx.font = '9px Fira Code';
-      ctx.fillStyle = b === 0 ? '#8892b0' : (Math.abs(b) === 1 ? '#f1c40f' : '#e74c3c');
+      ctx.fillStyle = b === 0 ? _tc('#8892b0','#52637a') : (Math.abs(b) === 1 ? '#f1c40f' : '#e74c3c');
       ctx.fillText('bf:' + b, n.x, n.y + r + 11);
     }
 
@@ -1157,7 +1224,7 @@
       const ctx = cvs.getContext('2d');
       ctx.clearRect(0, 0, cvs.width, cvs.height);
       if (!tree.root) {
-        ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center';
+        ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center';
         ctx.fillText('Tree is empty — insert some values!', cvs.width / 2, cvs.height / 2);
         return;
       }
@@ -1368,10 +1435,10 @@
     // ═══════════════════════════════════════
     function dmini(id, nodes, edges) {
       const c = document.getElementById(id), ctx = c.getContext('2d');
-      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.fillStyle = _tc('#0d1117','#f5f7ff'); ctx.fillRect(0, 0, c.width, c.height);
       for (const [a, b] of edges) {
         ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
-        ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke();
       }
       for (const [x, y, lbl, col, sub] of nodes) {
         const c2 = col || '#7c6ff7';
@@ -1380,7 +1447,7 @@
         ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(lbl, x, y);
         if (sub) {
-          ctx.font = '9px Fira Code'; ctx.fillStyle = '#8892b0';
+          ctx.font = '9px Fira Code'; ctx.fillStyle = _tc('#8892b0','#52637a');
           ctx.fillText(sub, x, y + 31);
         }
       }
@@ -1494,18 +1561,18 @@
       // grid
       for (let i = 0; i <= 3; i++) {
         const yv = maxV * i / 3, y = H - padB - (yv / maxV) * cH;
-        ctx.strokeStyle = '#1e2438'; ctx.lineWidth = 1;
+        ctx.strokeStyle = _tc('#1e2438','#dde4f5'); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-        ctx.fillStyle = '#8892b0'; ctx.font = '10px Fira Code'; ctx.textAlign = 'right';
+        ctx.fillStyle = _tc('#8892b0','#52637a'); ctx.font = '10px Fira Code'; ctx.textAlign = 'right';
         ctx.fillText(Math.round(yv), padL - 5, y + 4);
       }
 
       // x labels
       hs.forEach((h, i) => {
         const x = padL + (i / (hs.length - 1)) * cW;
-        ctx.fillStyle = '#8892b0'; ctx.font = '10px Fira Code'; ctx.textAlign = 'center';
+        ctx.fillStyle = _tc('#8892b0','#52637a'); ctx.font = '10px Fira Code'; ctx.textAlign = 'center';
         ctx.fillText('h=' + h, x, H - padB + 14);
-        ctx.strokeStyle = '#1e2438'; ctx.lineWidth = 1;
+        ctx.strokeStyle = _tc('#1e2438','#dde4f5'); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H - padB); ctx.stroke();
       });
 
@@ -1542,7 +1609,7 @@
         const lx = padL + 8 + i * 160;
         ctx.save(); ctx.shadowBlur = 8; ctx.shadowColor = c;
         ctx.beginPath(); ctx.arc(lx, padT - 8, 4.5, 0, 6.28); ctx.fillStyle = c; ctx.fill(); ctx.restore();
-        ctx.fillStyle = '#e2e8f0'; ctx.font = '11px Inter'; ctx.textAlign = 'left';
+        ctx.fillStyle = _tc('#e2e8f0','#1e2a45'); ctx.font = '11px Inter'; ctx.textAlign = 'left';
         ctx.fillText(' ' + l, lx + 8, padT - 4);
       });
     }
@@ -1552,7 +1619,7 @@
       [1, 2, 3, 4, 5, 6, 7].forEach(h => {
         const rec = h <= 2 ? (h === 1 ? 'Base case' : 'N(1)+N(0)+1 = 1+0+1') : `N(${h - 1})+N(${h - 2})+1 = ${NofH[h - 1]}+${NofH[h - 2]}+1`;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${h}</td><td class="good">${NofH[h]}</td><td class="good">${Math.pow(2, h) - 1}</td><td style="font-family:Fira Code;font-size:0.75rem;color:#8892b0">${rec}</td>`;
+        tr.innerHTML = `<td>${h}</td><td class="good">${NofH[h]}</td><td class="good">${Math.pow(2, h) - 1}</td><td style="font-family:Fira Code;font-size:0.75rem;color:var(--muted)">${rec}</td>`;
         tb.appendChild(tr);
       });
     }

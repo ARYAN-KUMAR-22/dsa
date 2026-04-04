@@ -47,6 +47,11 @@
       --body-bg-2: rgba(239, 68, 68, 0.08);
       --body-bg-3: rgba(22, 163, 74, 0.08);
       --body-bg-base: linear-gradient(160deg, #e8effe 0%, #f0f4ff 48%, #eaf1ff 100%);
+    
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
 
     * {
@@ -306,6 +311,11 @@
     body.light-mode .hero {
       border-color: rgba(99, 102, 241, 0.22);
     }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
 
     @media (max-width: 720px) {
       body {
@@ -322,6 +332,21 @@
         align-items: flex-start;
       }
     }
+
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
 </head>
 

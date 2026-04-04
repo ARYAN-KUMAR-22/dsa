@@ -38,6 +38,11 @@
       --focus: rgba(99, 102, 241, 0.20);
       --accent: #6d28d9;
       --accent2: #6d28d9;
+    
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -90,7 +95,7 @@
     }
 
     header {
-      background: linear-gradient(90deg, #12001a, #0d1117);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -256,7 +261,7 @@
     }
 
     .step-item.pending .step-text {
-      color: #3a4060;
+      color: var(--muted);
     }
 
     .log-scroll {
@@ -305,7 +310,7 @@
     }
 
     .log-entry .ts {
-      color: #3a4060;
+      color: var(--muted);
       margin-right: 5px;
     }
 
@@ -571,6 +576,20 @@
       background: var(--surface, #f0f4ff);
     }
 
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
 </head>
 
@@ -592,7 +611,7 @@
       </div>
       <div class="panel-section" style="flex-shrink:0">
         <div class="panel-section-title">📋 Visit Order</div>
-        <div class="visit-order" id="visitOrder"><span style="color:#3a4060;font-size:.75rem;padding:4px 0">Run a
+        <div class="visit-order" id="visitOrder"><span style="color:var(--muted);font-size:.75rem;padding:4px 0">Run a
             traversal to see order…</span></div>
       </div>
       <div class="panel-section" style="flex-shrink:0">
@@ -730,8 +749,10 @@
     </div>
   </div>
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     // ── TREE NODE ──
-    class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = '#1e2438'; } }
+    class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = _tc('#1e2438','#dde4f5'); } }
 
     const DEFAULT_TREE = [50, 30, 70, 20, 40, 60, 80, 10, 25];
 
@@ -747,7 +768,7 @@
       vals.forEach(v => { root = bstIns(root, v); });
     }
     function bstIns(nd, v) { if (!nd) return new TN(v); if (v < nd.v) nd.l = bstIns(nd.l, v); else nd.r = bstIns(nd.r, v); return nd; }
-    function resetColors(nd) { if (!nd) return; nd.col = '#1e2438'; resetColors(nd.l); resetColors(nd.r); }
+    function resetColors(nd) { if (!nd) return; nd.col = _tc('#1e2438','#dde4f5'); resetColors(nd.l); resetColors(nd.r); }
 
     function randomTreeValues(count = 9, min = 10, max = 99) {
       const vals = new Set();
@@ -763,18 +784,18 @@
     function drawTree() {
       const cvs = document.getElementById('travCanvas'); cvs.width = cvs.clientWidth || 800;
       const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
-      if (!root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('No tree — click Reset', cvs.width / 2, cvs.height / 2); return; }
+      if (!root) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('No tree — click Reset', cvs.width / 2, cvs.height / 2); return; }
       pos(root, cvs.width / 2, 44, cvs.width / 4.5); lerp(root); drawNode(ctx, root, null);
     }
     function drawNode(ctx, nd, par) {
       if (!nd) return;
-      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
       drawNode(ctx, nd.l, nd); drawNode(ctx, nd.r, nd);
-      const r = 21, col = nd.col || '#1e2438';
-      ctx.save(); if (col !== '#1e2438') { ctx.shadowBlur = 14; ctx.shadowColor = col; }
+      const r = 21, col = nd.col || _tc('#1e2438','#dde4f5');
+      ctx.save(); if (col !== _tc('#1e2438','#dde4f5')) { ctx.shadowBlur = 14; ctx.shadowColor = col; }
       ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
-      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = col === '#1e2438' ? '#2a3050' : 'rgba(255,255,255,.15)'; ctx.lineWidth = 1.5; ctx.stroke();
-      const textCol = col === '#1e2438' ? '#8892b0' : '#0d1117';
+      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = col === _tc('#1e2438','#dde4f5') ? _tc('#2a3050','#c7d2fe') : 'rgba(255,255,255,.15)'; ctx.lineWidth = 1.5; ctx.stroke();
+      const textCol = col === _tc('#1e2438','#dde4f5') ? _tc('#8892b0','#52637a') : _tc('#0d1117','#f5f7ff');
       ctx.fillStyle = textCol; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
     }
 
@@ -791,7 +812,7 @@
       d.appendChild(c);
       setTimeout(() => c.classList.remove('new'), 400);
     }
-    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:#3a4060;font-size:.75rem;padding:4px 0">${msg}</span>`; }
+    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:var(--muted);font-size:.75rem;padding:4px 0">${msg}</span>`; }
 
     function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-item ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); d.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`; b.appendChild(d); }); }
     function clearSteps() { document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle…</div></div>'; }

@@ -46,6 +46,8 @@
       --good: #15803d;
       --warn: #b45309;
       --danger: #b91c1c;
+    
+      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -101,7 +103,7 @@
       gap: 14px;
       padding: 16px 24px;
       border-bottom: 2px solid var(--border);
-      background: linear-gradient(135deg, #0a1428 0%, #1a1f3a 100%);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
       flex-shrink: 0;
       box-shadow: 0 8px 32px rgba(0, 217, 255, 0.1);
     }
@@ -171,7 +173,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: linear-gradient(to right, rgba(0, 217, 255, 0.1), transparent);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel)), transparent);
     }
 
     .pulse-dot {
@@ -474,6 +476,20 @@
       background: var(--surface, #f0f4ff);
     }
 
+    /* ── Theme-aware utility colour classes ── */
+    .clr-good  { color: var(--good,  #22c55e); }
+    .clr-warn  { color: var(--warn,  #f59e0b); }
+    .clr-danger{ color: var(--danger,#ef4444); }
+    .clr-info  { color: var(--info,  var(--accent)); }
+    .clr-accent{ color: var(--accent); }
+    .clr-muted { color: var(--muted); }
+    body.light-mode .clr-good  { color: var(--good); }
+    body.light-mode .clr-warn  { color: var(--warn); }
+    body.light-mode .clr-danger{ color: var(--danger); }
+    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
+    body.light-mode .clr-accent{ color: var(--accent); }
+    body.light-mode .clr-muted { color: var(--muted); }
+
   </style>
 </head>
 
@@ -609,6 +625,8 @@
   </div>
 
   <script>
+  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
+
     const INF = 999999;
     
     let graph = {
@@ -817,7 +835,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw edges first
-      ctx.strokeStyle = '#2d3d66';
+      ctx.strokeStyle = _tc('#2d3d66','#818cf8');
       ctx.lineWidth = 2.5;
       for (let edge of graph.edges) {
         let from = graph.nodes[edge.from];
@@ -862,10 +880,10 @@
           ctx.fillStyle = '#f59e0b';
         } else if (isVisited) {
           nodeColor = 'var(--visited)';
-          ctx.fillStyle = '#10b981';
+          ctx.fillStyle = _tc('#10b981','#059669');
         } else if (isSource) {
           nodeColor = 'var(--source)';
-          ctx.fillStyle = '#06b6d4';
+          ctx.fillStyle = _tc('#06b6d4','#0891b2');
         } else {
           nodeColor = 'var(--unvisited)';
           ctx.fillStyle = '#6366f1';
@@ -885,14 +903,14 @@
           ctx.stroke();
         }
 
-        ctx.strokeStyle = '#0a0e27';
+        ctx.strokeStyle = _tc('#0a0e27','#ffffff');
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
         ctx.stroke();
 
         // Node label
-        ctx.fillStyle = '#0a0e27';
+        ctx.fillStyle = _tc('#0a0e27','#ffffff');
         ctx.font = 'bold 18px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -905,7 +923,7 @@
           // Offset distance label position based on node location to minimize overlap
           let labelY = pos.y > 250 ? pos.y - 50 : pos.y + 50;
           
-          ctx.fillStyle = '#00d9ff';
+          ctx.fillStyle = _tc('#00d9ff','#0891b2');
           ctx.font = 'bold 13px Fira Code';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -918,7 +936,7 @@
           ctx.lineWidth = 1;
           ctx.strokeRect(pos.x - 18, labelY - 10, 36, 20);
           
-          ctx.fillStyle = '#00d9ff';
+          ctx.fillStyle = _tc('#00d9ff','#0891b2');
           ctx.fillText(distText, pos.x, labelY);
         }
       }
