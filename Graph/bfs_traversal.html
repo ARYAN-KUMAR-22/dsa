@@ -44,7 +44,6 @@
       --warn: #b45309;
       --danger: #b91c1c;
       --info: #0369a1;
-    
     }
     body.light-mode pre {
       background: var(--surface);
@@ -112,7 +111,7 @@
       gap: 14px;
       padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+      background: linear-gradient(90deg, #07131d, #0d1117);
       flex-shrink: 0
     }
 
@@ -1016,20 +1015,6 @@
       background: var(--surface, #f0f4ff);
     }
 
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
-
   </style>
 </head>
 
@@ -1239,8 +1224,6 @@ while queue is not empty
   </div>
 
   <script>
-  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
-
     const FLOW_STEPS = [
       'Initialize the start vertex and place it in the queue.',
       'Dequeue the next vertex to process.',
@@ -1521,7 +1504,7 @@ while queue is not empty
         const rev = edgeKey([v, u]);
         const isTree = treeSet.has(key) || treeSet.has(rev);
         const isActive = activeEdgeKey && (activeEdgeKey === key || activeEdgeKey === rev);
-        const stroke = isActive ? '#f59e0b' : isTree ? _tc('#22c55e','#15803d') : _tc('#334155','#c7d2fe');
+        const stroke = isActive ? '#f59e0b' : isTree ? '#22c55e' : '#334155';
         const width = isActive ? 5.5 : isTree ? 4.5 : 2.25;
         const dash = isActive ? '' : isTree ? '' : '7 10';
         const opacity = isActive ? '1' : isTree ? '.92' : '.42';
@@ -1535,9 +1518,9 @@ while queue is not empty
         const active = v === shot.activeVertex;
         const processed = processedSet.has(v);
         const discovered = discoveredSet.has(v);
-        const fill = active ? '#f59e0b' : processed ? _tc('#22c55e','#15803d') : discovered ? '#38bdf8' : _tc('#1a2333','#dde4f5');
-        const stroke = active ? '#fde68a' : processed ? _tc('#86efac','#15803d') : discovered ? '#7dd3fc' : _tc('#4f6287','#818cf8');
-        const text = active ? _tc('#1f1303','#ffffff') : discovered || processed ? _tc('#041522','#ffffff') : _tc('#e2e8f0','#1e2a45');
+        const fill = active ? '#f59e0b' : processed ? '#22c55e' : discovered ? '#38bdf8' : '#1a2333';
+        const stroke = active ? '#fde68a' : processed ? '#86efac' : discovered ? '#7dd3fc' : '#4f6287';
+        const text = active ? '#1f1303' : discovered || processed ? '#041522' : '#e2e8f0';
         return `<g><circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${stroke}" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Fira Code, monospace" font-size="18" fill="${text}">${v}</text></g>`;
       }).join('');
       ui.graphSvg.innerHTML = `${baseEdges}${nodes}`;

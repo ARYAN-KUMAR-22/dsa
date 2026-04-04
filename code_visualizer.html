@@ -37,9 +37,6 @@
       --accent: #0891b2;
       --good: #15803d;
       --warn: #b45309;
-    
-      --danger: #b91c1c;
-      --info: #0369a1;
     }
 
     body.light-mode header {
@@ -77,7 +74,7 @@
         }
 
         .panel-header {
-            background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+            background: linear-gradient(90deg, #00d9ff20 0%, #00ff8820 100%);
             padding: 12px;
             border-bottom: 2px solid var(--accent);
             font-weight: bold;
@@ -319,20 +316,6 @@
       background: var(--surface, #f0f4ff);
     }
 
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
-
   </style>
 </head>
 <body>
@@ -408,8 +391,6 @@
     </div>
 
     <script>
-  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
-
         // Global State
         const state = {
             variables: {},
@@ -1005,10 +986,10 @@
 
         // Drawing Functions
         const colors = {
-            vector: _tc('#00d9ff','#0891b2'),
-            '2dvector': _tc('#00ff88','#059669'),
-            array: _tc('#00ff88','#059669'),
-            map: _tc('#ffaa00','#b45309'),
+            vector: '#00d9ff',
+            '2dvector': '#00ff88',
+            array: '#00ff88',
+            map: '#ffaa00',
             stack: '#ff6b9d',
             queue: '#6bcf7f',
             list: '#a78bfa',
@@ -1031,13 +1012,13 @@
             let varIndex = 0;
 
             for (const [varName, varData] of Object.entries(state.variables)) {
-                ctx.fillStyle = _tc('#00d9ff','#0891b2');
+                ctx.fillStyle = '#00d9ff';
                 ctx.font = 'bold 16px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText(`${varName}: ${varData.type}`, 30, yOffset);
                 yOffset += 40;
 
-                const color = colors[varData.type] || _tc('#00d9ff','#0891b2');
+                const color = colors[varData.type] || '#00d9ff';
 
                 // 2D Vector visualization
                 if (varData.type === '2dvector') {
@@ -1118,7 +1099,7 @@
             }
 
             if (varIndex === 0) {
-                ctx.fillStyle = _tc('#909090','#52637a');
+                ctx.fillStyle = '#909090';
                 ctx.font = '14px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText('No data structures to visualize', 30, canvas.height / 2);
@@ -1166,13 +1147,13 @@
 
                     // Draw row/column indices
                     if (colIdx === 0) {
-                        ctx.fillStyle = _tc('#00ff88','#059669');
+                        ctx.fillStyle = '#00ff88';
                         ctx.font = '11px Courier New';
                         ctx.textAlign = 'right';
                         ctx.fillText(`r${rowIdx}`, x - 10, posY + cellSize / 2 + 3);
                     }
                     if (rowIdx === 0) {
-                        ctx.fillStyle = _tc('#00ff88','#059669');
+                        ctx.fillStyle = '#00ff88';
                         ctx.font = '11px Courier New';
                         ctx.textAlign = 'center';
                         ctx.fillText(`c${colIdx}`, posX + cellSize / 2, y - 25);
@@ -1200,7 +1181,7 @@
                 const posX = x + idx * (boxWidth + gap);
                 
                 // Draw memory address at top
-                ctx.fillStyle = _tc('#00ff88','#059669');
+                ctx.fillStyle = '#00ff88';
                 ctx.font = '9px Courier New';
                 ctx.textAlign = 'center';
                 ctx.fillText(`0x${(1000 + idx * 4).toString(16)}`, posX + boxWidth / 2, y - 8);
@@ -1223,7 +1204,7 @@
                 ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
                 
                 // Draw index below
-                ctx.fillStyle = _tc('#909090','#52637a');
+                ctx.fillStyle = '#909090';
                 ctx.font = '10px Courier New';
                 ctx.fillText(`[${idx}]`, posX + boxWidth / 2, y + boxHeight + 15);
             });
@@ -1244,7 +1225,7 @@
                 const posX = x + idx * (boxWidth + gap);
                 
                 // Draw memory address
-                ctx.fillStyle = _tc('#00ff88','#059669');
+                ctx.fillStyle = '#00ff88';
                 ctx.font = '9px Courier New';
                 ctx.textAlign = 'center';
                 ctx.fillText(`0x${(3000 + idx * 4).toString(16)}`, posX + boxWidth / 2, y - 8);
@@ -1266,7 +1247,7 @@
                 ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
                 
                 // Draw index
-                ctx.fillStyle = _tc('#909090','#52637a');
+                ctx.fillStyle = '#909090';
                 ctx.font = '10px Courier New';
                 ctx.fillText(`[${idx}]`, posX + boxWidth / 2, y + boxHeight + 15);
             });
@@ -1322,7 +1303,7 @@
                 const posY = y + idx * (boxHeight + 8);
 
                 // Draw address
-                ctx.fillStyle = _tc('#00ff88','#059669');
+                ctx.fillStyle = '#00ff88';
                 ctx.font = '9px Courier New';
                 ctx.fillText(`0x${(2000 + idx * 16).toString(16)}`, x - 5, posY + boxHeight - 5);
 
@@ -1392,7 +1373,7 @@
                 const posY = y + idx * (boxHeight + 5);
                 
                 // Memory address on the right
-                ctx.fillStyle = _tc('#00ff88','#059669');
+                ctx.fillStyle = '#00ff88';
                 ctx.font = '9px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText(`0x${(4000 + (values.length - displayValues.length + idx) * 4).toString(16)}`, x + boxWidth + 10, posY + boxHeight - 5);
@@ -1415,10 +1396,10 @@
 
                 // Highlight TOP
                 if (idx === displayValues.length - 1) {
-                    ctx.strokeStyle = _tc('#ffaa00','#b45309');
+                    ctx.strokeStyle = '#ffaa00';
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x - 3, posY - 3, boxWidth + 6, boxHeight + 6);
-                    ctx.fillStyle = _tc('#ffaa00','#b45309');
+                    ctx.fillStyle = '#ffaa00';
                     ctx.font = 'bold 12px Courier New';
                     ctx.fillText('▲ TOP', x + boxWidth / 2, posY - 15);
                 }
@@ -1527,7 +1508,7 @@
                 const posY = y + idx * 70;
                 
                 // Index label
-                ctx.fillStyle = _tc('#ffaa00','#b45309');
+                ctx.fillStyle = '#ffaa00';
                 ctx.font = 'bold 12px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText(`[${idx}]`, x, posY + 25);
@@ -1601,7 +1582,7 @@
                 ctx.globalAlpha = 1;
 
                 // Map label
-                ctx.fillStyle = _tc('#ffaa00','#b45309');
+                ctx.fillStyle = '#ffaa00';
                 ctx.font = 'bold 12px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText(`[${mapIdx}]`, x + 10, posY + 20);
@@ -1615,7 +1596,7 @@
                     ctx.font = '10px Courier New';
                     ctx.textAlign = 'left';
                     ctx.fillText(`${pair.key}:`, pairX, pairY);
-                    ctx.fillStyle = _tc('#00ff88','#059669');
+                    ctx.fillStyle = '#00ff88';
                     ctx.fillText(pair.value, pairX + 60, pairY);
                 });
             });
@@ -1639,7 +1620,7 @@
                 ctx.globalAlpha = 1;
 
                 // Key label
-                ctx.fillStyle = _tc('#ffaa00','#b45309');
+                ctx.fillStyle = '#ffaa00';
                 ctx.font = 'bold 14px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillText(`"${key}"`, x + 10, yOffset + 25);
@@ -1703,7 +1684,7 @@
             ctx.fillText(`Pair<Vector,Vector>`, x - containerPadding + 8, y - containerPadding - 8);
 
             // First vector label and elements
-            ctx.fillStyle = _tc('#00ff88','#059669');
+            ctx.fillStyle = '#00ff88';
             ctx.font = 'bold 11px Courier New';
             ctx.textAlign = 'left';
             ctx.fillText('.first', x, y + 8);
@@ -1724,7 +1705,7 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(val, xPos + elementBoxSize / 2, y + 20);
                 
-                ctx.fillStyle = _tc('#ffaa00','#b45309');
+                ctx.fillStyle = '#ffaa00';
                 ctx.globalAlpha = 0.6;
                 ctx.font = '8px Courier New';
                 ctx.textAlign = 'center';
@@ -1735,7 +1716,7 @@
             });
 
             // Second vector label and elements
-            ctx.fillStyle = _tc('#00ff88','#059669');
+            ctx.fillStyle = '#00ff88';
             ctx.font = 'bold 11px Courier New';
             ctx.textAlign = 'left';
             ctx.fillText('.second', x, y + 78);
@@ -1756,7 +1737,7 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(val, xPos + elementBoxSize / 2, y + 80);
                 
-                ctx.fillStyle = _tc('#ffaa00','#b45309');
+                ctx.fillStyle = '#ffaa00';
                 ctx.globalAlpha = 0.6;
                 ctx.font = '8px Courier New';
                 ctx.textAlign = 'center';
@@ -1791,7 +1772,7 @@
             ctx.fillText(`Pair<${type1},${type2}>`, x - containerPadding + 8, y - containerPadding - 8);
 
             // First box
-            ctx.fillStyle = _tc('#00ff88','#059669');
+            ctx.fillStyle = '#00ff88';
             ctx.font = 'bold 10px Courier New';
             ctx.textAlign = 'center';
             ctx.fillText(`.first`, x + boxWidth / 2, y + 6);
@@ -1842,7 +1823,7 @@
 
             // Second box
             const secondX = x + boxWidth + 35;
-            ctx.fillStyle = _tc('#ffaa00','#b45309');
+            ctx.fillStyle = '#ffaa00';
             ctx.font = 'bold 10px Courier New';
             ctx.textAlign = 'center';
             ctx.fillText(`.second`, secondX + boxWidth / 2, y + 6);
@@ -1876,7 +1857,7 @@
             ctx.fillText(second !== null ? second : '?', secondX + boxWidth / 2, y + 15 + boxHeight / 2);
 
             // Memory address
-            ctx.fillStyle = _tc('#00ff88','#059669');
+            ctx.fillStyle = '#00ff88';
             ctx.globalAlpha = 0.6;
             ctx.font = 'italic 9px Courier New';
             ctx.textAlign = 'left';

@@ -37,11 +37,6 @@
       --focus: rgba(99, 102, 241, 0.20);
       --accent: #059669;
       --accent2: #059669;
-    
-      --good: #15803d;
-      --warn: #b45309;
-      --danger: #b91c1c;
-      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -86,7 +81,7 @@
     }
 
     header {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+      background: linear-gradient(90deg, #001a0f, #0d1117);
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -252,7 +247,7 @@
     }
 
     .si.pending .st {
-      color: var(--muted);
+      color: #3a4060;
     }
 
     .arr-wrap {
@@ -338,7 +333,7 @@
     }
 
     .le .ts {
-      color: var(--muted);
+      color: #3a4060;
       margin-right: 5px;
     }
 
@@ -574,20 +569,6 @@
       background: var(--surface, #f0f4ff);
     }
 
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
-
   </style>
 </head>
 
@@ -620,7 +601,7 @@
       </div>
       <div class="ps" style="flex-shrink:0">
         <div class="pst">📦 Array (1-indexed)</div>
-        <div class="arr-wrap" id="arrWrap"><span style="color:var(--muted);font-size:.73rem">empty</span></div>
+        <div class="arr-wrap" id="arrWrap"><span style="color:#3a4060;font-size:.73rem">empty</span></div>
       </div>
       <div class="ps" style="flex:1;overflow:hidden">
         <div class="pst">📋 Process Log</div>
@@ -724,8 +705,6 @@
     </div>
   </div>
   <script>
-  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
-
     let H = [null]; let mode = 'min'; let hlIdx = -1; let swPair = [];
 
     function cmp(a, b) { return mode === 'min' ? a < b : a > b; }
@@ -750,19 +729,19 @@
       const cvs = document.getElementById('hc'); cvs.width = cvs.clientWidth || 780;
       const ctx = cvs.getContext('2d'), W = cvs.width, Ht = cvs.height;
       ctx.clearRect(0, 0, W, Ht);
-      if (H.length <= 1) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Heap is empty — insert values!', W / 2, Ht / 2); updStats(); return; }
+      if (H.length <= 1) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Heap is empty — insert values!', W / 2, Ht / 2); updStats(); return; }
       const h = heapH(), pos = [];
       for (let i = 1; i < H.length; i++) {
         const d = Math.floor(Math.log2(i)), pir = i - Math.pow(2, d), nr = Math.pow(2, d);
         pos[i] = { x: (W / (nr + 1)) * (pir + 1), y: 50 + d * (Ht - 90) / Math.max(h, 1) };
       }
-      for (let i = 2; i < H.length; i++) { const p = Math.floor(i / 2); if (!pos[p]) continue; ctx.beginPath(); ctx.moveTo(pos[p].x, pos[p].y); ctx.lineTo(pos[i].x, pos[i].y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
+      for (let i = 2; i < H.length; i++) { const p = Math.floor(i / 2); if (!pos[p]) continue; ctx.beginPath(); ctx.moveTo(pos[p].x, pos[p].y); ctx.lineTo(pos[i].x, pos[i].y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
       for (let i = 1; i < H.length; i++) {
         if (!pos[i]) continue; const { x, y } = pos[i], r = 22;
-        let col = swPair.includes(i) ? '#f1c40f' : (hlIdx === i ? '#2ecc71' : _tc('#10b981','#059669'));
+        let col = swPair.includes(i) ? '#f1c40f' : (hlIdx === i ? '#2ecc71' : '#10b981');
         ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
-        ctx.fillStyle = _tc('#0d1117','#f5f7ff'); ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(H[i], x, y);
-        ctx.fillStyle = _tc('#8892b0','#52637a'); ctx.font = '9px Fira Code'; ctx.fillText(`[${i}]`, x, y + r + 11);
+        ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(H[i], x, y);
+        ctx.fillStyle = '#8892b0'; ctx.font = '9px Fira Code'; ctx.fillText(`[${i}]`, x, y + r + 11);
       }
       updStats();
     }
@@ -771,7 +750,7 @@
     function updStats() { document.getElementById('s-size').textContent = H.length - 1; document.getElementById('s-root').textContent = H.length > 1 ? H[1] : '–'; document.getElementById('s-h').textContent = heapH(); document.getElementById('s-m').textContent = mode.toUpperCase(); }
     function updArr() {
       const d = document.getElementById('arrWrap'); d.innerHTML = '';
-      if (H.length === 1) { d.innerHTML = '<span style="color:var(--muted);font-size:.73rem">empty</span>'; return; }
+      if (H.length === 1) { d.innerHTML = '<span style="color:#3a4060;font-size:.73rem">empty</span>'; return; }
       for (let i = 1; i < H.length; i++) { const c = document.createElement('div'); c.className = 'ac' + (swPair.includes(i) ? ' sw' : (hlIdx === i ? ' hl' : '')); c.textContent = H[i]; d.appendChild(c); }
     }
 

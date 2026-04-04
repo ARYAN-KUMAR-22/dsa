@@ -37,11 +37,6 @@
       --focus: rgba(99, 102, 241, 0.20);
       --accent: #b45309;
       --accent2: #c2410c;
-    
-      --good: #15803d;
-      --warn: #b45309;
-      --danger: #b91c1c;
-      --info: #0369a1;
     }
     body.light-mode header {
       background: var(--panel);
@@ -86,7 +81,7 @@
     }
 
     header {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+      background: linear-gradient(90deg, #1a1400, #0d1117);
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -230,7 +225,7 @@
     }
 
     .step-item.pending .step-text {
-      color: var(--muted);
+      color: #3a4060;
     }
 
     .debug-scroll {
@@ -320,7 +315,7 @@
     }
 
     .log-entry .ts {
-      color: var(--muted);
+      color: #3a4060;
       margin-right: 5px;
     }
 
@@ -623,20 +618,6 @@
       background: var(--surface, #f0f4ff);
     }
 
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
-
   </style>
 </head>
 
@@ -840,8 +821,6 @@
     </div>
   </div>
   <script>
-  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
-
     // ── BST NODE ──
     class BN { constructor(v) { this.v = v; this.l = null; this.r = null; this.h = 1; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; } }
     const bst = { root: null };
@@ -861,19 +840,19 @@
     function lerp(nd) { if (!nd) return; nd.x += (nd.tx - nd.x) * .2; nd.y += (nd.ty - nd.y) * .2; lerp(nd.l); lerp(nd.r); }
     function drawTree(ctx, nd, par, W) {
       if (!nd) return;
-      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
       drawTree(ctx, nd.l, nd, W); drawTree(ctx, nd.r, nd, W);
       const r = 21, col = (hl && nd === hl) ? hlc : '#f59e0b';
       ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
       ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = _tc('#0d1117','#f5f7ff'); ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
-      ctx.fillStyle = _tc('#8892b0','#52637a'); ctx.font = '9px Fira Code'; ctx.fillText('h:' + nd.h, nd.x, nd.y + r + 11);
+      ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
+      ctx.fillStyle = '#8892b0'; ctx.font = '9px Fira Code'; ctx.fillText('h:' + nd.h, nd.x, nd.y + r + 11);
     }
     let raf;
     function render() {
       const cvs = document.getElementById('bstCanvas'); cvs.width = cvs.clientWidth || 800;
       const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
-      if (!bst.root) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Tree is empty — insert values!', cvs.width / 2, cvs.height / 2); updateStats(); return; }
+      if (!bst.root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Tree is empty — insert values!', cvs.width / 2, cvs.height / 2); updateStats(); return; }
       pos(bst.root, cvs.width / 2, 44, cvs.width / 4.5); lerp(bst.root); drawTree(ctx, bst.root, null, cvs.width);
       updateStats(); updateDebug();
     }
@@ -952,16 +931,16 @@
       document.getElementById('d-waste').textContent = ideal ? ((h / ideal).toFixed(1) + '×') : '–';
       const cvs = document.getElementById('degenCanvas'); cvs.width = cvs.clientWidth || 800;
       const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
-      if (!degenBst.root) { ctx.fillStyle = _tc('#2a3050','#c7d2fe'); ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Click a demo button above', cvs.width / 2, cvs.height / 2); return; }
+      if (!degenBst.root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Click a demo button above', cvs.width / 2, cvs.height / 2); return; }
       pos(degenBst.root, cvs.width / 2, 44, cvs.width / 4.5); lerp(degenBst.root); drawTree2(ctx, degenBst.root, null);
     }
     function drawTree2(ctx, nd, par) {
       if (!nd) return;
-      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = _tc('#2a3050','#c7d2fe'); ctx.lineWidth = 1.8; ctx.stroke(); }
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
       drawTree2(ctx, nd.l, nd); drawTree2(ctx, nd.r, nd);
       const r = 21, col = nd.h > 4 ? '#e74c3c' : '#f59e0b';
       ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
-      ctx.fillStyle = _tc('#0d1117','#f5f7ff'); ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
+      ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
     }
 
     // ── TABS ──

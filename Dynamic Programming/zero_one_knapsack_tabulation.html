@@ -24,9 +24,6 @@
       --accent3: #1d4ed8;
       --good: #15803d;
       --warn: #b45309;
-    
-      --danger: #b91c1c;
-      --info: #0369a1;
     }
 
     body.light-mode header {
@@ -72,7 +69,7 @@
 
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(96,165,250,.12),transparent 25%),radial-gradient(circle at bottom left,rgba(167,139,250,.1),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
-    header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel))}
+    header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#111b3a,#0b1020)}
     header h1{font-size:1.2rem;font-weight:800}
     header h1 span{color:var(--accent)}
     header p{color:var(--muted);font-size:.8rem;line-height:1.6}
@@ -163,20 +160,6 @@
       border-color: var(--accent, #7dd3fc);
       background: var(--surface, #f0f4ff);
     }
-
-    /* ── Theme-aware utility colour classes ── */
-    .clr-good  { color: var(--good,  #22c55e); }
-    .clr-warn  { color: var(--warn,  #f59e0b); }
-    .clr-danger{ color: var(--danger,#ef4444); }
-    .clr-info  { color: var(--info,  var(--accent)); }
-    .clr-accent{ color: var(--accent); }
-    .clr-muted { color: var(--muted); }
-    body.light-mode .clr-good  { color: var(--good); }
-    body.light-mode .clr-warn  { color: var(--warn); }
-    body.light-mode .clr-danger{ color: var(--danger); }
-    body.light-mode .clr-info  { color: var(--info, var(--accent)); }
-    body.light-mode .clr-accent{ color: var(--accent); }
-    body.light-mode .clr-muted { color: var(--muted); }
 
   </style>
 </head>
@@ -331,8 +314,6 @@ D,5,7</textarea>
   </div>
 
   <script>
-  function _tc(d, l) { return document.body.classList.contains('light-mode') ? l : d; }
-
     const fmt = v => new Intl.NumberFormat("en-US").format(v);
     const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
@@ -390,7 +371,7 @@ D,5,7</textarea>
       const startY = 40;
 
       // Draw headers
-      ctx.fillStyle = _tc("#97abc6","#52637a");
+      ctx.fillStyle = "#97abc6";
       ctx.font = "700 11px 'Fira Code'";
       ctx.textAlign = "center";
       for (let w = 0; w <= cap; w++) {
@@ -418,7 +399,7 @@ D,5,7</textarea>
           ctx.lineWidth = isHighlight ? 3 : 1;
           ctx.strokeRect(x, y, cellW, cellH);
 
-          ctx.fillStyle = isHighlight ? _tc("#fef3c7","#92400e") : isFilled ? _tc("#bfdbfe","#1d4ed8") : _tc("#8b98b6","#52637a");
+          ctx.fillStyle = isHighlight ? "#fef3c7" : isFilled ? "#bfdbfe" : "#8b98b6";
           ctx.font = "600 10px 'Fira Code'";
           ctx.fillText(String(result.table[i][w]), x + cellW/2, y + cellH/2);
         }
