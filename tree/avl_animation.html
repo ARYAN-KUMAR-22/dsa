@@ -37,6 +37,11 @@
       --glow: rgba(99, 102, 241, 0.10);
       --focus: rgba(99, 102, 241, 0.20);
     }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
 
 
     * {
@@ -298,11 +303,11 @@
 
     .dbg-table td {
       padding: 3px 6px;
-      border-bottom: 1px solid #1e2438;
+      border-bottom: 1px solid var(--card);
     }
 
     .dbg-table tr:hover td {
-      background: #1e2438;
+      background: var(--card);
     }
 
     .bf-ok {
