@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root{--bg:#0b1020;--panel:#11192b;--surface:#18233a;--card:#1d2943;--border:#334760;--text:#edf5ff;--muted:#97abc6;--accent:#60a5fa;--accent2:#a78bfa;--accent3:#bfdbfe;--good:#22c55e;--warn:#f59e0b}
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+    }
+
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(96,165,250,.12),transparent 25%),radial-gradient(circle at bottom left,rgba(167,139,250,.1),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
     header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#111b3a,#0b1020)}
@@ -65,6 +79,33 @@
     .editor-field strong{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
     .editor-field input{width:100%;border:1px solid var(--border);border-radius:10px;background:rgba(24,35,58,.94);color:var(--text);padding:8px 10px;font:.75rem "Fira Code",monospace;outline:none;transition:border-color .2s}
     .editor-field input:focus{border-color:var(--accent)}
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
   </style>
 </head>
 <body>
@@ -429,6 +470,37 @@
     });
 
     loadPreset("ex1");
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
   </script>
 </body>
 </html>

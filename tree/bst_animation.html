@@ -24,6 +24,20 @@
       --panel: #12161f;
     }
 
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+    }
+
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -551,6 +565,33 @@
     .bad {
       color: var(--red);
     }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
   </style>
 </head>
 
@@ -890,6 +931,37 @@
     // Expose to global scope (for htmlpreview)
     window.doIns = doIns; window.doDel = doDel; window.doSrch = doSrch; window.doReset = doReset; window.doRand = doRand;
     window.showTab = showTab; window.loadSorted = loadSorted; window.loadRandom = loadRandom;
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
   </script>
 </body>
 
