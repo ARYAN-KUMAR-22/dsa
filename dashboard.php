@@ -203,15 +203,7 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="sidebar-category">
         <div class="category-title">02. Sorting Algorithms</div>
-        <a href="02_Sorting_Algorithms/bubble_sort_animation.html" class="nav-item">Bubble Sort</a>
-        <a href="02_Sorting_Algorithms/insertion_sort_animation.html" class="nav-item">Insertion Sort</a>
-        <a href="02_Sorting_Algorithms/selection_sort_animation.html" class="nav-item">Selection Sort</a>
-        <a href="02_Sorting_Algorithms/quick_sort_animation.html" class="nav-item">Quick Sort</a>
-        <a href="02_Sorting_Algorithms/merge_sort_animation.html" class="nav-item">Merge Sort</a>
-        <a href="02_Sorting_Algorithms/count_sort_animation.html" class="nav-item">Count Sort</a>
-        <a href="02_Sorting_Algorithms/bucket_sort_animation.html" class="nav-item">Bucket Sort</a>
-        <a href="02_Sorting_Algorithms/radix_sort_animation.html" class="nav-item">Radix Sort</a>
-        <a href="02_Sorting_Algorithms/shell_sort_animation.html" class="nav-item">Shell Sort</a>
+        <a href="02_Sorting_Algorithms/index.php" class="nav-item">Sorting Hub Directory</a>
       </div>
 
       <div class="sidebar-category">
