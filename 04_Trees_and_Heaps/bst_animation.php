@@ -1,0 +1,1004 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="description" content="Interactive Binary Search Tree visualizer — insert, delete, search, and explore degeneration vs. balanced insertion." />
+  <title>BST – Interactive Visualizer | DSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1e2438;
+      --border: #2a3050;
+      --accent: #f59e0b;
+      --accent2: #fb923c;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --yellow: #f1c40f;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --panel: #12161f;
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #b45309;
+      --accent2: #c2410c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #1a1400, #0d1117);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .speed-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-left: auto;
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      width: 280px;
+      min-width: 280px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.8)
+      }
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section-title {
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 7px 14px 4px;
+    }
+
+    .step-box {
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 80px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: .77rem;
+      line-height: 1.5;
+    }
+
+    .step-num {
+      font-family: 'Fira Code', monospace;
+      font-size: .67rem;
+      color: var(--accent2);
+      min-width: 18px;
+      padding-top: 1px;
+    }
+
+    .step-item.done .step-num {
+      color: var(--green)
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--yellow);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #3a4060;
+    }
+
+    .debug-scroll {
+      overflow-y: auto;
+      max-height: 160px;
+      padding: 4px 14px 8px;
+    }
+
+    .debug-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .debug-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .dbg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Fira Code', monospace;
+      font-size: .7rem;
+    }
+
+    .dbg-table th {
+      color: var(--muted);
+      padding: 3px 6px;
+      text-align: left;
+      font-size: .63rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dbg-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid #1e2438;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: .71rem;
+      line-height: 1.55;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+    }
+
+    .log-entry.info {
+      color: #60a5fa;
+      border-color: #60a5fa;
+      background: #60a5fa08;
+    }
+
+    .log-entry.success {
+      color: var(--green);
+      border-color: var(--green);
+      background: #2ecc7108;
+    }
+
+    .log-entry.warn {
+      color: var(--yellow);
+      border-color: var(--yellow);
+      background: #f1c40f08;
+    }
+
+    .log-entry.error {
+      color: var(--red);
+      border-color: var(--red);
+      background: #e74c3c08;
+    }
+
+    .log-entry .ts {
+      color: #3a4060;
+      margin-right: 5px;
+    }
+
+    /* RIGHT */
+    .right-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 20px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all .2s;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--card);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .controls input[type=number] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 7px;
+      font-size: .9rem;
+      width: 90px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .controls input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all .18s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0d1117;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: #0d1117;
+    }
+
+    .btn-warn {
+      background: var(--accent2);
+      color: #0d1117;
+    }
+
+    .btn-neutral {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-neutral:hover {
+      background: var(--card);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .stat-card .l {
+      font-size: .64rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .stat-card .v {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .canvas-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .74rem;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .tgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .t-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .t-card h3 {
+      font-size: .9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .t-card p,
+    .t-card li {
+      font-size: .81rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .t-card ul {
+      padding-left: 14px;
+    }
+
+    .t-card code {
+      background: var(--bg);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: .77rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .81rem;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--accent);
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    tr:hover td {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .good {
+      color: var(--green);
+    }
+
+    .bad {
+      color: var(--red);
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+
+<body>
+  <header>
+    <div style="font-size:1.6rem">🌲</div>
+    <div>
+      <h1>BST <span>Visualizer</span></h1>
+      <p>Binary Search Tree — insert, delete, search &amp; degeneration demo</p>
+    </div>
+    <a href="../index.php" style="margin-left:auto;margin-right:12px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Home</a>
+    <div class="speed-label">Speed:<input type="range" id="speedSlider" min="1" max="10" value="5" style="width:80px">
+    </div>
+  </header>
+  <div class="app-body">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="pulse-dot"></div>Debug Panel
+      </div>
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">⚡ Current Operation</div>
+        <div class="step-box" id="stepBox">
+          <div class="step-item pending">
+            <div class="step-num">–</div>
+            <div class="step-text">Idle…</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">🔬 Node Inspector</div>
+        <div class="debug-scroll">
+          <table class="dbg-table">
+            <thead>
+              <tr>
+                <th>Val</th>
+                <th>Height</th>
+                <th>Left</th>
+                <th>Right</th>
+              </tr>
+            </thead>
+            <tbody id="debugTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel-section" style="flex:1;overflow:hidden;">
+        <div class="panel-section-title">📋 Process Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="right-content">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('t-ops',this)">🟢 Operations</button>
+        <button class="tab-btn" onclick="showTab('t-degen',this)">📉 Degeneration</button>
+        <button class="tab-btn" onclick="showTab('t-theory',this)">📚 Theory</button>
+      </nav>
+
+      <div id="t-ops" class="tab-panel active">
+        <div class="controls">
+          <input type="number" id="inVal" placeholder="Value" min="1" max="999" />
+          <button class="btn btn-primary" onclick="doIns()">Insert</button>
+          <button class="btn btn-danger" onclick="doDel()">Delete</button>
+          <button class="btn btn-warn" onclick="doSrch()">Search</button>
+          <button class="btn btn-neutral" onclick="doReset()">Reset</button>
+          <button class="btn btn-success" onclick="doRand()">Random</button>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="dot" style="background:#f59e0b"></div>Normal
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#2ecc71"></div>Inserted
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#e74c3c"></div>Deleting
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#00d4ff"></div>Found
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="l">Nodes</div>
+            <div class="v" id="s-nodes">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Height</div>
+            <div class="v" id="s-height">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Min</div>
+            <div class="v" id="s-min">–</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Max</div>
+            <div class="v" id="s-max">–</div>
+          </div>
+        </div>
+        <div class="canvas-wrap"><canvas id="bstCanvas" height="380"></canvas></div>
+      </div>
+
+      <div id="t-degen" class="tab-panel">
+        <div class="tgrid" style="margin-bottom:16px">
+          <div class="t-card">
+            <h3>⚠️ Degeneration Problem</h3>
+            <p>If you insert sorted data into a BST, it becomes a <strong>linked list</strong>. Height = n, search =
+              O(n). This is the worst case AVL fixes.</p>
+          </div>
+          <div class="t-card">
+            <h3>💡 Solution</h3>
+            <p>Use a <strong>self-balancing BST</strong> like AVL or Red-Black trees. They guarantee height = O(log n)
+              regardless of insertion order.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <button class="btn btn-warn" onclick="loadSorted()">▶ Insert Sorted (Bad)</button>
+          <button class="btn btn-success" onclick="loadRandom()">▶ Insert Random (Good)</button>
+          <button class="btn btn-neutral" onclick="doReset()">Reset</button>
+        </div>
+        <div class="canvas-wrap"><canvas id="degenCanvas" height="380"></canvas></div>
+        <div class="stats-row" style="margin-top:12px">
+          <div class="stat-card">
+            <div class="l">Nodes</div>
+            <div class="v" id="d-nodes">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Height</div>
+            <div class="v" id="d-height">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Ideal h</div>
+            <div class="v" id="d-ideal">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Waste</div>
+            <div class="v" id="d-waste">0×</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="t-theory" class="tab-panel">
+        <div class="tgrid">
+          <div class="t-card">
+            <h3>📋 BST Property</h3>
+            <ul>
+              <li>Left child &lt; Parent &lt; Right child</li>
+              <li>All left subtree values &lt; node</li>
+              <li>All right subtree values &gt; node</li>
+              <li>Inorder traversal gives sorted output</li>
+            </ul>
+          </div>
+          <div class="t-card">
+            <h3>⏱️ Complexity</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Op</th>
+                  <th>Avg</th>
+                  <th>Worst</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Search</td>
+                  <td class="good">O(log n)</td>
+                  <td class="bad">O(n)</td>
+                </tr>
+                <tr>
+                  <td>Insert</td>
+                  <td class="good">O(log n)</td>
+                  <td class="bad">O(n)</td>
+                </tr>
+                <tr>
+                  <td>Delete</td>
+                  <td class="good">O(log n)</td>
+                  <td class="bad">O(n)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="t-card">
+            <h3>🗑️ Deletion Cases</h3>
+            <ul>
+              <li><strong>Leaf</strong>: Just remove</li>
+              <li><strong>1 child</strong>: Replace with child</li>
+              <li><strong>2 children</strong>: Replace with in-order successor (smallest in right subtree)</li>
+            </ul>
+          </div>
+          <div class="t-card">
+            <h3>🌍 Uses</h3>
+            <ul>
+              <li>Sorted data structures</li>
+              <li>Range queries</li>
+              <li>Symbol tables (compilers)</li>
+              <li>Base for AVL, Red-Black trees</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // ── BST NODE ──
+    class BN { constructor(v) { this.v = v; this.l = null; this.r = null; this.h = 1; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; } }
+    const bst = { root: null };
+    function ht(n) { return n ? n.h : 0; }
+    function upH(n) { if (n) n.h = 1 + Math.max(ht(n.l), ht(n.r)); }
+    function ins(nd, v) { if (!nd) { return new BN(v); } if (v < nd.v) nd.l = ins(nd.l, v); else if (v > nd.v) nd.r = ins(nd.r, v); upH(nd); return nd; }
+    function minN(nd) { while (nd.l) nd = nd.l; return nd; }
+    function del(nd, v) { if (!nd) return null; if (v < nd.v) nd.l = del(nd.l, v); else if (v > nd.v) nd.r = del(nd.r, v); else { if (!nd.l || !nd.r) nd = nd.l || nd.r; else { let s = minN(nd.r); nd.v = s.v; nd.r = del(nd.r, s.v); } } if (!nd) return null; upH(nd); return nd; }
+    function srch(nd, v) { if (!nd) return null; if (v === nd.v) return nd; return v < nd.v ? srch(nd.l, v) : srch(nd.r, v); }
+    function cnt(nd) { return nd ? 1 + cnt(nd.l) + cnt(nd.r) : 0; }
+    function getMin(nd) { return nd ? (nd.l ? getMin(nd.l) : nd.v) : null; }
+    function getMax(nd) { return nd ? (nd.r ? getMax(nd.r) : nd.v) : null; }
+
+    // ── DRAW ──
+    let hl = null, hlc = '#f59e0b';
+    function pos(nd, x, y, gap) { if (!nd) return; nd.tx = x; nd.ty = y; if (!nd.placed) { nd.x = x; nd.y = y; nd.placed = true; } pos(nd.l, x - gap, y + 66, gap / 1.65); pos(nd.r, x + gap, y + 66, gap / 1.65); }
+    function lerp(nd) { if (!nd) return; nd.x += (nd.tx - nd.x) * .2; nd.y += (nd.ty - nd.y) * .2; lerp(nd.l); lerp(nd.r); }
+    function drawTree(ctx, nd, par, W) {
+      if (!nd) return;
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      drawTree(ctx, nd.l, nd, W); drawTree(ctx, nd.r, nd, W);
+      const r = 21, col = (hl && nd === hl) ? hlc : '#f59e0b';
+      ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
+      ctx.fillStyle = '#8892b0'; ctx.font = '9px Fira Code'; ctx.fillText('h:' + nd.h, nd.x, nd.y + r + 11);
+    }
+    let raf;
+    function render() {
+      const cvs = document.getElementById('bstCanvas'); cvs.width = cvs.clientWidth || 800;
+      const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
+      if (!bst.root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Tree is empty — insert values!', cvs.width / 2, cvs.height / 2); updateStats(); return; }
+      pos(bst.root, cvs.width / 2, 44, cvs.width / 4.5); lerp(bst.root); drawTree(ctx, bst.root, null, cvs.width);
+      updateStats(); updateDebug();
+    }
+    function loop() { render(); raf = requestAnimationFrame(loop); }
+
+    // ── STATS ──
+    function updateStats() {
+      document.getElementById('s-nodes').textContent = cnt(bst.root);
+      document.getElementById('s-height').textContent = ht(bst.root);
+      const mn = getMin(bst.root), mx = getMax(bst.root);
+      document.getElementById('s-min').textContent = mn ?? '–';
+      document.getElementById('s-max').textContent = mx ?? '–';
+    }
+    function collect(nd, arr) { if (!nd) return; collect(nd.l, arr); arr.push(nd); collect(nd.r, arr); }
+    function updateDebug() {
+      const tb = document.getElementById('debugTable'), arr = []; collect(bst.root, arr); tb.innerHTML = '';
+      arr.forEach(n => { const tr = document.createElement('tr'); tr.innerHTML = `<td style="color:var(--text);font-weight:600">${n.v}</td><td>${n.h}</td><td>${n.l ? n.l.v : '—'}</td><td>${n.r ? n.r.v : '—'}</td>`; tb.appendChild(tr); });
+    }
+
+    // ── LOG / STEPS ──
+    function log(msg, t = 'info') { const b = document.getElementById('logBox'), d = document.createElement('div'); d.className = 'log-entry ' + t; const now = new Date(); d.innerHTML = `<span class='ts'>[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]</span>${msg}`; b.prepend(d); }
+    function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-item ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); d.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`; b.appendChild(d); }); }
+    function clearSteps() { document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle…</div></div>'; }
+
+    // ── OPERATIONS ──
+    function getV() { const v = parseInt(document.getElementById('inVal').value); return isNaN(v) ? null : v; }
+    function spd() { return Math.max(100, 1100 - parseInt(document.getElementById('speedSlider').value) * 100); }
+    async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function doIns() {
+      const v = getV(); if (v === null) { log('Enter a value!', 'error'); return; }
+      const STEPS = ['Compare value & traverse BST', 'Place new node', 'Update heights', 'Done ✓'];
+      setSteps(STEPS, 0); log(`➕ Inserting ${v}…`, 'info'); await sleep(spd());
+      setSteps(STEPS, 1); bst.root = ins(bst.root, v); hl = srch(bst.root, v); hlc = '#2ecc71';
+      await sleep(spd()); setSteps(STEPS, 2); await sleep(spd() / 2); setSteps(STEPS, 3);
+      log(`✅ Inserted ${v}. Height: ${ht(bst.root)}`, 'success');
+      await sleep(900); hl = null; clearSteps(); document.getElementById('inVal').value = '';
+    }
+    async function doDel() {
+      const v = getV(); if (v === null) { log('Enter a value!', 'error'); return; }
+      if (!srch(bst.root, v)) { log(`❌ ${v} not found`, 'error'); return; }
+      const STEPS = ['Find node', 'Determine case (leaf/1-child/2-child)', 'Remove & reconnect', 'Done ✓'];
+      setSteps(STEPS, 0); hl = srch(bst.root, v); hlc = '#e74c3c'; log(`🗑️ Deleting ${v}…`, 'warn');
+      await sleep(spd()); setSteps(STEPS, 1); await sleep(spd() / 2); setSteps(STEPS, 2);
+      bst.root = del(bst.root, v); await sleep(spd()); setSteps(STEPS, 3);
+      log(`✅ Deleted ${v}`, 'success'); hl = null; clearSteps(); document.getElementById('inVal').value = '';
+    }
+    async function doSrch() {
+      const v = getV(); if (v === null) { log('Enter a value!', 'error'); return; }
+      const STEPS = ['Start at root', 'Compare & go left/right', 'Check result'];
+      setSteps(STEPS, 0); log(`🔍 Searching ${v}…`, 'info'); await sleep(spd() / 2);
+      setSteps(STEPS, 1); const f = srch(bst.root, v); hl = f; hlc = '#00d4ff';
+      await sleep(spd() / 2); setSteps(STEPS, 2);
+      if (f) { log(`✅ Found ${v}!`, 'success'); } else { log(`❌ ${v} not found`, 'error'); }
+      await sleep(1200); hl = null; clearSteps(); document.getElementById('inVal').value = '';
+    }
+    function doReset() { bst.root = null; hl = null; clearSteps(); log('Tree cleared', 'info'); document.getElementById('debugTable').innerHTML = ''; }
+    function doRand() { const v = Math.floor(Math.random() * 99) + 1; document.getElementById('inVal').value = v; doIns(); }
+
+    // ── DEGENERATION DEMO ──
+    const degenBst = { root: null };
+    async function loadSorted() {
+      degenBst.root = null; updateDegen(); log('📉 Inserting sorted: 10,20,30…80 — watch it degenerate!', 'warn');
+      for (const v of [10, 20, 30, 40, 50, 60, 70, 80]) { degenBst.root = ins(degenBst.root, v); updateDegen(); await sleep(300); }
+      log(`❌ Height=${ht(degenBst.root)}, ideal=${Math.floor(Math.log2(9))}. ${(ht(degenBst.root) / Math.floor(Math.log2(9))).toFixed(1)}× worse!`, 'error');
+    }
+    async function loadRandom() {
+      degenBst.root = null; updateDegen(); log('✅ Inserting random order…', 'success');
+      for (const v of [45, 22, 67, 11, 33, 55, 78, 5]) { degenBst.root = ins(degenBst.root, v); updateDegen(); await sleep(300); }
+      log(`✅ Height=${ht(degenBst.root)}, near-optimal! Much better.`, 'success');
+    }
+    function updateDegen() {
+      const n = cnt(degenBst.root), h = ht(degenBst.root), ideal = n ? Math.floor(Math.log2(n + 1)) : 0;
+      document.getElementById('d-nodes').textContent = n; document.getElementById('d-height').textContent = h;
+      document.getElementById('d-ideal').textContent = ideal;
+      document.getElementById('d-waste').textContent = ideal ? ((h / ideal).toFixed(1) + '×') : '–';
+      const cvs = document.getElementById('degenCanvas'); cvs.width = cvs.clientWidth || 800;
+      const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
+      if (!degenBst.root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('Click a demo button above', cvs.width / 2, cvs.height / 2); return; }
+      pos(degenBst.root, cvs.width / 2, 44, cvs.width / 4.5); lerp(degenBst.root); drawTree2(ctx, degenBst.root, null);
+    }
+    function drawTree2(ctx, nd, par) {
+      if (!nd) return;
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      drawTree2(ctx, nd.l, nd); drawTree2(ctx, nd.r, nd);
+      const r = 21, col = nd.h > 4 ? '#e74c3c' : '#f59e0b';
+      ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = col; ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+      ctx.fillStyle = '#0d1117'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
+    }
+
+    // ── TABS ──
+    function showTab(id, btn) { document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if (id === 't-degen') updateDegen(); }
+
+    // ── INIT ──
+    window.onload = () => {
+      loop();
+      [50, 30, 70, 20, 40, 60, 80].forEach(v => { bst.root = ins(bst.root, v); });
+      log('Pre-loaded: 50, 30, 70, 20, 40, 60, 80', 'info'); clearSteps();
+    };
+    window.addEventListener('resize', () => { const c = document.getElementById('bstCanvas'); c.width = c.clientWidth || 800; });
+
+    // Expose to global scope (for htmlpreview)
+    window.doIns = doIns; window.doDel = doDel; window.doSrch = doSrch; window.doReset = doReset; window.doRand = doRand;
+    window.showTab = showTab; window.loadSorted = loadSorted; window.loadRandom = loadRandom;
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+
+</html>

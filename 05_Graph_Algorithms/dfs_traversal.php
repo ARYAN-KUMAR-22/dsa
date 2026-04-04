@@ -1,0 +1,1588 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Depth First Search (DFS)</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --accent: #ef4444;
+      --accent-2: #fca5a5;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --info: #38bdf8;
+      --danger: #ef4444;
+      --focus-ring: rgba(252, 165, 165, .5);
+      --focus-glow: rgba(239, 68, 68, .18);
+      --shadow: 0 18px 45px rgba(0, 0, 0, .28)
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #b91c1c;
+      --accent-2: #dc2626;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    body.light-mode code {
+      color: var(--text);
+    }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #1a0c0c, #0d1117);
+      flex-shrink: 0
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700
+    }
+
+    header h1 span {
+      color: var(--accent)
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: .78rem
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .header-link {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .78rem;
+      text-decoration: none
+    }
+
+    .header-link.primary {
+      background: linear-gradient(135deg, #dc2626, var(--accent));
+      color: #230606;
+      border-color: transparent;
+      font-weight: 700
+    }
+
+    .speed-label {
+      margin-left: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .78rem;
+      color: var(--muted)
+    }
+
+    .speed-label input {
+      accent-color: var(--accent)
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden
+    }
+
+    .left-panel {
+      width: 360px;
+      min-width: 360px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .panel-header {
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: .7rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0
+    }
+
+    @keyframes pulse {
+      0%,100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .45;
+        transform: scale(.84)
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column
+    }
+
+    .panel-section-title {
+      font-size: .67rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 7px 12px 4px
+    }
+
+    .flow-merge {
+      padding: 0 8px 8px;
+      display: grid;
+      gap: 8px
+    }
+
+    .flow-block {
+      display: grid;
+      gap: 6px;
+      min-height: 0
+    }
+
+    .panel-mini-title {
+      padding: 0 4px;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b
+    }
+
+    .summary-grid {
+      padding: 6px 12px 10px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      box-shadow: var(--shadow)
+    }
+
+    .metric-label {
+      font-size: .64rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px
+    }
+
+    .metric-value {
+      font-family: "Fira Code", monospace;
+      font-size: .8rem;
+      color: var(--text)
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(239, 68, 68, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(252, 165, 165, 0.06), transparent 30%),
+        var(--bg)
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      line-height: 1.06;
+      margin-bottom: 12px
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 8px 16px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      transition: all .2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface)
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card)
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: auto
+    }
+
+    .tab-panel.active {
+      display: block
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      align-items: center
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px
+    }
+
+    .field span {
+      font-size: .72rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700
+    }
+
+    .field select,
+    .field input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: "Fira Code", monospace;
+      font-size: .8rem;
+      outline: none
+    }
+
+    .field select {
+      min-width: 110px
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: .8rem;
+      font-weight: 600;
+      font-family: Inter, sans-serif;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent)
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #dc2626);
+      color: #230606;
+      border-color: transparent
+    }
+
+    .status {
+      padding: 0 16px 12px;
+      color: var(--text);
+      line-height: 1.7;
+      font-size: .82rem
+    }
+
+    .viz-area {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 12px;
+      padding: 12px 16px
+    }
+
+    .canvas-card,
+    .code-card,
+    .footer-card,
+    .stack-card,
+    .theory-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease
+    }
+
+    .canvas-card,
+    .code-card,
+    .stack-card {
+      padding: 0;
+      overflow: hidden
+    }
+
+    .canvas-card {
+      display: flex;
+      flex-direction: column
+    }
+
+    .focus-card {
+      border-color: var(--focus-ring);
+      box-shadow: 0 0 0 1px var(--focus-ring), 0 20px 40px var(--focus-glow);
+      transform: translateY(-1px)
+    }
+
+    .canvas-card.focus-card {
+      box-shadow: 0 0 0 1px rgba(252, 165, 165, .32), var(--shadow);
+      transform: none
+    }
+
+    .card-head {
+      padding: 12px 14px 9px;
+      border-bottom: 1px solid rgba(43, 53, 80, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .canvas-card .card-head {
+      padding: 12px 14px 4px;
+      border-bottom: none
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 700
+    }
+
+    .card-subtitle {
+      font-size: .75rem;
+      color: var(--muted)
+    }
+
+    .graph-status {
+      color: var(--text);
+      line-height: 1.55;
+      max-width: 560px
+    }
+
+    .graph-stage {
+      height: 340px;
+      min-height: 340px;
+      max-height: 340px;
+      padding: 0 14px 14px;
+      margin: 2px 0 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      overflow: hidden
+    }
+
+    .graph-stage svg {
+      width: 100%;
+      height: 100%;
+      display: block
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px
+    }
+
+    .stack-card h2,
+    .code-card h2,
+    .footer-card h2,
+    .theory-card h3 {
+      font-size: .9rem;
+      margin-bottom: 5px
+    }
+
+    .stack-card-body,
+    .code-card-body,
+    .footer-card {
+      padding: 9px 9px 9px
+    }
+
+    .footer-card {
+      min-height: 0
+    }
+
+    .queue-box,
+    .order-box,
+    .list-grid,
+    .code-lines {
+      display: grid;
+      gap: 10px
+    }
+
+    .adjacency-card .stack-card-body {
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
+
+    .adjacency-card .stack-card-body h2 {
+      margin-bottom: 8px
+    }
+
+    .code-card .stack-card-body {
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
+
+    .list-grid {
+      min-height: 300px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px 8px 10px 10px;
+      border: 1px solid rgba(248, 113, 113, .1);
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(10, 16, 29, .92), rgba(13, 19, 31, .96));
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, .04);
+      align-content: start;
+      grid-auto-rows: max-content;
+      scrollbar-gutter: stable
+    }
+
+    .list-grid::-webkit-scrollbar,
+    .edge-list::-webkit-scrollbar,
+    .code-lines::-webkit-scrollbar {
+      width: 5px
+    }
+
+    .list-grid::-webkit-scrollbar-thumb,
+    .edge-list::-webkit-scrollbar-thumb,
+    .code-lines::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px
+    }
+
+    .row-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .node-pill,
+    .empty,
+    .order-pill {
+      min-width: 38px;
+      min-height: 30px;
+      padding: 5px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Fira Code", monospace;
+      font-size: .72rem;
+      transition: border-color .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease
+    }
+
+    .node-pill {
+      background: rgba(239, 68, 68, .12)
+    }
+
+    .order-pill {
+      background: rgba(56, 189, 248, .12)
+    }
+
+    .empty {
+      background: var(--surface);
+      color: #64748b
+    }
+
+    .node-pill.active,
+    .order-pill.active {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #1a0d0d;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(239, 68, 68, .18);
+      transform: translateY(-1px)
+    }
+
+    .list-row {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease
+    }
+
+    .list-row.active {
+      border-color: rgba(252, 165, 165, .45);
+      box-shadow: 0 0 0 1px rgba(252, 165, 165, .18), 0 14px 30px rgba(239, 68, 68, .12);
+      transform: translateY(-1px)
+    }
+
+    .list-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      font-family: "Fira Code", monospace;
+      color: var(--accent-2)
+    }
+
+    .list-body {
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center
+    }
+
+    .edge-list {
+      display: grid;
+      gap: 4px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+      align-content: start;
+      grid-auto-rows: max-content
+    }
+
+    .edge-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: "Fira Code", monospace;
+      font-size: .72rem
+    }
+
+    .edge-item.active {
+      border-color: rgba(245, 158, 11, .45);
+      background: rgba(245, 158, 11, .08)
+    }
+
+    .edge-item.done {
+      border-color: rgba(239, 68, 68, .3)
+    }
+
+    .bottom-row {
+      padding: 0 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      flex-shrink: 0;
+      align-items: start
+    }
+
+    .theory-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px
+    }
+
+    .theory-card {
+      padding: 18px
+    }
+
+    .theory-log-card {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
+
+    .theory-log-list {
+      margin-top: 12px;
+      max-height: 260px;
+      padding-right: 4px
+    }
+
+    .theory-card h3 {
+      color: var(--accent-2)
+    }
+
+    .theory-card p,
+    .theory-card li {
+      font-size: .82rem;
+      line-height: 1.65;
+      color: var(--text)
+    }
+
+    .theory-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px
+    }
+
+    pre {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #09101f;
+      overflow: auto
+    }
+
+    code {
+      font-family: "Fira Code", monospace;
+      color: #dbe4f3;
+      white-space: pre
+    }
+
+    .step-list,
+    .code-lines {
+      display: grid;
+      gap: 8px
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      line-height: 1.55;
+      font-size: .76rem
+    }
+
+    .step-item.done {
+      border-color: rgba(239, 68, 68, .3)
+    }
+
+    .step-item.active {
+      border-color: rgba(245, 158, 11, .45);
+      background: rgba(245, 158, 11, .08)
+    }
+
+    .step-index {
+      min-width: 24px;
+      font-family: "Fira Code", monospace;
+      color: var(--accent-2)
+    }
+
+    .step-item.done .step-index {
+      color: var(--accent)
+    }
+
+    .edge-item {
+      display: grid;
+      justify-content: stretch;
+      gap: 6px;
+      align-self: start
+    }
+
+    .edge-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center
+    }
+
+    .edge-type {
+      font-size: .66rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-2)
+    }
+
+    .edge-state {
+      font-size: .64rem;
+      color: #64748b
+    }
+
+    .edge-msg {
+      color: var(--text);
+      font-size: .72rem;
+      line-height: 1.45
+    }
+
+    .bottom-row .footer-card {
+      padding: 12px 14px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+      max-height: 128px;
+      overflow-y: auto
+    }
+
+    .bottom-row .footer-card::-webkit-scrollbar {
+      width: 5px
+    }
+
+    .bottom-row .footer-card::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px
+    }
+
+    #insightText {
+      margin: 0;
+      font-size: .8rem;
+      line-height: 1.5
+    }
+
+    .code-lines {
+      margin-top: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+      align-content: start;
+      grid-auto-rows: max-content
+    }
+
+    .flow-code-lines {
+      margin-top: 0;
+      min-height: 220px;
+      max-height: 220px;
+      padding-right: 2px
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: "Fira Code", monospace;
+      font-size: .74rem;
+      color: #cbd5e1
+    }
+
+    .code-line.active {
+      border-color: rgba(239, 68, 68, .38);
+      background: rgba(239, 68, 68, .1)
+    }
+
+    .code-line-num {
+      color: #64748b;
+      text-align: right
+    }
+
+    .code-text {
+      white-space: pre
+    }
+
+    @media (max-width:960px) {
+      .app-body {
+        flex-direction: column;
+        overflow: visible
+      }
+
+      .left-panel {
+        width: auto;
+        min-width: 0
+      }
+
+      .workspace {
+        overflow: visible
+      }
+
+      .viz-area,
+      .bottom-row,
+      .theory-grid {
+        grid-template-columns: 1fr
+      }
+
+      .graph-stage {
+        height: 280px;
+        min-height: 280px;
+        max-height: 280px
+      }
+
+      .tabs {
+        overflow: auto
+      }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Depth First Search <span>Dashboard</span></h1>
+      <p>Same dashboard feel as sorting techniques: side debug, tabs for animation, theory, and pseudocode.</p>
+    </div>
+    <div class="header-actions">
+      <a class="header-link primary" href="../index.php">Home</a>
+      <a class="header-link" href="undirected_graph_representation.php">Undirected Graph</a>
+      <label class="speed-label">Speed:
+        <input id="speedSlider" type="range" min="1" max="10" value="6" />
+      </label>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header"><div class="pulse-dot"></div>Traversal Panel</div>
+      <section class="panel-section">
+        <div class="panel-section-title">Snapshot</div>
+        <div class="summary-grid">
+          <div class="metric"><div class="metric-label">Vertices</div><div class="metric-value" id="vertexCount">0</div></div>
+          <div class="metric"><div class="metric-label">Visited</div><div class="metric-value" id="visitedCount">0 / 0</div></div>
+          <div class="metric"><div class="metric-label">Stack</div><div class="metric-value" id="stackSize">0</div></div>
+          <div class="metric"><div class="metric-label">Focus</div><div class="metric-value" id="currentFocus">-</div></div>
+          <div class="metric"><div class="metric-label">Start</div><div class="metric-value" id="startVertexLabel">-</div></div>
+          <div class="metric"><div class="metric-label">Step</div><div class="metric-value" id="progressLabel">0 / 0</div></div>
+        </div>
+      </section>
+      <section class="panel-section" style="flex:1; min-height:0;">
+        <div class="panel-section-title">Algorithm Flow + Active Pseudocode</div>
+        <div class="flow-merge">
+          <div class="flow-block">
+            <div class="panel-mini-title">Flow Steps</div>
+            <div class="step-list" id="stepBox"></div>
+          </div>
+          <div class="flow-block">
+            <div class="panel-mini-title">Live Pseudocode</div>
+            <div class="code-lines flow-code-lines" id="codeLines"></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('animation',this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('theory',this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('code',this)">Pseudocode</button>
+      </nav>
+
+      <section id="animation" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Sample</span>
+            <select id="sampleSelect"></select>
+          </label>
+          <label class="field">
+            <span>Start</span>
+            <select id="startSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="loadBtn">Load Sample</button>
+            <button id="nextBtn">Next Step</button>
+            <button class="primary" id="playBtn">Auto Play</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+        <section class="viz-area">
+          <article class="canvas-card" id="graphCard">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Graph + DFS Tree</div>
+                <div class="card-subtitle graph-status" id="statusText">Load a sample and start DFS to see how the stack drives depth-first exploration.</div>
+              </div>
+            </div>
+            <div class="graph-stage"><svg id="graphSvg" viewBox="0 0 760 430" preserveAspectRatio="xMidYMid meet"></svg></div>
+          </article>
+
+          <section class="stack">
+            <article class="stack-card" id="frontierCard">
+              <div class="stack-card-body">
+                <h2>Call Stack</h2>
+                <div class="queue-box" id="stackBox"></div>
+              </div>
+            </article>
+            <article class="stack-card" id="orderCard">
+              <div class="stack-card-body">
+                <h2>Traversal Order</h2>
+                <div class="order-box" id="orderBox"></div>
+              </div>
+            </article>
+            <article class="stack-card adjacency-card" id="adjacencyCard">
+              <div class="stack-card-body">
+                <h2>Adjacency List</h2>
+                <div class="list-grid" id="adjList"></div>
+              </div>
+            </article>
+          </section>
+        </section>
+
+        <section class="bottom-row">
+          <article class="footer-card">
+            <h2>Current Insight</h2>
+            <p id="insightText">DFS keeps moving deeper along one path until it cannot continue, then it backtracks to the most recent unfinished vertex.</p>
+          </article>
+        </section>
+      </section>
+
+    <section id="theory" class="tab-panel">
+      <section class="theory-grid">
+        <article class="theory-card">
+          <h3>What DFS Does</h3>
+          <ul>
+            <li>DFS starts from a source vertex and keeps going deeper whenever it finds an unvisited neighbor.</li>
+            <li>Only when it gets stuck does it backtrack to the previous vertex.</li>
+            <li>This creates a depth-first traversal order instead of a level-order one.</li>
+          </ul>
+        </article>
+        <article class="theory-card">
+          <h3>Why The Stack Matters</h3>
+          <ul>
+            <li>Recursive DFS uses the call stack, while iterative DFS uses an explicit stack.</li>
+            <li>The most recently discovered unfinished vertex is processed next.</li>
+            <li>This last-in, first-out behavior is what drives the search deeper before backtracking.</li>
+          </ul>
+        </article>
+        <article class="theory-card">
+          <h3>Where DFS Is Used</h3>
+          <ul>
+            <li>Cycle detection and connected component exploration.</li>
+            <li>Topological sorting ideas in directed acyclic graphs.</li>
+            <li>Backtracking-style problems such as mazes and puzzles.</li>
+            <li>Bridge, articulation point, and strongly connected component algorithms.</li>
+          </ul>
+        </article>
+        <article class="theory-card">
+          <h3>Complexity</h3>
+          <ul>
+            <li>With an adjacency list, DFS runs in <code>O(V + E)</code>.</li>
+            <li>Each vertex is discovered once.</li>
+            <li>Each edge is inspected at most twice in an undirected graph.</li>
+          </ul>
+        </article>
+        <article class="theory-card theory-log-card">
+          <h3>Execution Log</h3>
+          <p>Theory and live traversal state stay aligned here, so you can read the concept and watch the exact step messages together.</p>
+          <div class="edge-list theory-log-list" id="theoryActionList"></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="code" class="tab-panel">
+      <section class="theory-grid">
+        <article class="theory-card">
+          <h3>C-Style Pseudo Code</h3>
+          <pre><code>dfs(node)
+    visited[node] = true
+    print node
+
+    for each neighbor of node
+        if neighbor is not visited
+            dfs(neighbor)</code></pre>
+        </article>
+        <article class="theory-card">
+          <h3>C Code Sketch</h3>
+          <pre><code>void dfs(Node* graph[], int node, int visited[]) {
+    visited[node] = 1;
+    printf("%d ", node);
+
+    Node* temp = graph[node];
+    while (temp != NULL) {
+        int next = temp->vertex;
+        if (!visited[next]) {
+            dfs(graph, next, visited);
+        }
+        temp = temp->next;
+    }
+}</code></pre>
+        </article>
+        <article class="theory-card">
+          <h3>Step Mapping</h3>
+          <p>The animation follows the same rhythm every time: visit the current vertex, inspect neighbors, go deeper on an unseen branch, resume when that branch finishes, and finally backtrack.</p>
+        </article>
+        <article class="theory-card">
+          <h3>Teaching Note</h3>
+          <p>DFS marks a vertex as visited the moment it enters the search. That prevents the traversal from looping forever on cycles.</p>
+        </article>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    const FLOW_STEPS = [
+      'Visit the current vertex and mark it as seen.',
+      'Inspect the next adjacent vertex.',
+      'Go deeper on the first unvisited neighbor.',
+      'Resume the parent vertex after the deeper branch finishes.',
+      'Backtrack when no unvisited neighbors remain.'
+    ];
+
+    const PSEUDO_LINES = [
+      'dfs(node)',
+      '    visited[node] = true',
+      '    visit(node)',
+      '    for each neighbor of node',
+      '        if neighbor is not visited',
+      '            dfs(neighbor)',
+      '    return'
+    ];
+
+    const samples = {
+      classroom: {
+        label: 'Classroom Graph',
+        vertices: ['A', 'B', 'C', 'D', 'E', 'F'],
+        positions: { A: [120, 205], B: [290, 130], C: [290, 290], D: [470, 130], E: [470, 290], F: [640, 210] },
+        edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'D'], ['C', 'E'], ['D', 'F'], ['E', 'F']]
+      },
+      bridge: {
+        label: 'Bridge Graph',
+        vertices: ['P', 'Q', 'R', 'S', 'T', 'U'],
+        positions: { P: [120, 205], Q: [280, 130], R: [460, 130], S: [280, 290], T: [460, 290], U: [640, 205] },
+        edges: [['P', 'Q'], ['Q', 'R'], ['P', 'S'], ['Q', 'S'], ['Q', 'T'], ['R', 'T'], ['T', 'U']]
+      }
+    };
+
+    const ui = {
+      speedSlider: document.getElementById('speedSlider'),
+      sampleSelect: document.getElementById('sampleSelect'),
+      startSelect: document.getElementById('startSelect'),
+      loadBtn: document.getElementById('loadBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      playBtn: document.getElementById('playBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      graphSvg: document.getElementById('graphSvg'),
+      graphCard: document.getElementById('graphCard'),
+      frontierCard: document.getElementById('frontierCard'),
+      orderCard: document.getElementById('orderCard'),
+      adjacencyCard: document.getElementById('adjacencyCard'),
+      stackBox: document.getElementById('stackBox'),
+      orderBox: document.getElementById('orderBox'),
+      adjList: document.getElementById('adjList'),
+      stepBox: document.getElementById('stepBox'),
+      codeLines: document.getElementById('codeLines'),
+      actionList: document.getElementById('actionList'),
+      theoryActionList: document.getElementById('theoryActionList'),
+      vertexCount: document.getElementById('vertexCount'),
+      visitedCount: document.getElementById('visitedCount'),
+      stackSize: document.getElementById('stackSize'),
+      currentFocus: document.getElementById('currentFocus'),
+      startVertexLabel: document.getElementById('startVertexLabel'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText')
+    };
+
+    let state = {
+      sampleKey: 'classroom',
+      sample: samples.classroom,
+      start: 'A',
+      actions: [],
+      actionIndex: 0,
+      running: false,
+      timer: null,
+      snapshot: null
+    };
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function buildAdjacency(sample) {
+      const adj = Object.fromEntries(sample.vertices.map(v => [v, []]));
+      sample.edges.forEach(([u, v]) => {
+        adj[u].push(v);
+        adj[v].push(u);
+      });
+      return adj;
+    }
+
+    function makeSnapshot(type, message, adj, stack, visited, order, activeVertex = null, activeEdge = null, treeEdges = []) {
+      return {
+        type,
+        message,
+        stack: [...stack],
+        visited: [...visited],
+        order: [...order],
+        activeVertex,
+        activeEdge,
+        treeEdges: treeEdges.map(edge => [...edge]),
+        adj
+      };
+    }
+
+    function buildActions(sample, start) {
+      const adj = buildAdjacency(sample);
+      const stack = [];
+      const visited = new Set();
+      const order = [];
+      const treeEdges = [];
+      const actions = [
+        makeSnapshot('start', `Start DFS from ${start}. The search will go as deep as possible before backtracking.`, adj, stack, visited, order, start, null, treeEdges)
+      ];
+
+      function dfs(node, parent = null) {
+        visited.add(node);
+        stack.push(node);
+        order.push(node);
+        actions.push(makeSnapshot('discover', `Visit ${node} and push it onto the call stack.`, adj, stack, visited, order, node, parent ? [parent, node] : null, treeEdges));
+
+        for (const neighbor of adj[node]) {
+          const seen = visited.has(neighbor);
+          actions.push(makeSnapshot('inspect', seen ? `Inspect edge ${node}-${neighbor}. ${neighbor} was already visited, so skip it.` : `Inspect edge ${node}-${neighbor}. ${neighbor} is unvisited, so go deeper.`, adj, stack, visited, order, node, [node, neighbor], treeEdges));
+          if (!seen) {
+            treeEdges.push([node, neighbor]);
+            dfs(neighbor, node);
+            actions.push(makeSnapshot('resume', `Return to ${node} after finishing ${neighbor}. Continue checking remaining neighbors.`, adj, stack, visited, order, node, [node, neighbor], treeEdges));
+          }
+        }
+
+        stack.pop();
+        actions.push(makeSnapshot('backtrack', parent ? `Backtrack from ${node} to ${parent}.` : `Backtracking ends at start vertex ${node}.`, adj, stack, visited, order, node, parent ? [parent, node] : null, treeEdges));
+      }
+
+      dfs(start);
+      actions.push(makeSnapshot('complete', `DFS complete. Final order: ${order.join(' -> ')}.`, adj, stack, visited, order, null, null, treeEdges));
+      return actions;
+    }
+
+    function populateSampleOptions() {
+      ui.sampleSelect.innerHTML = Object.entries(samples).map(([key, sample]) => `<option value="${key}">${sample.label}</option>`).join('');
+    }
+
+    function populateStartOptions() {
+      ui.startSelect.innerHTML = state.sample.vertices.map(v => `<option value="${v}">${v}</option>`).join('');
+      ui.startSelect.value = state.start;
+    }
+
+    function loadSample(key, start, resetMessage = true) {
+      stop();
+      state.sampleKey = key;
+      state.sample = samples[key];
+      state.start = start || state.sample.vertices[0];
+      state.actions = buildActions(state.sample, state.start);
+      state.actionIndex = 0;
+      state.snapshot = state.actions[0];
+      ui.sampleSelect.value = key;
+      populateStartOptions();
+      ui.playBtn.textContent = 'Auto Play';
+      render();
+      if (resetMessage) {
+        ui.statusText.textContent = `Start DFS from ${state.start}. The search will go as deep as possible before backtracking.`;
+      }
+    }
+
+    function currentAdjacency() {
+      return buildAdjacency(state.sample);
+    }
+
+    function getActiveStepIndex(shot) {
+      if (shot.type === 'start') return 0;
+      if (shot.type === 'discover') return shot.order.length > 1 ? 2 : 0;
+      if (shot.type === 'inspect') return 1;
+      if (shot.type === 'resume') return 3;
+      if (shot.type === 'backtrack' || shot.type === 'complete') return 4;
+      return 2;
+    }
+
+    function getActiveCodeLines(shot) {
+      if (shot.type === 'start') return [0];
+      if (shot.type === 'discover') return shot.order.length > 1 ? [0, 1, 2, 4, 5] : [0, 1, 2];
+      if (shot.type === 'inspect') return [3, 4];
+      if (shot.type === 'resume') return [3, 4];
+      if (shot.type === 'backtrack' || shot.type === 'complete') return [6];
+      return [5];
+    }
+
+    function renderSteps(shot) {
+      const activeIndex = getActiveStepIndex(shot);
+      ui.stepBox.innerHTML = FLOW_STEPS.map((step, index) => {
+        let cls = '';
+        if (shot.type === 'complete') {
+          cls = index < FLOW_STEPS.length - 1 ? 'done' : 'active';
+        } else if (index < activeIndex) {
+          cls = 'done';
+        } else if (index === activeIndex) {
+          cls = 'active';
+        }
+        return `<div class="step-item ${cls}"><div class="step-index">${index + 1}.</div><div>${step}</div></div>`;
+      }).join('');
+    }
+
+    function renderActiveCode(shot) {
+      const activeLines = new Set(getActiveCodeLines(shot));
+      ui.codeLines.innerHTML = PSEUDO_LINES.map((line, index) => `
+        <div class="code-line ${activeLines.has(index) ? 'active' : ''}">
+          <div class="code-line-num">${index + 1}</div>
+          <div class="code-text">${line}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderLogs() {
+      const visible = state.actions.slice(0, state.actionIndex + 1).slice(-10);
+      const markup = visible.map((action, index) => {
+        const current = index === visible.length - 1;
+        return `<div class="edge-item ${current ? 'active' : 'done'}">
+          <div class="edge-head">
+            <span class="edge-type">${action.type}</span>
+            <span class="edge-state">${current ? 'current' : 'logged'}</span>
+          </div>
+          <div class="edge-msg">${action.message}</div>
+        </div>`;
+      }).join('');
+      if (ui.actionList) ui.actionList.innerHTML = markup;
+      if (ui.theoryActionList) ui.theoryActionList.innerHTML = markup;
+    }
+
+    function setFocusedCards(cards) {
+      [ui.graphCard, ui.frontierCard, ui.orderCard, ui.adjacencyCard].forEach(card => {
+        if (card) card.classList.remove('focus-card');
+      });
+      cards.forEach(card => {
+        if (card) card.classList.add('focus-card');
+      });
+    }
+
+    function getFocusedCards(shot) {
+      if (shot.type === 'start') return [ui.graphCard, ui.frontierCard];
+      if (shot.type === 'discover') return [ui.graphCard, ui.frontierCard, ui.orderCard];
+      if (shot.type === 'inspect' || shot.type === 'resume') return [ui.graphCard, ui.adjacencyCard];
+      if (shot.type === 'backtrack') return [ui.graphCard, ui.frontierCard];
+      if (shot.type === 'complete') return [ui.orderCard];
+      return [ui.graphCard];
+    }
+
+    function getAdjacencyFocusVertex(shot) {
+      if (shot.type === 'inspect' && shot.activeEdge) return shot.activeEdge[0];
+      if (shot.type === 'discover' && shot.activeEdge) return shot.activeEdge[0];
+      return shot.activeVertex;
+    }
+
+    function render() {
+      const shot = state.snapshot;
+      const adj = shot.adj || currentAdjacency();
+      ui.vertexCount.textContent = state.sample.vertices.length;
+      ui.visitedCount.textContent = `${shot.order.length} / ${state.sample.vertices.length}`;
+      ui.stackSize.textContent = String(shot.stack.length);
+      ui.currentFocus.textContent = shot.activeVertex || '-';
+      ui.startVertexLabel.textContent = state.start;
+      ui.statusText.textContent = shot.message;
+      ui.insightText.textContent = shot.type === 'discover'
+        ? `${shot.activeVertex} is the newest active vertex, so DFS keeps exploring from it before returning upward.`
+        : shot.type === 'inspect'
+          ? `DFS checks one neighbor at a time and immediately goes deeper when it finds an unvisited one.`
+          : shot.type === 'resume'
+            ? `DFS has returned to ${shot.activeVertex}. This is the backtracking phase that happens after a deep branch finishes.`
+            : shot.type === 'backtrack'
+              ? `When a vertex has no unvisited neighbors left, DFS pops it from the call stack and backtracks.`
+              : shot.type === 'complete'
+                ? `The call stack is empty, so DFS has finished exploring every reachable vertex from ${state.start}.`
+                : `DFS keeps moving deeper along one path until it cannot continue, then it backtracks.`;
+      renderSteps(shot);
+      renderActiveCode(shot);
+      renderLogs();
+      setFocusedCards(getFocusedCards(shot));
+
+      const edgeKey = edge => edge.join('|');
+      const treeSet = new Set(shot.treeEdges.map(edgeKey));
+      const activeEdgeKey = shot.activeEdge ? edgeKey(shot.activeEdge) : null;
+      const baseEdges = state.sample.edges.map(([u, v]) => {
+        const a = state.sample.positions[u];
+        const b = state.sample.positions[v];
+        const key = edgeKey([u, v]);
+        const rev = edgeKey([v, u]);
+        const isTree = treeSet.has(key) || treeSet.has(rev);
+        const isActive = activeEdgeKey && (activeEdgeKey === key || activeEdgeKey === rev);
+        const stroke = isActive ? '#f59e0b' : isTree ? '#22c55e' : '#334155';
+        const width = isActive ? 5.5 : isTree ? 4.5 : 2.25;
+        const dash = isActive ? '' : isTree ? '' : '7 10';
+        const opacity = isActive ? '1' : isTree ? '.92' : '.42';
+        return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${stroke}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''} stroke-linecap="round" opacity="${opacity}"/>`;
+      }).join('');
+
+      const visitedSet = new Set(shot.visited);
+      const stackSet = new Set(shot.stack);
+      const nodes = state.sample.vertices.map(v => {
+        const [x, y] = state.sample.positions[v];
+        const active = v === shot.activeVertex;
+        const inStack = stackSet.has(v);
+        const visited = visitedSet.has(v);
+        const fill = active ? '#f59e0b' : inStack ? '#38bdf8' : visited ? '#22c55e' : '#1a2333';
+        const stroke = active ? '#fde68a' : inStack ? '#7dd3fc' : visited ? '#86efac' : '#4f6287';
+        const text = active ? '#1f1303' : inStack || visited ? '#041522' : '#e2e8f0';
+        return `<g><circle cx="${x}" cy="${y}" r="30" fill="${fill}" stroke="${stroke}" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Fira Code, monospace" font-size="18" fill="${text}">${v}</text></g>`;
+      }).join('');
+      ui.graphSvg.innerHTML = `${baseEdges}${nodes}`;
+
+      ui.stackBox.innerHTML = `<div class="row-strip">${shot.stack.length ? shot.stack.map(v => `<div class="node-pill ${v === shot.activeVertex ? 'active' : ''}">${v}</div>`).join('') : '<div class="empty">empty</div>'}</div>`;
+      ui.orderBox.innerHTML = `<div class="row-strip">${shot.order.length ? shot.order.map(v => `<div class="order-pill ${v === shot.activeVertex ? 'active' : ''}">${v}</div>`).join('') : '<div class="empty">none</div>'}</div>`;
+
+      const adjFocusVertex = getAdjacencyFocusVertex(shot);
+      const activeNeighbor = shot.activeEdge ? shot.activeEdge[1] : null;
+      ui.adjList.innerHTML = state.sample.vertices.map(v => {
+        const vals = adj[v].length ? adj[v].map(n => `<div class="node-pill ${v === adjFocusVertex && n === activeNeighbor ? 'active' : ''}">${n}</div>`).join('') : '<div class="empty">empty</div>';
+        return `<div class="list-row ${v === adjFocusVertex ? 'active' : ''}"><div class="list-head">${v}</div><div class="list-body">${vals}</div></div>`;
+      }).join('');
+    }
+
+    function nextStep() {
+      if (state.actionIndex >= state.actions.length - 1) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      state.actionIndex += 1;
+      state.snapshot = state.actions[state.actionIndex];
+      render();
+    }
+
+    function stop() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function loop() {
+      if (!state.running) return;
+      if (state.actionIndex >= state.actions.length - 1) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      nextStep();
+      state.timer = setTimeout(loop, 1200 - Number(ui.speedSlider.value) * 90);
+    }
+
+    populateSampleOptions();
+    ui.sampleSelect.addEventListener('change', () => {
+      state.sample = samples[ui.sampleSelect.value];
+      state.start = state.sample.vertices[0];
+      populateStartOptions();
+    });
+    ui.loadBtn.addEventListener('click', () => loadSample(ui.sampleSelect.value, ui.startSelect.value));
+    ui.nextBtn.addEventListener('click', () => { stop(); ui.playBtn.textContent = 'Auto Play'; nextStep(); });
+    ui.playBtn.addEventListener('click', () => {
+      if (state.running) {
+        stop();
+        ui.playBtn.textContent = 'Resume';
+        return;
+      }
+      if (state.actionIndex >= state.actions.length - 1) loadSample(state.sampleKey, state.start, false);
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      loop();
+    });
+    ui.resetBtn.addEventListener('click', () => loadSample(state.sampleKey, state.start, false));
+
+    loadSample('classroom', 'A');
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

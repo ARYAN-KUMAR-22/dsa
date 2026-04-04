@@ -1,0 +1,1644 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive AVL Tree visualizer — insert values and watch the tree self-balance with LL, RR, LR, and RL rotations in real time." />
+  <title>AVL Tree – Interactive Visualizer | DSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1e2438;
+      --border: #2a3050;
+      --accent: #7c6ff7;
+      --accent2: #00d4ff;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --yellow: #f1c40f;
+      --orange: #e67e22;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --panel: #12161f;
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #5b21b6;
+      --accent2: #0891b2;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP HEADER ── */
+    header {
+      background: linear-gradient(90deg, #1a1d2e 0%, #12152a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    header .logo {
+      font-size: 1.6rem;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 1px;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8)
+      }
+    }
+
+    /* Section titles inside panel */
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 7px 14px 4px;
+    }
+
+    /* Step animator */
+    .step-box {
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 90px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      transition: all 0.3s;
+    }
+
+    .step-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      color: var(--accent2);
+      min-width: 18px;
+      padding-top: 1px;
+    }
+
+    .step-text {
+      color: var(--text);
+    }
+
+    .step-item.done .step-num {
+      color: var(--green);
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--yellow);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #3a4060;
+    }
+
+    /* Process log */
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.73rem;
+      line-height: 1.55;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+    }
+
+    .log-entry.info {
+      color: var(--accent2);
+      border-color: var(--accent2);
+      background: #00d4ff08;
+    }
+
+    .log-entry.success {
+      color: var(--green);
+      border-color: var(--green);
+      background: #2ecc7108;
+    }
+
+    .log-entry.warn {
+      color: var(--yellow);
+      border-color: var(--yellow);
+      background: #f1c40f08;
+    }
+
+    .log-entry.error {
+      color: var(--red);
+      border-color: var(--red);
+      background: #e74c3c08;
+    }
+
+    .log-entry .ts {
+      color: #3a4060;
+      margin-right: 5px;
+    }
+
+    /* Node debug table */
+    .debug-scroll {
+      overflow-y: auto;
+      max-height: 170px;
+      padding: 4px 14px 10px;
+    }
+
+    .debug-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .debug-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .dbg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+    }
+
+    .dbg-table th {
+      color: var(--muted);
+      padding: 4px 6px;
+      text-align: left;
+      font-size: 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dbg-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid var(--card);
+    }
+
+    .dbg-table tr:hover td {
+      background: var(--card);
+    }
+
+    .bf-ok {
+      color: var(--green);
+    }
+
+    .bf-warn {
+      color: var(--yellow);
+    }
+
+    .bf-bad {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    /* ── RIGHT CONTENT ── */
+    .right-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 20px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--card);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      background: var(--card);
+    }
+
+    /* Tab panels */
+    .tab-panel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .controls input[type=number] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      width: 90px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .controls input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.18s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      filter: brightness(1.15);
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: #0d1117;
+    }
+
+    .btn-warn {
+      background: var(--orange);
+      color: white;
+    }
+
+    .btn-neutral {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-neutral:hover {
+      background: var(--card);
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .stat-card .l {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card .v {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* Canvas */
+    .canvas-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    /* Theory grid */
+    .theory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .t-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .t-card h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .t-card p,
+    .t-card li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .t-card ul {
+      padding-left: 14px;
+    }
+
+    .t-card code {
+      background: var(--bg);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .badge-ll {
+      background: #7c6ff722;
+      color: var(--accent);
+    }
+
+    .badge-rr {
+      background: #00d4ff18;
+      color: var(--accent2);
+    }
+
+    .badge-lr {
+      background: #2ecc7118;
+      color: var(--green);
+    }
+
+    .badge-rl {
+      background: #e67e2218;
+      color: var(--orange);
+    }
+
+    /* Rotation demo */
+    .rot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .rot-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .rot-card h3 {
+      margin-bottom: 4px;
+      font-size: 0.92rem;
+    }
+
+    .rot-card p {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 10px;
+    }
+
+    .rot-card canvas {
+      border-radius: 7px;
+      background: var(--bg);
+    }
+
+    /* Chart/Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--accent);
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    tr:hover td {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .good {
+      color: var(--green);
+    }
+
+    .bad {
+      color: var(--red);
+    }
+
+    .canvas-wrap-chart {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .speed-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-left: auto;
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">🌳</div>
+    <div>
+      <h1>AVL Tree <span>Visualizer</span></h1>
+      <p>Interactive animated guide — insert values and watch the tree self-balance in real time</p>
+    </div>
+    <a href="../index.php" style="margin-left:auto;margin-right:12px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Home</a>
+    <div class="speed-label" style="margin-left:0">
+      Speed: <input type="range" id="speedSlider" min="1" max="10" value="5" style="width:80px">
+    </div>
+  </header>
+
+  <!-- APP BODY -->
+  <div class="app-body">
+
+    <!-- ════════ LEFT PANEL ════════ -->
+    <div class="left-panel">
+
+      <!-- Live status -->
+      <div class="panel-header">
+        <div class="pulse-dot"></div>
+        Live Debug Panel
+      </div>
+
+      <!-- Step-by-step animator -->
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">⚡ Current Operation</div>
+        <div class="step-box" id="stepBox">
+          <div class="step-item pending">
+            <div class="step-num">1.</div>
+            <div class="step-text">Waiting for operation…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node debug table -->
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">🔬 Node Inspector (BF / Height)</div>
+        <div class="debug-scroll">
+          <table class="dbg-table">
+            <thead>
+              <tr>
+                <th>Val</th>
+                <th>Height</th>
+                <th>BF</th>
+                <th>Left</th>
+                <th>Right</th>
+              </tr>
+            </thead>
+            <tbody id="debugTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Process log -->
+      <div class="panel-section" style="flex: 1; overflow: hidden;">
+        <div class="panel-section-title">📋 Process Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </div>
+
+    </div>
+    <!-- ════════ END LEFT PANEL ════════ -->
+
+    <!-- RIGHT CONTENT -->
+    <div class="right-content">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('tab-insert',this)">🟢 Insert &amp; Balance</button>
+        <button class="tab-btn" onclick="showTab('tab-rotations',this)">🔄 Rotations Demo</button>
+        <button class="tab-btn" onclick="showTab('tab-height',this)">📊 Height vs Nodes</button>
+        <button class="tab-btn" onclick="showTab('tab-compare',this)">⚖️ AVL vs BST</button>
+      </nav>
+
+      <!-- TAB: INSERT -->
+      <div id="tab-insert" class="tab-panel active">
+        <div class="controls">
+          <input type="number" id="insertVal" placeholder="Value" min="1" max="999" />
+          <button class="btn btn-primary" onclick="doInsert()">Insert</button>
+          <button class="btn btn-danger" onclick="doDelete()">Delete</button>
+          <button class="btn btn-warn" onclick="doSearch()">Search</button>
+          <button class="btn btn-neutral" onclick="doReset()">Reset</button>
+          <button class="btn btn-success" onclick="doRandom()">Random</button>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="dot" style="background:#7c6ff7"></div> Normal
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#2ecc71"></div> Inserted
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#e74c3c"></div> Unbalanced
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#f1c40f"></div> Rotating
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#00d4ff"></div> Found
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="l">Nodes</div>
+            <div class="v" id="s-nodes">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Height</div>
+            <div class="v" id="s-height">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Rotations</div>
+            <div class="v" id="s-rot">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="l">Root BF</div>
+            <div class="v" id="s-bf">–</div>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="treeCanvas" height="400"></canvas>
+        </div>
+      </div>
+
+      <!-- TAB: ROTATIONS -->
+      <div id="tab-rotations" class="tab-panel">
+        <div class="theory-grid" style="margin-bottom:18px">
+          <div class="t-card"><span class="badge badge-ll">LL Case</span>
+            <h3>⬅️ Right Rotation</h3>
+            <p>BF = +2 at node A, left child BF ≥ 0. Left child pivots up. <code>Single right rotation</code> at A.</p>
+          </div>
+          <div class="t-card"><span class="badge badge-rr">RR Case</span>
+            <h3>➡️ Left Rotation</h3>
+            <p>BF = −2 at node A, right child BF ≤ 0. Right child pivots up. <code>Single left rotation</code> at A.</p>
+          </div>
+          <div class="t-card"><span class="badge badge-lr">LR Case</span>
+            <h3>↙↗ Left-Right</h3>
+            <p>BF = +2, left child BF = −1. <code>Left rotate B</code> then <code>right rotate A</code>.</p>
+          </div>
+          <div class="t-card"><span class="badge badge-rl">RL Case</span>
+            <h3>↘↖ Right-Left</h3>
+            <p>BF = −2, right child BF = +1. <code>Right rotate B</code> then <code>left rotate A</code>.</p>
+          </div>
+        </div>
+        <div class="rot-grid">
+          <div class="rot-card">
+            <h3>LL → Right Rotate</h3>
+            <p>Insert 30→20→10</p><canvas id="rotLL" width="260" height="200"></canvas><br /><button
+              class="btn btn-primary" style="margin-top:10px" onclick="animLL()">▶ Step Through</button>
+          </div>
+          <div class="rot-card">
+            <h3>RR → Left Rotate</h3>
+            <p>Insert 10→20→30</p><canvas id="rotRR" width="260" height="200"></canvas><br /><button
+              class="btn btn-primary" style="margin-top:10px" onclick="animRR()">▶ Step Through</button>
+          </div>
+          <div class="rot-card">
+            <h3>LR → Double Rotate</h3>
+            <p>Insert 30→10→20</p><canvas id="rotLR" width="260" height="200"></canvas><br /><button
+              class="btn btn-primary" style="margin-top:10px" onclick="animLR()">▶ Step Through</button>
+          </div>
+          <div class="rot-card">
+            <h3>RL → Double Rotate</h3>
+            <p>Insert 10→30→20</p><canvas id="rotRL" width="260" height="200"></canvas><br /><button
+              class="btn btn-primary" style="margin-top:10px" onclick="animRL()">▶ Step Through</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: HEIGHT vs NODES -->
+      <div id="tab-height" class="tab-panel">
+        <div class="theory-grid" style="margin-bottom:16px">
+          <div class="t-card">
+            <h3>Given h → Nodes</h3>
+            <ul>
+              <li><strong>Max</strong>: Perfect tree → <code>2ʰ − 1</code></li>
+              <li><strong>Min</strong>: Fibonacci AVL → <code>N(h) = N(h−1)+N(h−2)+1</code></li>
+            </ul>
+          </div>
+          <div class="t-card">
+            <h3>Given n → Height</h3>
+            <ul>
+              <li><strong>Min</strong>: Packed tree → <code>⌊log₂(n+1)⌋</code></li>
+              <li><strong>Max</strong>: Sparse AVL → reverse table or <code>≈ 1.44·log₂(n)</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="canvas-wrap-chart"><canvas id="chartCanvas" width="800" height="320"></canvas></div>
+        <div class="t-card">
+          <h3>Lookup Table</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Height h</th>
+                <th>Min N(h)</th>
+                <th>Max 2ʰ−1</th>
+                <th>Recurrence</th>
+              </tr>
+            </thead>
+            <tbody id="lookupTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: COMPARE -->
+      <div id="tab-compare" class="tab-panel">
+        <div class="t-card" style="margin-bottom:16px">
+          <h3>AVL vs BST vs Red-Black</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>BST</th>
+                <th>AVL</th>
+                <th>Red-Black</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Search</td>
+                <td class="bad">O(n) worst</td>
+                <td class="good">O(log n)</td>
+                <td class="good">O(log n)</td>
+              </tr>
+              <tr>
+                <td>Insert</td>
+                <td class="bad">O(n) worst</td>
+                <td class="good">O(log n)</td>
+                <td class="good">O(log n)</td>
+              </tr>
+              <tr>
+                <td>Delete</td>
+                <td class="bad">O(n) worst</td>
+                <td class="good">O(log n)</td>
+                <td class="good">O(log n)</td>
+              </tr>
+              <tr>
+                <td>Max Height</td>
+                <td class="bad">n</td>
+                <td class="good">1.44·log₂n</td>
+                <td>2·log₂(n+1)</td>
+              </tr>
+              <tr>
+                <td>Rotations/Insert</td>
+                <td>0</td>
+                <td class="good">≤ 2</td>
+                <td class="good">≤ 2</td>
+              </tr>
+              <tr>
+                <td>Rotations/Delete</td>
+                <td>0</td>
+                <td>O(log n)</td>
+                <td class="good">≤ 3</td>
+              </tr>
+              <tr>
+                <td>Best for</td>
+                <td>—</td>
+                <td class="good">Read-heavy</td>
+                <td class="good">Write-heavy</td>
+              </tr>
+              <tr>
+                <td>Used in</td>
+                <td>—</td>
+                <td>Databases, filesystems</td>
+                <td>Linux kernel, Java TreeMap</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="theory-grid">
+          <div class="t-card">
+            <h3>🏆 Use AVL when</h3>
+            <ul>
+              <li>Read-heavy workloads (many lookups)</li>
+              <li>Strict bounded height important</li>
+              <li>Real-time systems needing predictable O(log n)</li>
+            </ul>
+          </div>
+          <div class="t-card">
+            <h3>🔑 Height proof sketch</h3>
+            <p>Min nodes N(h) ≈ φʰ/√5. Solving: <code>h ≤ 1.44·log₂(n)</code> — always logarithmic!</p>
+          </div>
+          <div class="t-card">
+            <h3>🌍 Real-World</h3>
+            <ul>
+              <li>Database index trees (B-tree family)</li>
+              <li>OS virtual memory interval trees</li>
+              <li>Computational geometry sweeps</li>
+              <li>Network router lookup tables</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end right-content -->
+  </div><!-- end app-body -->
+
+  <script>
+    // ═══════════════════════════════════════
+    //  AVL TREE DATA STRUCTURE
+    // ═══════════════════════════════════════
+    class N {
+      constructor(v) { this.v = v; this.l = null; this.r = null; this.h = 1; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.col = '#7c6ff7'; this.placed = false; }
+    }
+
+    const tree = { root: null, rotCount: 0 };
+
+    function ht(n) { return n ? n.h : 0; }
+    function bf(n) { return n ? ht(n.l) - ht(n.r) : 0; }
+    function upH(n) { if (n) n.h = 1 + Math.max(ht(n.l), ht(n.r)); }
+
+    function rotR(y) {
+      tree.rotCount++;
+      let x = y.l, T = x.r;
+      x.r = y; y.l = T;
+      upH(y); upH(x);
+      return x;
+    }
+    function rotL(x) {
+      tree.rotCount++;
+      let y = x.r, T = y.l;
+      y.l = x; x.r = T;
+      upH(x); upH(y);
+      return y;
+    }
+
+    function ins(node, v) {
+      if (!node) return new N(v);
+      if (v < node.v) node.l = ins(node.l, v);
+      else if (v > node.v) node.r = ins(node.r, v);
+      else return node;
+      upH(node);
+      let b = bf(node);
+      if (b > 1 && v < node.l.v) return rotR(node);
+      if (b < -1 && v > node.r.v) return rotL(node);
+      if (b > 1 && v > node.l.v) { node.l = rotL(node.l); return rotR(node); }
+      if (b < -1 && v < node.r.v) { node.r = rotR(node.r); return rotL(node); }
+      return node;
+    }
+
+    function getMinNode(n) { while (n.l) n = n.l; return n; }
+    function del(node, v) {
+      if (!node) return null;
+      if (v < node.v) node.l = del(node.l, v);
+      else if (v > node.v) node.r = del(node.r, v);
+      else {
+        if (!node.l || !node.r) { node = node.l || node.r; }
+        else { let s = getMinNode(node.r); node.v = s.v; node.r = del(node.r, s.v); }
+      }
+      if (!node) return null;
+      upH(node);
+      let b = bf(node);
+      if (b > 1 && bf(node.l) >= 0) return rotR(node);
+      if (b > 1 && bf(node.l) < 0) { node.l = rotL(node.l); return rotR(node); }
+      if (b < -1 && bf(node.r) <= 0) return rotL(node);
+      if (b < -1 && bf(node.r) > 0) { node.r = rotR(node.r); return rotL(node); }
+      return node;
+    }
+
+    function srch(node, v) { if (!node) return null; if (v === node.v) return node; return v < node.v ? srch(node.l, v) : srch(node.r, v); }
+    function cnt(n) { return n ? 1 + cnt(n.l) + cnt(n.r) : 0; }
+
+    // ═══════════════════════════════════════
+    //  CANVAS DRAWING
+    // ═══════════════════════════════════════
+    let highlightNode = null, highlightCol = '#2ecc71';
+    let raf;
+
+    function assignPos(n, x, y, gap) {
+      if (!n) return;
+      n.tx = x; n.ty = y;
+      if (!n.placed) { n.x = x; n.y = y; n.placed = true; }
+      assignPos(n.l, x - gap, y + 68, gap / 1.65);
+      assignPos(n.r, x + gap, y + 68, gap / 1.65);
+    }
+
+    function lerpN(n) {
+      if (!n) return;
+      n.x += (n.tx - n.x) * 0.2; n.y += (n.ty - n.y) * 0.2;
+      lerpN(n.l); lerpN(n.r);
+    }
+
+    function drawN(ctx, n, par) {
+      if (!n) return;
+      if (par) {
+        ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(n.x, n.y);
+        ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke();
+      }
+      drawN(ctx, n.l, n); drawN(ctx, n.r, n);
+      const r = 21;
+      let col = '#7c6ff7';
+      if (highlightNode && n === highlightNode) col = highlightCol;
+
+      ctx.save();
+      ctx.shadowBlur = 16; ctx.shadowColor = col;
+      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill();
+      ctx.restore();
+
+      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.28);
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1.2; ctx.stroke();
+
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(n.v, n.x, n.y);
+
+      const b = bf(n);
+      ctx.font = '9px Fira Code';
+      ctx.fillStyle = b === 0 ? '#8892b0' : (Math.abs(b) === 1 ? '#f1c40f' : '#e74c3c');
+      ctx.fillText('bf:' + b, n.x, n.y + r + 11);
+    }
+
+    function render() {
+      const cvs = document.getElementById('treeCanvas');
+      cvs.width = cvs.clientWidth || 880;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      if (!tree.root) {
+        ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center';
+        ctx.fillText('Tree is empty — insert some values!', cvs.width / 2, cvs.height / 2);
+        return;
+      }
+      assignPos(tree.root, cvs.width / 2, 44, cvs.width / 4.5);
+      lerpN(tree.root);
+      drawN(ctx, tree.root, null);
+      updateStats();
+      updateDebugTable();
+    }
+
+    function loop() { render(); raf = requestAnimationFrame(loop); }
+
+    // ═══════════════════════════════════════
+    //  LEFT PANEL – STEP ANIMATOR
+    // ═══════════════════════════════════════
+    function setSteps(steps, activeIdx) {
+      const box = document.getElementById('stepBox');
+      box.innerHTML = '';
+      steps.forEach((s, i) => {
+        const div = document.createElement('div');
+        div.className = 'step-item ' + (i < activeIdx ? 'done' : (i === activeIdx ? 'active' : 'pending'));
+        div.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`;
+        box.appendChild(div);
+      });
+    }
+
+    function clearSteps() {
+      document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle – waiting for operation…</div></div>';
+    }
+
+    // ═══════════════════════════════════════
+    //  LEFT PANEL – PROCESS LOG
+    // ═══════════════════════════════════════
+    function log(msg, type = 'info') {
+      const box = document.getElementById('logBox');
+      const d = document.createElement('div');
+      d.className = 'log-entry ' + type;
+      const t = new Date();
+      const ts = `${t.getHours().toString().padStart(2, '0')}:${t.getMinutes().toString().padStart(2, '0')}:${t.getSeconds().toString().padStart(2, '0')}`;
+      d.innerHTML = `<span class="ts">[${ts}]</span>${msg}`;
+      box.prepend(d);
+    }
+
+    // ═══════════════════════════════════════
+    //  LEFT PANEL – NODE DEBUG TABLE
+    // ═══════════════════════════════════════
+    function collectNodes(n, arr) {
+      if (!n) return; collectNodes(n.l, arr); arr.push(n); collectNodes(n.r, arr);
+    }
+
+    function updateDebugTable() {
+      const tbody = document.getElementById('debugTable');
+      const arr = [];
+      collectNodes(tree.root, arr);
+      tbody.innerHTML = '';
+      arr.forEach(n => {
+        const b = bf(n);
+        const cls = b === 0 ? 'bf-ok' : (Math.abs(b) === 1 ? 'bf-warn' : 'bf-bad');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="color:var(--text);font-weight:600">${n.v}</td><td>${n.h}</td><td class="${cls}">${b >= 0 ? '+' + b : b}</td><td>${n.l ? n.l.v : '—'}</td><td>${n.r ? n.r.v : '—'}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ═══════════════════════════════════════
+    //  LEFT PANEL – STATS
+    // ═══════════════════════════════════════
+    function updateStats() {
+      document.getElementById('s-nodes').textContent = cnt(tree.root);
+      document.getElementById('s-height').textContent = ht(tree.root);
+      document.getElementById('s-rot').textContent = tree.rotCount;
+      document.getElementById('s-bf').textContent = tree.root ? bf(tree.root) : '–';
+    }
+
+    // ═══════════════════════════════════════
+    //  ANIMATED OPERATIONS (with step panel)
+    // ═══════════════════════════════════════
+    function getVal() { const v = parseInt(document.getElementById('insertVal').value); return isNaN(v) ? null : v; }
+
+    async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function speed() { return Math.max(100, 1100 - parseInt(document.getElementById('speedSlider').value) * 100); }
+
+    async function doInsert() {
+      const v = getVal(); if (v === null) { log('Enter a valid number!', 'error'); return; }
+      if (v < 1 || v > 999) { log('Value must be 1–999', 'error'); return; }
+
+      const STEPS = [
+        `Compare ${v} with root and traverse BST`,
+        'Insert new node at correct position',
+        'Walk back up: update heights',
+        'Check balance factor at each ancestor',
+        'Apply rotation if |BF| = 2',
+        'Tree is balanced ✓'
+      ];
+
+      setSteps(STEPS, 0); log(`➕ Inserting ${v}…`, 'info');
+      await sleep(speed());
+      setSteps(STEPS, 1);
+      const prev = tree.rotCount;
+      tree.root = ins(tree.root, v);
+      const rotDone = tree.rotCount - prev;
+      await sleep(speed());
+
+      highlightNode = srch(tree.root, v); highlightCol = '#2ecc71';
+      setSteps(STEPS, 2); log(`Placed ${v} in BST position`, 'info');
+      await sleep(speed());
+
+      setSteps(STEPS, 3); log(`Updating heights along path…`, 'info');
+      await sleep(speed());
+
+      setSteps(STEPS, 4);
+      if (rotDone > 0) {
+        log(`⚠️ Imbalance detected! Applying ${rotDone === 1 ? 'single' : 'double'} rotation`, 'warn');
+      } else {
+        log(`BF check passed — no rotation needed`, 'success');
+      }
+      await sleep(speed());
+
+      setSteps(STEPS, 5);
+      log(`✅ Inserted ${v}. Rotations: ${rotDone}. Height: ${ht(tree.root)}`, 'success');
+      await sleep(1200);
+      highlightNode = null;
+      clearSteps();
+      document.getElementById('insertVal').value = '';
+    }
+
+    async function doDelete() {
+      const v = getVal(); if (v === null) { log('Enter a value!', 'error'); return; }
+      if (!srch(tree.root, v)) { log(`${v} not found in tree`, 'error'); return; }
+
+      const STEPS = [
+        `Find node ${v} in BST`,
+        'Determine deletion case (leaf / 1 child / 2 children)',
+        'Replace with in-order successor if needed',
+        'Walk up: update heights',
+        'Check and fix balance factors',
+        'Tree is balanced ✓'
+      ];
+
+      setSteps(STEPS, 0); log(`🗑️ Deleting ${v}…`, 'info');
+      highlightNode = srch(tree.root, v); highlightCol = '#e74c3c';
+      await sleep(speed());
+
+      setSteps(STEPS, 1); await sleep(speed() / 2);
+      setSteps(STEPS, 2);
+      const prev = tree.rotCount;
+      tree.root = del(tree.root, v);
+      const rotDone = tree.rotCount - prev;
+      await sleep(speed());
+
+      setSteps(STEPS, 3); log(`Updating heights after deletion…`, 'info'); await sleep(speed());
+
+      setSteps(STEPS, 4);
+      if (rotDone > 0) {
+        log(`⚠️ Rebalancing needed — ${rotDone} rotation(s) applied`, 'warn');
+      } else {
+        log(`No imbalance after deletion`, 'success');
+      }
+      await sleep(speed());
+
+      setSteps(STEPS, 5);
+      log(`✅ Deleted ${v}. Rotations: ${rotDone}. New height: ${ht(tree.root)}`, 'success');
+      highlightNode = null;
+      clearSteps();
+      document.getElementById('insertVal').value = '';
+    }
+
+    async function doSearch() {
+      const v = getVal(); if (v === null) { log('Enter a value!', 'error'); return; }
+
+      const STEPS = [
+        `Start at root: ${tree.root ? tree.root.v : '(empty)'}`,
+        `Compare ${v} and go left or right`,
+        'Repeat until found or null',
+        'Report result'
+      ];
+      setSteps(STEPS, 0); log(`🔍 Searching for ${v}…`, 'info');
+      await sleep(speed() / 2);
+      setSteps(STEPS, 1); await sleep(speed() / 2);
+      setSteps(STEPS, 2);
+      const found = srch(tree.root, v);
+      highlightNode = found; highlightCol = '#00d4ff';
+      await sleep(speed() / 2);
+      setSteps(STEPS, 3);
+      if (found) { log(`✅ Found ${v} at height ${found.h}`, 'success'); }
+      else { log(`❌ ${v} not found`, 'error'); }
+      await sleep(1200);
+      highlightNode = null;
+      clearSteps();
+      document.getElementById('insertVal').value = '';
+    }
+
+    function doReset() {
+      tree.root = null; tree.rotCount = 0; highlightNode = null;
+      clearSteps(); log('Tree cleared', 'info');
+      document.getElementById('debugTable').innerHTML = '';
+      updateStats();
+    }
+
+    function doRandom() {
+      const v = Math.floor(Math.random() * 99) + 1;
+      document.getElementById('insertVal').value = v;
+      doInsert();
+    }
+
+    // ═══════════════════════════════════════
+    //  ROTATION MINI DEMOS
+    // ═══════════════════════════════════════
+    function dmini(id, nodes, edges) {
+      const c = document.getElementById(id), ctx = c.getContext('2d');
+      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, c.width, c.height);
+      for (const [a, b] of edges) {
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+        ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke();
+      }
+      for (const [x, y, lbl, col, sub] of nodes) {
+        const c2 = col || '#7c6ff7';
+        ctx.save(); ctx.shadowBlur = 14; ctx.shadowColor = c2;
+        ctx.beginPath(); ctx.arc(x, y, 19, 0, 6.28); ctx.fillStyle = c2; ctx.fill(); ctx.restore();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(lbl, x, y);
+        if (sub) {
+          ctx.font = '9px Fira Code'; ctx.fillStyle = '#8892b0';
+          ctx.fillText(sub, x, y + 31);
+        }
+      }
+    }
+
+    // LL phases
+    const llPhases = [
+      {
+        label: 'Before: LL imbalance', fn: () => dmini('rotLL',
+          [[130, 35, '30', '#e74c3c', 'BF=+2'], [85, 95, '20', '#f1c40f', 'BF=+1'], [50, 155, '10', '#7c6ff7', 'BF=0']],
+          [[[130, 35], [85, 95]], [[85, 95], [50, 155]]])
+      },
+      {
+        label: 'Perform Right Rotate at 30', fn: () => dmini('rotLL',
+          [[130, 35, '30', '#f1c40f', ''], [85, 95, '20', '#f1c40f', ''], [50, 155, '10', '#7c6ff7', '']],
+          [[[130, 35], [85, 95]], [[85, 95], [50, 155]]])
+      },
+      {
+        label: 'After: Balanced ✓', fn: () => dmini('rotLL',
+          [[130, 95, '20', '#2ecc71', 'BF=0'], [75, 155, '10', '#7c6ff7', 'BF=0'], [185, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 95], [75, 155]], [[130, 95], [185, 155]]])
+      },
+    ];
+    let llI = 0;
+    function animLL() { llPhases[llI].fn(); log(`LL step: ${llPhases[llI].label}`, 'info'); llI = (llI + 1) % llPhases.length; }
+
+    const rrPhases = [
+      {
+        label: 'Before: RR imbalance', fn: () => dmini('rotRR',
+          [[130, 35, '10', '#e74c3c', 'BF=-2'], [175, 95, '20', '#f1c40f', 'BF=-1'], [215, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 35], [175, 95]], [[175, 95], [215, 155]]])
+      },
+      {
+        label: 'Perform Left Rotate at 10', fn: () => dmini('rotRR',
+          [[130, 35, '10', '#f1c40f', ''], [175, 95, '20', '#f1c40f', ''], [215, 155, '30', '#7c6ff7', '']],
+          [[[130, 35], [175, 95]], [[175, 95], [215, 155]]])
+      },
+      {
+        label: 'After: Balanced ✓', fn: () => dmini('rotRR',
+          [[130, 95, '20', '#2ecc71', 'BF=0'], [75, 155, '10', '#7c6ff7', 'BF=0'], [185, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 95], [75, 155]], [[130, 95], [185, 155]]])
+      },
+    ];
+    let rrI = 0;
+    function animRR() { rrPhases[rrI].fn(); log(`RR step: ${rrPhases[rrI].label}`, 'info'); rrI = (rrI + 1) % rrPhases.length; }
+
+    const lrPhases = [
+      {
+        label: 'Before: LR imbalance', fn: () => dmini('rotLR',
+          [[130, 35, '30', '#e74c3c', 'BF=+2'], [85, 95, '10', '#7c6ff7', 'BF=-1'], [120, 155, '20', '#f1c40f', 'BF=0']],
+          [[[130, 35], [85, 95]], [[85, 95], [120, 155]]])
+      },
+      {
+        label: 'Step 1: Left rotate at 10', fn: () => dmini('rotLR',
+          [[130, 35, '30', '#e74c3c', 'BF=+2'], [120, 95, '20', '#f1c40f', 'BF=+1'], [80, 155, '10', '#7c6ff7', 'BF=0']],
+          [[[130, 35], [120, 95]], [[120, 95], [80, 155]]])
+      },
+      {
+        label: 'Step 2: Right rotate at 30', fn: () => dmini('rotLR',
+          [[130, 35, '30', '#f1c40f', ''], [120, 95, '20', '#f1c40f', ''], [80, 155, '10', '#7c6ff7', '']],
+          [[[130, 35], [120, 95]], [[120, 95], [80, 155]]])
+      },
+      {
+        label: 'After: Balanced ✓', fn: () => dmini('rotLR',
+          [[130, 95, '20', '#2ecc71', 'BF=0'], [75, 155, '10', '#7c6ff7', 'BF=0'], [185, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 95], [75, 155]], [[130, 95], [185, 155]]])
+      },
+    ];
+    let lrI = 0;
+    function animLR() { lrPhases[lrI].fn(); log(`LR step: ${lrPhases[lrI].label}`, 'info'); lrI = (lrI + 1) % lrPhases.length; }
+
+    const rlPhases = [
+      {
+        label: 'Before: RL imbalance', fn: () => dmini('rotRL',
+          [[130, 35, '10', '#e74c3c', 'BF=-2'], [175, 95, '30', '#7c6ff7', 'BF=+1'], [140, 155, '20', '#f1c40f', 'BF=0']],
+          [[[130, 35], [175, 95]], [[175, 95], [140, 155]]])
+      },
+      {
+        label: 'Step 1: Right rotate at 30', fn: () => dmini('rotRL',
+          [[130, 35, '10', '#e74c3c', 'BF=-2'], [145, 95, '20', '#f1c40f', 'BF=-1'], [195, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 35], [145, 95]], [[145, 95], [195, 155]]])
+      },
+      {
+        label: 'Step 2: Left rotate at 10', fn: () => dmini('rotRL',
+          [[130, 35, '10', '#f1c40f', ''], [145, 95, '20', '#f1c40f', ''], [195, 155, '30', '#7c6ff7', '']],
+          [[[130, 35], [145, 95]], [[145, 95], [195, 155]]])
+      },
+      {
+        label: 'After: Balanced ✓', fn: () => dmini('rotRL',
+          [[130, 95, '20', '#2ecc71', 'BF=0'], [75, 155, '10', '#7c6ff7', 'BF=0'], [185, 155, '30', '#7c6ff7', 'BF=0']],
+          [[[130, 95], [75, 155]], [[130, 95], [185, 155]]])
+      },
+    ];
+    let rlI = 0;
+    function animRL() { rlPhases[rlI].fn(); log(`RL step: ${rlPhases[rlI].label}`, 'info'); rlI = (rlI + 1) % rlPhases.length; }
+
+    // ═══════════════════════════════════════
+    //  HEIGHT CHART
+    // ═══════════════════════════════════════
+    const NofH = [0, 1, 2, 4, 7, 12, 20, 33, 54, 88];
+
+    function drawChart() {
+      const c = document.getElementById('chartCanvas'), ctx = c.getContext('2d');
+      c.width = c.parentElement.clientWidth || 800;
+      const W = c.width, H = c.height;
+      ctx.clearRect(0, 0, W, H);
+      const maxV = 300, padL = 55, padB = 40, padT = 28, padR = 20;
+      const cW = W - padL - padR, cH = H - padB - padT;
+      const hs = [1, 2, 3, 4, 5, 6, 7, 8];
+
+      // grid
+      for (let i = 0; i <= 3; i++) {
+        const yv = maxV * i / 3, y = H - padB - (yv / maxV) * cH;
+        ctx.strokeStyle = '#1e2438'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.fillStyle = '#8892b0'; ctx.font = '10px Fira Code'; ctx.textAlign = 'right';
+        ctx.fillText(Math.round(yv), padL - 5, y + 4);
+      }
+
+      // x labels
+      hs.forEach((h, i) => {
+        const x = padL + (i / (hs.length - 1)) * cW;
+        ctx.fillStyle = '#8892b0'; ctx.font = '10px Fira Code'; ctx.textAlign = 'center';
+        ctx.fillText('h=' + h, x, H - padB + 14);
+        ctx.strokeStyle = '#1e2438'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H - padB); ctx.stroke();
+      });
+
+      // min line
+      ctx.strokeStyle = '#7c6ff7'; ctx.lineWidth = 2.5; ctx.beginPath();
+      hs.forEach((h, i) => {
+        const x = padL + (i / (hs.length - 1)) * cW;
+        const y = H - padB - (Math.min(NofH[h], maxV) / maxV) * cH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }); ctx.stroke();
+
+      // max line
+      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 2.5; ctx.beginPath();
+      hs.forEach((h, i) => {
+        const x = padL + (i / (hs.length - 1)) * cW;
+        const y = H - padB - (Math.min(Math.pow(2, h) - 1, maxV) / maxV) * cH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }); ctx.stroke();
+
+      // dots + labels
+      hs.forEach((h, i) => {
+        const x = padL + (i / (hs.length - 1)) * cW;
+        [[NofH[h], '#7c6ff7'], [Math.min(Math.pow(2, h) - 1, maxV), '#2ecc71']].forEach(([v, col], j) => {
+          const y = H - padB - (v / maxV) * cH;
+          ctx.save(); ctx.shadowBlur = 10; ctx.shadowColor = col;
+          ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+          ctx.fillStyle = col; ctx.font = '9px Fira Code'; ctx.textAlign = 'center';
+          ctx.fillText(v, x + (j === 0 ? -14 : 14), y - 9);
+        });
+      });
+
+      // legend
+      [['Min Nodes N(h)', '#7c6ff7'], ['Max Nodes 2ʰ−1', '#2ecc71']].forEach(([l, c], i) => {
+        const lx = padL + 8 + i * 160;
+        ctx.save(); ctx.shadowBlur = 8; ctx.shadowColor = c;
+        ctx.beginPath(); ctx.arc(lx, padT - 8, 4.5, 0, 6.28); ctx.fillStyle = c; ctx.fill(); ctx.restore();
+        ctx.fillStyle = '#e2e8f0'; ctx.font = '11px Inter'; ctx.textAlign = 'left';
+        ctx.fillText(' ' + l, lx + 8, padT - 4);
+      });
+    }
+
+    function buildLookup() {
+      const tb = document.getElementById('lookupTbody'); tb.innerHTML = '';
+      [1, 2, 3, 4, 5, 6, 7].forEach(h => {
+        const rec = h <= 2 ? (h === 1 ? 'Base case' : 'N(1)+N(0)+1 = 1+0+1') : `N(${h - 1})+N(${h - 2})+1 = ${NofH[h - 1]}+${NofH[h - 2]}+1`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${h}</td><td class="good">${NofH[h]}</td><td class="good">${Math.pow(2, h) - 1}</td><td style="font-family:Fira Code;font-size:0.75rem;color:#8892b0">${rec}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // ═══════════════════════════════════════
+    //  TABS
+    // ═══════════════════════════════════════
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+      if (id === 'tab-height') { drawChart(); buildLookup(); }
+      if (id === 'tab-rotations') { animLL(); animRR(); animLR(); animRL(); }
+    }
+
+    // ═══════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════
+    window.onload = () => {
+      loop();
+      [30, 20, 40, 10, 25, 35, 50].forEach(v => { tree.root = ins(tree.root, v); });
+      tree.rotCount = 0;
+      log('Pre-loaded: 30, 20, 40, 10, 25, 35, 50', 'info');
+      clearSteps();
+    };
+
+    window.addEventListener('resize', () => {
+      const c = document.getElementById('treeCanvas');
+      c.width = c.clientWidth || 880;
+    });
+
+    // Expose all onclick-callable functions to global scope
+    // (required for htmlpreview.github.io sandboxed environment)
+    window.doInsert  = doInsert;
+    window.doDelete  = doDelete;
+    window.doSearch  = doSearch;
+    window.doReset   = doReset;
+    window.doRandom  = doRandom;
+    window.showTab   = showTab;
+    window.animLL    = animLL;
+    window.animRR    = animRR;
+    window.animLR    = animLR;
+    window.animRL    = animRL;
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+
+</html>

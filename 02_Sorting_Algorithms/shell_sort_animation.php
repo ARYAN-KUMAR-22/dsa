@@ -1,0 +1,1723 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shell Sort - Interactive Visualizer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #ec4899;
+      --accent-2: #f9a8d4;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #be185d;
+      --accent-2: #be185d;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #190713, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.45;
+        transform: scale(0.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .step-box {
+      padding: 8px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 128px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      line-height: 1.45;
+      font-size: 0.77rem;
+    }
+
+    .step-num {
+      min-width: 18px;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+      font-size: 0.66rem;
+      padding-top: 1px;
+    }
+
+    .step-item.done .step-num {
+      color: var(--good);
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #42506d;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.71rem;
+      line-height: 1.55;
+      border-left: 2px solid transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .log-entry.info {
+      color: var(--accent-2);
+      border-color: var(--accent);
+      background: rgba(236, 72, 153, 0.08);
+    }
+
+    .log-entry.warn {
+      color: #fcd34d;
+      border-color: var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .log-entry.success {
+      color: #86efac;
+      border-color: var(--good);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .log-entry .ts {
+      color: #46516d;
+      margin-right: 6px;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(236, 72, 153, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(249, 168, 212, 0.06), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+      transform: none;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .field span {
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 240px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      color: #07131d;
+      border-color: transparent;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    .viz-area {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 16px;
+      padding: 16px 18px;
+    }
+
+    .canvas-card,
+    .code-card,
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .canvas-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .bars-wrap {
+      flex: 1;
+      min-height: 280px;
+      height: clamp(280px, 44vh, 380px);
+      padding: 22px 18px 18px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    .bars-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .bars-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .bar-col {
+      flex: 1 0 52px;
+      min-width: 52px;
+      max-width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      height: calc(clamp(280px, 44vh, 380px) - 40px);
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 12px 12px 4px 4px;
+      background: linear-gradient(180deg, #475569, #0f172a);
+      position: relative;
+      transition: height 0.35s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .bar.compare {
+      background: linear-gradient(180deg, #f97316, var(--warn));
+      transform: translateY(-6px);
+    }
+
+    .bar.key {
+      background: linear-gradient(180deg, #f9a8d4, var(--accent));
+      color: #f8fafc;
+      box-shadow: 0 0 18px rgba(236, 72, 153, 0.24);
+      transform: translateY(-8px);
+    }
+
+    .bar.shift {
+      background: linear-gradient(180deg, #f43f5e, var(--danger));
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
+      transform: translateY(-10px);
+    }
+
+    .bar.sorted {
+      background: linear-gradient(180deg, #16a34a, var(--good));
+    }
+
+    .bar-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.74rem;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .index-badge {
+      font-size: 0.64rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .code-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .code-wrap {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .code-wrap::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .code-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .code-line.active {
+      background: rgba(236, 72, 153, 0.08);
+      border-color: rgba(236, 72, 153, 0.28);
+      color: #f8fafc;
+    }
+
+    .line-no {
+      color: #4f5d79;
+      text-align: right;
+      user-select: none;
+    }
+
+    .explain-box {
+      margin-top: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .explain-box h3 {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+    }
+
+    .explain-box p {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .bottom-row {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .theory-grid {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .theory-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .theory-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--accent-2);
+    }
+
+    .theory-card p,
+    .theory-card li {
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .theory-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .theory-card code {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+    }
+
+    .footer-card {
+      padding: 14px 16px;
+    }
+
+    .footer-card h3 {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      font-size: 0.74rem;
+      color: var(--text);
+    }
+
+    .status-line {
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .status-line strong {
+      color: var(--accent-2);
+    }
+
+    @media (max-width: 1180px) {
+      .viz-area {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+
+      .theory-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-body {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        width: 100%;
+        min-width: 0;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .workspace {
+        display: block;
+      }
+
+      .tab-panel.visualizer-panel.active {
+        display: block;
+        overflow-y: auto;
+      }
+
+      .field input {
+        width: 180px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-wrap: wrap;
+      }
+
+      .speed-label {
+        margin-left: 0;
+      }
+
+      .control-row {
+        padding: 14px;
+      }
+
+      .field {
+        width: 100%;
+      }
+
+      .field input {
+        width: 100%;
+      }
+
+      .button-row {
+        margin-left: 0;
+      }
+
+      .viz-area,
+      .bottom-row {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+<a href="../dashboard.php?view=02_Sorting_Algorithms/index.php" style="position:fixed; top:20px; left:20px; z-index:9999999; padding:10px 20px; background:#ef4444; color:white; font-family:'Inter', sans-serif; font-size:14px; text-decoration:none; border-radius:8px; box-shadow:0 8px 15px rgba(0,0,0,0.2); font-weight:600; display:flex; align-items:center; gap:8px; transition:transform 0.2s;">&larr; Back to Dashboard</a>
+
+  <header>
+    <div>
+      <h1><span>Shell Sort</span> Visualizer</h1>
+      <p>Watch gap-based insertion passes move values long distances before the final gap-1 cleanup.</p>
+    </div>
+    <label class="speed-label">
+      Speed
+      <input id="speedRange" type="range" min="1" max="100" value="55" />
+    </label>
+  </header>
+
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Shell Runtime Feed
+      </div>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Live Metrics</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Gap</div>
+            <div class="metric-value" id="gapCount">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Pass</div>
+            <div class="metric-value" id="passCount">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Compare</div>
+            <div class="metric-value" id="compareCount">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Shift</div>
+            <div class="metric-value" id="shiftCount">0</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Algorithm Flow</div>
+        <div class="step-box" id="stepBox"></div>
+      </section>
+
+      <section class="panel-section" style="flex:1; min-height: 180px;">
+        <div class="panel-section-title">Execution Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
+      </nav>
+
+      <section id="tab-visualizer" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Input</span>
+            <input id="inputArray" type="text" value="54, 23, 91, 17, 77, 31, 44, 55"
+              aria-label="Enter comma separated numbers" />
+          </label>
+
+          <div class="button-row">
+            <button class="ghost" id="randomBtn">Randomize</button>
+            <button id="loadBtn">Load Array</button>
+            <button class="primary" id="playBtn">Start Sort</button>
+            <button id="stepBtn">Next Step</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+
+        <section class="viz-area">
+          <article class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Bar Animation</div>
+                <div class="card-subtitle" id="statusText">Ready to simulate Shell Sort.</div>
+              </div>
+              <div class="legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#ec4899;"></span> Current key</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#f97316;"></span> Gap comparison</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#ef4444;"></span> Gap shift</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#22c55e;"></span> Final sorted array</span>
+              </div>
+            </div>
+            <div class="bars-wrap" id="barsWrap"></div>
+          </article>
+
+          <article class="code-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Pseudo Code</div>
+                <div class="card-subtitle">Current line follows the active animation step.</div>
+              </div>
+            </div>
+            <div class="code-wrap" id="codeWrap"></div>
+          </article>
+        </section>
+
+        <section class="bottom-row">
+          <article class="footer-card">
+            <h3>Complexity</h3>
+            <div class="badge-row">
+              <span class="badge">Best: O(n log n)</span>
+              <span class="badge">Average: Depends gap sequence</span>
+              <span class="badge">Worst: O(n^2)</span>
+              <span class="badge">Space: O(1)</span>
+              <span class="badge">Stable: No</span>
+            </div>
+          </article>
+
+          <article class="footer-card">
+            <h3>Current Insight</h3>
+            <p class="status-line" id="insightText">
+              <strong>Shell Sort</strong> runs insertion-style passes over shrinking gaps so elements can travel long
+              distances before the final pass.
+            </p>
+          </article>
+        </section>
+      </section>
+
+      <section id="tab-theory" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>How Shell Sort Works</h3>
+            <ul>
+              <li>Start with a large gap, often half of the array length.</li>
+              <li>Run a gapped insertion sort so each value compares with elements that are gap positions apart.</li>
+              <li>Shrink the gap and repeat until the gap becomes 1.</li>
+              <li>The final gap-1 pass behaves like insertion sort, but the array is already much closer to sorted.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Pseudo Logic</h3>
+            <ul>
+              <li><code>gap = floor(n / 2)</code></li>
+              <li><code>while gap &gt; 0</code></li>
+              <li><code>for i = gap to n - 1</code></li>
+              <li><code>temp = a[i]; j = i</code></li>
+              <li><code>while j &gt;= gap and a[j - gap] &gt; temp</code></li>
+              <li><code>a[j] = a[j - gap]; j -= gap</code></li>
+              <li><code>a[j] = temp</code></li>
+              <li><code>gap = floor(gap / 2)</code></li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>When It Is Useful</h3>
+            <ul>
+              <li>Useful when you want something simpler than advanced <code>O(n log n)</code> sorts but faster than plain insertion sort on medium arrays.</li>
+              <li>Good for in-place sorting when long-distance moves help reduce disorder early.</li>
+              <li>Often performs well in practice on partially disordered data.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Key Tradeoffs</h3>
+            <ul>
+              <li>Performance depends heavily on the chosen gap sequence.</li>
+              <li>It is not stable, so equal values may change their relative order.</li>
+              <li>It works in place and needs only <code>O(1)</code> extra space.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Shell Sort At a Glance</h3>
+            <ul>
+              <li>Shell Sort is an in-place improvement over Insertion Sort that moves elements farther apart early.</li>
+              <li>It is not stable, and its exact speed depends on the chosen gap sequence.</li>
+              <li>In practice it often performs much better than basic <code>O(n^2)</code> sorts on medium-size arrays.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Bubble, Insertion, and Selection</h3>
+            <ul>
+              <li>Shell Sort usually beats the three basic quadratic sorts because large gaps reduce long-distance disorder sooner.</li>
+              <li>It keeps the low-memory benefit of in-place sorting while reducing the cost of local shifts.</li>
+              <li>It gives up stability to gain that speed improvement.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> still have stronger large-input behavior overall.</li>
+              <li>Shell Sort is simpler to implement and uses less extra memory than Merge Sort.</li>
+              <li>It sits in the middle: much better than the basic classroom sorts, but usually behind the strongest production choices.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Shell Sort for medium-size arrays when you want a simple in-place algorithm that is faster than plain insertion.</li>
+              <li>It is a practical upgrade when full divide-and-conquer complexity feels unnecessary.</li>
+              <li>If you need stability or guaranteed <code>O(n log n)</code> performance, choose something else.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const defaultArray = [54, 23, 91, 17, 77, 31, 44, 55];
+    const maxBars = 14;
+    const minValue = 5;
+    const maxValue = 99;
+
+    const stepsTemplate = [
+      'Choose the current gap for this pass.',
+      'Pick the next element in the gapped subsequence as the key.',
+      'Compare with elements that are gap positions to the left.',
+      'Shift larger elements forward by the current gap.',
+      'Insert the key into its gapped position.',
+      'Shrink the gap and repeat until the gap becomes 1.'
+    ];
+
+    const pseudoCode = [
+      'gap = floor(n / 2)',
+      'while gap > 0',
+      '  for i = gap to n - 1',
+      '    temp = a[i]; j = i',
+      '    while j >= gap and a[j - gap] > temp',
+      '      a[j] = a[j - gap]; j -= gap',
+      '    a[j] = temp',
+      '  gap = floor(gap / 2)'
+    ];
+
+    const ui = {
+      barsWrap: document.getElementById('barsWrap'),
+      inputArray: document.getElementById('inputArray'),
+      playBtn: document.getElementById('playBtn'),
+      stepBtn: document.getElementById('stepBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      randomBtn: document.getElementById('randomBtn'),
+      loadBtn: document.getElementById('loadBtn'),
+      speedRange: document.getElementById('speedRange'),
+      gapCount: document.getElementById('gapCount'),
+      passCount: document.getElementById('passCount'),
+      compareCount: document.getElementById('compareCount'),
+      shiftCount: document.getElementById('shiftCount'),
+      stepBox: document.getElementById('stepBox'),
+      logBox: document.getElementById('logBox'),
+      codeWrap: document.getElementById('codeWrap'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText')
+    };
+
+    let state = {
+      original: [...defaultArray],
+      arr: [...defaultArray],
+      actions: [],
+      actionIndex: 0,
+      running: false,
+      timer: null,
+      currentGap: 0,
+      compareCount: 0,
+      shiftCount: 0,
+      passCount: 0,
+      sortedIndices: [],
+      highlight: [],
+      shiftIndices: [],
+      selectedIndex: null,
+      currentKey: null,
+      currentLine: -1,
+      currentStep: 0,
+      lastInsight: 'Ready to sort.'
+    };
+
+    function init() {
+      renderSteps();
+      renderPseudoCode();
+      loadArray(defaultArray, 'Loaded default Shell Sort sample.');
+      bindEvents();
+    }
+
+    function bindEvents() {
+      ui.randomBtn.addEventListener('click', randomizeArray);
+      ui.loadBtn.addEventListener('click', () => {
+        const parsed = parseInput(ui.inputArray.value);
+        if (!parsed.length) {
+          pushLog('warn', 'Invalid input. Enter up to 14 comma separated integers.');
+          return;
+        }
+        loadArray(parsed, 'Loaded custom input array.');
+      });
+      ui.playBtn.addEventListener('click', togglePlay);
+      ui.stepBtn.addEventListener('click', stepForward);
+      ui.resetBtn.addEventListener('click', () => loadArray(state.original, 'Reset to the currently loaded array.'));
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+
+      if (id === 'tab-visualizer') {
+        requestAnimationFrame(() => renderAll());
+      }
+    }
+
+    function parseInput(raw) {
+      const parts = raw.split(',').map(part => part.trim()).filter(Boolean);
+      if (!parts.length || parts.length > maxBars) {
+        return [];
+      }
+      const nums = parts.map(Number);
+      if (nums.some(num => Number.isNaN(num) || !Number.isFinite(num))) {
+        return [];
+      }
+      return nums.map(num => Math.max(minValue, Math.min(maxValue, Math.round(num))));
+    }
+
+    function randomizeArray() {
+      const size = 8 + Math.floor(Math.random() * 4);
+      const random = Array.from({ length: size }, () => Math.floor(Math.random() * 90) + 10);
+      ui.inputArray.value = random.join(', ');
+      loadArray(random, 'Generated a fresh random array.');
+    }
+
+    function loadArray(arr, message) {
+      stopRun();
+      state.original = [...arr];
+      state.arr = [...arr];
+      state.actions = buildActions(arr);
+      state.actionIndex = 0;
+      state.running = false;
+      state.currentGap = arr.length > 1 ? Math.floor(arr.length / 2) : 0;
+      state.compareCount = 0;
+      state.shiftCount = 0;
+      state.passCount = 0;
+      state.sortedIndices = [];
+      state.highlight = [];
+      state.shiftIndices = [];
+      state.selectedIndex = null;
+      state.currentKey = null;
+      state.currentLine = -1;
+      state.currentStep = 0;
+      state.lastInsight = 'Ready to sort.';
+      ui.inputArray.value = arr.join(', ');
+      ui.playBtn.textContent = 'Start Sort';
+      clearLogs();
+      pushLog('info', message);
+      pushLog('info', `Prepared ${state.actions.length} animation steps for ${arr.length} elements.`);
+      updateStatus(arr.length > 1 ? 'Ready to simulate Shell Sort with a shrinking gap sequence.' : 'Ready to simulate Shell Sort.');
+      updateInsight('Shell Sort runs insertion-style passes over shrinking gaps so elements can move long distances early.');
+      renderAll();
+    }
+
+    function buildActions(source) {
+      const arr = [...source];
+      const actions = [];
+      const n = arr.length;
+
+      if (n <= 1) {
+        actions.push({
+          type: 'complete',
+          line: 1,
+          step: 5,
+          finalArray: [...arr],
+          sorted: arr.map((_, index) => index)
+        });
+        return actions;
+      }
+
+      let gap = Math.floor(n / 2);
+      let pass = 0;
+
+      while (gap > 0) {
+        pass += 1;
+        actions.push({
+          type: 'gapStart',
+          gap,
+          pass,
+          snapshot: [...arr],
+          line: 2,
+          step: 0,
+          sorted: gap === 1 && n > 0 ? [0] : []
+        });
+
+        for (let i = gap; i < n; i++) {
+          const key = arr[i];
+          let j = i;
+          let keyVisibleIndex = i;
+          const sortedPrefix = gap === 1 ? Array.from({ length: i }, (_, index) => index) : [];
+
+          actions.push({
+            type: 'selectKey',
+            gap,
+            pass,
+            key,
+            index: i,
+            line: 3,
+            step: 1,
+            sorted: sortedPrefix
+          });
+
+          actions.push({
+            type: 'setPointer',
+            gap,
+            pass,
+            key,
+            j,
+            line: 4,
+            step: 1,
+            sorted: sortedPrefix
+          });
+
+          while (j >= gap) {
+            actions.push({
+              type: 'compare',
+              gap,
+              pass,
+              key,
+              compareIndex: j - gap,
+              comparedValue: arr[j - gap],
+              keyIndex: keyVisibleIndex,
+              line: 5,
+              step: 2,
+              sorted: sortedPrefix
+            });
+
+            if (arr[j - gap] > key) {
+              const shiftedValue = arr[j - gap];
+              arr[j] = arr[j - gap];
+              keyVisibleIndex = null;
+              actions.push({
+                type: 'shift',
+                gap,
+                pass,
+                key,
+                from: j - gap,
+                to: j,
+                shiftedValue,
+                snapshot: [...arr],
+                line: 6,
+                step: 3,
+                sorted: sortedPrefix
+              });
+
+              j -= gap;
+              actions.push({
+                type: 'moveGapLeft',
+                gap,
+                pass,
+                key,
+                j,
+                line: 6,
+                step: 3,
+                sorted: sortedPrefix
+              });
+            } else {
+              break;
+            }
+          }
+
+          arr[j] = key;
+          actions.push({
+            type: 'insert',
+            gap,
+            pass,
+            key,
+            index: j,
+            snapshot: [...arr],
+            line: 7,
+            step: 4,
+            sorted: gap === 1 ? Array.from({ length: i + 1 }, (_, index) => index) : []
+          });
+        }
+
+        const nextGap = Math.floor(gap / 2);
+        actions.push({
+          type: 'gapComplete',
+          gap,
+          nextGap,
+          pass,
+          snapshot: [...arr],
+          line: 8,
+          step: 5,
+          sorted: nextGap === 0 ? arr.map((_, index) => index) : []
+        });
+
+        gap = nextGap;
+      }
+
+      actions.push({
+        type: 'complete',
+        line: 8,
+        step: 5,
+        finalArray: [...arr],
+        sorted: arr.map((_, index) => index)
+      });
+
+      return actions;
+    }
+
+    function togglePlay() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+        pushLog('warn', 'Animation paused.');
+        return;
+      }
+
+      if (state.actionIndex >= state.actions.length) {
+        loadArray(state.original, 'Restarted the loaded array.');
+      }
+
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      pushLog('info', 'Auto-play started.');
+      runLoop();
+    }
+
+    function stopRun() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function stepForward() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+      }
+      if (state.actionIndex >= state.actions.length) {
+        pushLog('success', 'All steps have already completed.');
+        return;
+      }
+      applyAction(state.actions[state.actionIndex++]);
+    }
+
+    function runLoop() {
+      if (!state.running) {
+        return;
+      }
+      if (state.actionIndex >= state.actions.length) {
+        stopRun();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+
+      applyAction(state.actions[state.actionIndex++]);
+      if (state.running) {
+        state.timer = setTimeout(runLoop, getSpeedDelay());
+      } else {
+        state.timer = null;
+      }
+    }
+
+    function getSpeedDelay() {
+      const value = Number(ui.speedRange.value);
+      return 1100 - value * 9;
+    }
+
+    function applyAction(action) {
+      state.highlight = [];
+      state.shiftIndices = [];
+      state.selectedIndex = null;
+      state.currentLine = action.line ?? -1;
+      state.currentStep = action.step ?? 0;
+
+      if (typeof action.gap === 'number') {
+        state.currentGap = action.gap;
+      }
+      if (typeof action.pass === 'number') {
+        state.passCount = action.pass;
+      }
+      if (action.snapshot) {
+        state.arr = [...action.snapshot];
+      }
+      if (action.sorted) {
+        state.sortedIndices = [...action.sorted];
+      }
+
+      switch (action.type) {
+        case 'gapStart':
+          state.currentKey = null;
+          updateStatus(`Pass ${action.pass}: start Shell Sort with gap ${action.gap}.`);
+          if (action.gap === 1) {
+            updateInsight('The final gap-1 pass behaves like insertion sort, but earlier gap passes have already reduced a lot of disorder.');
+          } else {
+            updateInsight(`Gap ${action.gap} lets values jump farther so Shell Sort can reduce long-range disorder early.`);
+          }
+          pushLog('info', `Gap pass ${action.pass} started with gap ${action.gap}.`);
+          break;
+
+        case 'selectKey':
+          state.selectedIndex = action.index;
+          state.currentKey = action.key;
+          updateStatus(`Gap ${action.gap}: choose key ${action.key} from index ${action.index}.`);
+          updateInsight('Each gap pass performs a gapped insertion sort over interleaved subsequences.');
+          break;
+
+        case 'setPointer':
+          state.currentKey = action.key;
+          updateStatus(`Start scanning left in steps of ${action.gap} from index ${action.j}.`);
+          break;
+
+        case 'compare':
+          state.highlight = [action.compareIndex];
+          state.selectedIndex = action.keyIndex;
+          state.currentKey = action.key;
+          state.compareCount += 1;
+          updateStatus(`Compare key ${action.key} with ${action.comparedValue} at index ${action.compareIndex} using gap ${action.gap}.`);
+          updateInsight(`Comparison ${state.compareCount}: Shell Sort only checks values inside the current gap chain.`);
+          pushLog('info', `Compared ${action.key} with ${action.comparedValue} at index ${action.compareIndex} using gap ${action.gap}.`);
+          break;
+
+        case 'shift':
+          state.shiftIndices = [action.from, action.to];
+          state.currentKey = action.key;
+          state.shiftCount += 1;
+          updateStatus(`Shifted ${action.shiftedValue} from index ${action.from} to ${action.to} by gap ${action.gap}.`);
+          updateInsight(`Shift ${state.shiftCount}: larger values move forward by the current gap to open space for ${action.key}.`);
+          pushLog('warn', `Shifted ${action.shiftedValue} by gap ${action.gap}. Array is now [${state.arr.join(', ')}].`);
+          break;
+
+        case 'moveGapLeft':
+          state.currentKey = action.key;
+          if (action.j >= action.gap) {
+            state.highlight = [action.j - action.gap];
+            updateStatus(`Move left by gap ${action.gap} to continue checking where ${action.key} belongs.`);
+          } else {
+            updateStatus(`Reached the front of this gap chain. ${action.key} will be inserted at index ${action.j}.`);
+          }
+          break;
+
+        case 'insert':
+          state.selectedIndex = action.index;
+          state.currentKey = action.key;
+          updateStatus(`Inserted key ${action.key} at index ${action.index} for gap ${action.gap}.`);
+          if (action.gap === 1) {
+            updateInsight(`The final gap-1 pass now has a sorted prefix through index ${action.sorted.length - 1}.`);
+          } else {
+            updateInsight('This subsequence is now more ordered, which makes later smaller-gap passes cheaper.');
+          }
+          pushLog('success', `Inserted ${action.key} at index ${action.index}. Array is now [${state.arr.join(', ')}].`);
+          break;
+
+        case 'gapComplete':
+          state.currentKey = null;
+          state.currentGap = action.nextGap;
+          if (action.nextGap > 0) {
+            updateStatus(`Completed gap ${action.gap}. Next gap will be ${action.nextGap}.`);
+            updateInsight(`Shell Sort now shrinks the gap from ${action.gap} to ${action.nextGap} to refine the ordering.`);
+            pushLog('success', `Completed gap ${action.gap}. Next gap: ${action.nextGap}.`);
+          } else {
+            updateStatus('Completed the final gap-1 pass.');
+            updateInsight('Once the gap reaches 1 and finishes, the entire array is sorted.');
+            pushLog('success', 'Completed the final gap pass.');
+          }
+          break;
+
+        case 'complete':
+          state.arr = [...action.finalArray];
+          state.sortedIndices = [...action.sorted];
+          state.currentGap = 0;
+          state.selectedIndex = null;
+          state.currentKey = null;
+          updateStatus('Sorting complete.');
+          updateInsight(`Finished. Final sorted array: [${state.arr.join(', ')}].`);
+          pushLog('success', `Sorting complete: [${state.arr.join(', ')}].`);
+          stopRun();
+          ui.playBtn.textContent = 'Replay';
+          break;
+      }
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderBars();
+      renderMetrics();
+      renderSteps();
+      renderPseudoCode();
+    }
+
+    function renderBars() {
+      ui.barsWrap.innerHTML = '';
+      const max = Math.max(...state.arr, 1);
+
+      state.arr.forEach((value, index) => {
+        const col = document.createElement('div');
+        col.className = 'bar-col';
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = value;
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${Math.max(40, (value / max) * 260)}px`;
+
+        if (state.selectedIndex === index) {
+          bar.classList.add('key');
+        } else if (state.shiftIndices.includes(index)) {
+          bar.classList.add('shift');
+        } else if (state.highlight.includes(index)) {
+          bar.classList.add('compare');
+        } else if (state.sortedIndices.includes(index)) {
+          bar.classList.add('sorted');
+        }
+
+        const badge = document.createElement('div');
+        badge.className = 'index-badge';
+        badge.textContent = `i:${index}`;
+
+        col.appendChild(label);
+        col.appendChild(bar);
+        col.appendChild(badge);
+        ui.barsWrap.appendChild(col);
+      });
+    }
+
+    function renderMetrics() {
+      ui.gapCount.textContent = state.currentGap;
+      ui.passCount.textContent = state.passCount;
+      ui.compareCount.textContent = state.compareCount;
+      ui.shiftCount.textContent = state.shiftCount;
+    }
+
+    function renderSteps() {
+      ui.stepBox.innerHTML = '';
+      stepsTemplate.forEach((text, index) => {
+        const item = document.createElement('div');
+        let cls = 'pending';
+        if (index < state.currentStep) cls = 'done';
+        if (index === state.currentStep) cls = 'active';
+        item.className = `step-item ${cls}`;
+        item.innerHTML = `
+          <div class="step-num">0${index + 1}</div>
+          <div class="step-text">${text}</div>
+        `;
+        ui.stepBox.appendChild(item);
+      });
+    }
+
+    function renderPseudoCode() {
+      ui.codeWrap.innerHTML = '';
+      pseudoCode.forEach((text, index) => {
+        const line = document.createElement('div');
+        line.className = `code-line ${state.currentLine === index + 1 ? 'active' : ''}`;
+        line.innerHTML = `
+          <div class="line-no">${index + 1}</div>
+          <div>${text}</div>
+        `;
+        ui.codeWrap.appendChild(line);
+      });
+
+      const explain = document.createElement('div');
+      explain.className = 'explain-box';
+      explain.innerHTML = `
+        <h3>Why It Matters</h3>
+        <p>${state.lastInsight}</p>
+      `;
+      ui.codeWrap.appendChild(explain);
+    }
+
+    function updateStatus(text) {
+      ui.statusText.textContent = text;
+    }
+
+    function updateInsight(text) {
+      state.lastInsight = text;
+      ui.insightText.innerHTML = `<strong>Shell Sort</strong> ${text}`;
+    }
+
+    function clearLogs() {
+      ui.logBox.innerHTML = '';
+    }
+
+    function pushLog(type, message) {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const ts = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      entry.innerHTML = `<span class="ts">${ts}</span>${message}`;
+      ui.logBox.prepend(entry);
+    }
+
+    init();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

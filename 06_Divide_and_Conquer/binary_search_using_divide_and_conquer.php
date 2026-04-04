@@ -1,0 +1,334 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Search Using Divide and Conquer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0d1117;--panel:#12161f;--surface:#161b27;--card:#1d2436;--border:#2b3550;--text:#e2e8f0;--muted:#8b98b6;--accent:#f97316;--accent2:#fdba74;--good:#22c55e;--info:#38bdf8;--warn:#f59e0b;--danger:#fb7185;--shadow:0 18px 45px rgba(0,0,0,.28)}
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #c2410c;
+      --accent2: #c2410c;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
+    }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .box {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode .mini,
+    body.light-mode .cmp,
+    body.light-mode .ex {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow:auto}
+    header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#241208,#0d1117)}
+    header h1{font-size:1.2rem;font-weight:700} header h1 span{color:var(--accent)} header p{color:var(--muted);font-size:.78rem;line-height:1.55}
+    .actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}.actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem}.actions a.primary{background:linear-gradient(135deg,#ea580c,var(--accent));color:#2a1102;border-color:transparent;font-weight:700}
+    .app{flex:1;display:flex;min-height:calc(100vh - 78px)}
+    .left{width:340px;min-width:340px;background:var(--panel);border-right:1px solid var(--border)}
+    .panel-head{padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+    .sec{border-bottom:1px solid var(--border)} .sec-title{padding:7px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background: var(--card);color:var(--muted);line-height:1.65;font-size:.8rem}
+    .focus{color:var(--text);font-size:.92rem;font-weight:700;line-height:1.45;margin-bottom:6px}.formula{color:var(--accent2);font-family:"Fira Code",monospace}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metric{padding:8px;border:1px solid var(--border);border-radius:10px;background: var(--card)} .ml{color:var(--muted);font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px} .mv{font:.8rem "Fira Code",monospace;line-height:1.45}
+    .list,.chips{padding:0 12px 12px}.list{display:grid;gap:8px}.list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.6}.list div:before{content:"";position:absolute;left:0;top:.58rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}.chip,.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:700}.chip{border:1px solid rgba(56,189,248,.22);background:rgba(56,189,248,.08);color:#cbeafe}.badge{border:1px solid rgba(249,115,22,.22);background:rgba(249,115,22,.08);color:var(--accent2)}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(249,115,22,.08),transparent 28%),var(--bg)}
+    .tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background: var(--card);overflow-x:auto}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:600;border-bottom:2px solid transparent}.tab.active{color:var(--accent);border-bottom-color:var(--accent);background: var(--surface)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}
+    .field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background: var(--card)}
+    .field span{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+    .field select,.field input{background:transparent;border:none;color:var(--text);font:.8rem "Fira Code",monospace;outline:none}.range{display:flex;align-items:center;gap:10px;min-width:200px}.range input{width:100%;accent-color:var(--accent)} .value{color:var(--accent2);font:.8rem "Fira Code",monospace;text-transform:none;letter-spacing:0}
+    .panel{display:none;padding:12px 16px 16px}.panel.active{display:block}.status{padding:0 16px 12px;color:var(--text);line-height:1.7;font-size:.82rem}
+    .grid{display:grid;grid-template-columns:1.06fr .94fr;gap:12px;align-items:start}.card{background: var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:grid;gap:14px}.card.focus{border-color:rgba(253,186,116,.38);box-shadow:0 0 0 1px rgba(253,186,116,.18),0 20px 40px rgba(249,115,22,.14)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.card h2{font-size:1.1rem;line-height:1.45}.sub{color:var(--muted);line-height:1.68}
+    .info,.variants,.pitfalls{display:grid;gap:10px}.info,.pitfalls{grid-template-columns:repeat(2,minmax(0,1fr))}.variants{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mini,.variant,.cmp,.trace-row{border:1px solid rgba(148,163,184,.12);border-radius:14px;background: var(--card);padding:12px;display:grid;gap:6px}
+    .mini h3,.variant h3,.cmp h3{font-size:.9rem}.mini p,.variant p,.cmp p,.cmp li,.trace-row p{color:var(--muted);font-size:.82rem;line-height:1.62}.cmp ul{padding-left:18px}
+    .step{color:var(--accent2);font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .array{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:8px}.cell{padding:10px 6px;border:1px solid rgba(148,163,184,.12);border-radius:14px;background: var(--surface);text-align:center;transition:.18s}.cell .idx{display:block;color:var(--muted);font-size:.62rem;margin-bottom:4px}.cell .val{display:block;font:700 .82rem "Fira Code",monospace}.cell.window{border-color:rgba(56,189,248,.28);background:rgba(56,189,248,.08)}.cell.mid{border-color:rgba(249,115,22,.42);background:rgba(249,115,22,.12);box-shadow:0 0 0 1px rgba(249,115,22,.18)}.cell.answer{border-color:rgba(34,197,94,.36);background:rgba(34,197,94,.1)}.cell.off{opacity:.38}
+    .trace{display:grid;gap:8px;max-height:420px;overflow:auto}.trace-row.active{border-color:rgba(249,115,22,.34);box-shadow:0 0 0 1px rgba(249,115,22,.14)}.trace-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.trace-top strong{font-size:.8rem}.trace-top span{font: .72rem "Fira Code",monospace;color:var(--accent2)}
+    pre{white-space:pre-wrap;overflow-x:auto;padding:14px;border-radius:16px;border:1px solid var(--border);background: var(--card);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72}
+    .bars{display:grid;gap:10px}.bar{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:10px;align-items:center}.bar strong{font-size:.78rem}.bar span{color:var(--muted);font-size:.72rem;line-height:1.5}.track{height:10px;border-radius:999px;background:rgba(148,163,184,.1);overflow:hidden;border:1px solid rgba(148,163,184,.1)}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#fb923c,var(--accent))}.barv{color:var(--accent2);font:.74rem "Fira Code",monospace}
+    .variant.active{border-color:rgba(249,115,22,.32);box-shadow:0 0 0 1px rgba(249,115,22,.16)}
+    @media (max-width:1080px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.grid,.info,.pitfalls{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.pitfalls{grid-template-columns:1fr}.bar{grid-template-columns:1fr}.range{min-width:0}}
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Binary Search</span> Using Divide and Conquer</h1>
+      <p>Interactive dashboard for halving the search space, tracing interval updates, and understanding binary-search variants through the divide-and-conquer lens.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.php">Home</a>
+      <a href="divide_and_conquer_introduction.php">Introduction</a>
+      <a href="algorithm_strategies.php">Strategy Dashboard</a>
+    </div>
+  </header>
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head">Binary Search Snapshot</div>
+      <section class="sec">
+        <div class="sec-title">Current Mode</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="recurrenceText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Core Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="ml">Target</div><div class="mv" id="metricTarget"></div></div>
+          <div class="metric"><div class="ml">Answer</div><div class="mv" id="metricAnswer"></div></div>
+          <div class="metric"><div class="ml">Steps</div><div class="mv" id="metricSteps"></div></div>
+          <div class="metric"><div class="ml">Window</div><div class="mv" id="metricWindow"></div></div>
+        </div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">When It Helps</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">Main Caution</div>
+        <div class="box" id="cautionText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Variants</div>
+        <div class="chips" id="variantChips"></div>
+      </section>
+    </aside>
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="lab">Search Lab</button>
+        <button class="tab" data-tab="theory">Theory</button>
+        <button class="tab" data-tab="variants">Variants</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+      <div class="controls">
+        <div class="field"><span>Mode</span><select id="modeSelect"></select></div>
+        <div class="field"><span>Input Size</span><div class="range"><input id="sizeRange" type="range" min="4" max="8" step="1" value="6" /><span class="value" id="sizeValue">64</span></div></div>
+        <div class="field"><span>Step</span><div class="range"><input id="stepRange" type="range" min="0" max="0" step="1" value="0" /><span class="value" id="stepValue">0</span></div></div>
+      </div>
+      <section class="panel active" id="tab-lab">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus">
+            <div class="kick">Current Search Window</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="array" id="arrayView"></div>
+          </article>
+          <div style="display:grid;gap:12px">
+            <article class="card">
+              <div class="kick">Current Decision</div>
+              <div class="info">
+                <div class="cmp"><h3>Bounds</h3><p id="boundsText"></p></div>
+                <div class="cmp"><h3>Midpoint</h3><p id="midText"></p></div>
+                <div class="cmp"><h3>Comparison</h3><p id="compareText"></p></div>
+                <div class="cmp"><h3>Action</h3><p id="actionText"></p></div>
+              </div>
+            </article>
+            <article class="card">
+              <div class="kick">Variant Pseudocode</div>
+              <pre id="codeText"></pre>
+            </article>
+          </div>
+          <article class="card" style="grid-column:1/span 2">
+            <div class="kick">Search Trace</div>
+            <div class="trace" id="traceList"></div>
+          </article>
+        </div>
+      </section>
+      <section class="panel" id="tab-theory">
+        <div class="card">
+          <div class="kick">Why Binary Search Is Divide and Conquer</div>
+          <div class="info">
+            <div class="cmp"><h3>Divide</h3><p id="divideText"></p></div>
+            <div class="cmp"><h3>Conquer</h3><p id="conquerText"></p></div>
+            <div class="cmp"><h3>Combine</h3><p id="combineText"></p></div>
+            <div class="cmp"><h3>Asymptotic payoff</h3><p id="payoffText"></p></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Window Halving</div>
+          <div class="bars" id="barList"></div>
+        </div>
+      </section>
+      <section class="panel" id="tab-variants">
+        <div class="card">
+          <div class="kick">Binary Search Variants</div>
+          <div class="variants" id="variantGrid"></div>
+        </div>
+      </section>
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="pitfalls">
+            <div class="cmp"><h3>Off-by-one bounds</h3><p>The update rules for <code>low</code> and <code>high</code> must match the loop condition exactly.</p></div>
+            <div class="cmp"><h3>Duplicate handling</h3><p>Finding any match is different from finding the first or last occurrence. The equal case must be handled carefully.</p></div>
+            <div class="cmp"><h3>Unsorted data</h3><p>Binary search is correct only when a monotone property or sorted order justifies discarding half the space.</p></div>
+            <div class="cmp"><h3>Interview framing</h3><p>State the invariant, the mid calculation, and why one half can be eliminated before discussing the runtime.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const modes=[
+      {id:"classic_found",name:"Classic | Target Found",summary:"Use sorted order to eliminate half the interval until the target is found.",signs:["The array is sorted.","A single comparison rules out one half.","The extra work per step is constant."],helps:"It reduces a search from linear scanning to logarithmic time by discarding half the candidates each step.",caution:"If the array is not sorted or the invariant is wrong, the elimination step is invalid.",divide:"Choose the middle element as a clean split point.",conquer:"Keep only the half that can still contain the target.",combine:"No merge is needed because only one interval survives.",payoff:"The interval length is roughly halved each step, so the recursion depth is O(log n).",code:`low = 0, high = n - 1\nwhile (low <= high):\n  mid = (low + high) / 2\n  if a[mid] == target: return mid\n  if a[mid] < target: low = mid + 1\n  else: high = mid - 1`,build(n){const a=Array.from({length:n},(_,i)=>i*2+3);const target=a[Math.floor(n*0.68)];return{a,target,label:String(target)}}},
+      {id:"classic_missing",name:"Classic | Target Missing",summary:"The same halving idea works even when the target is absent; the interval eventually becomes empty.",signs:["The data stays sorted.","One branch survives after each comparison.","Failure is detected when the interval closes."],helps:"It proves binary search is about shrinking the answer space, not just finding a value that exists.",caution:"Stopping conditions matter. A wrong loop guard can miss the final interval or loop forever.",divide:"Split at the midpoint of the remaining interval.",conquer:"Retain only the half that could still contain the target.",combine:"No merge is needed after each decision.",payoff:"You still halve the candidate interval every step, so the runtime stays O(log n).",code:`low = 0, high = n - 1\nwhile (low <= high):\n  mid = (low + high) / 2\n  if a[mid] == target: return mid\n  if a[mid] < target: low = mid + 1\n  else: high = mid - 1\nreturn -1`,build(n){const a=Array.from({length:n},(_,i)=>i*2+3);const target=a[Math.floor(n*0.63)]+1;return{a,target,label:String(target)}}},
+      {id:"first_occurrence",name:"First Occurrence",summary:"When duplicates exist, keep searching left after an equal match to find the earliest valid index.",signs:["The data is sorted with duplicates.","Equal does not stop the search immediately.","You track the best answer seen so far."],helps:"It shows how divide and conquer can solve not just search, but boundary-finding problems too.",caution:"If you return immediately on equality, you find any occurrence, not the first one.",divide:"Pick a midpoint inside the remaining interval.",conquer:"Move left on equality because an earlier answer might still exist.",combine:"Update the current best answer while continuing the search.",payoff:"The interval still halves each step, so the search remains logarithmic.",code:`ans = -1\nlow = 0, high = n - 1\nwhile (low <= high):\n  mid = (low + high) / 2\n  if a[mid] >= target:\n    if a[mid] == target: ans = mid\n    high = mid - 1\n  else:\n    low = mid + 1\nreturn ans`,build(n){const a=Array.from({length:n},(_,i)=>Math.floor(i/2)*2+2);const target=a[Math.floor(n*0.64)];return{a,target,label:String(target)}}},
+      {id:"lower_bound",name:"Lower Bound",summary:"Find the first index whose value is greater than or equal to the query, even if the exact target is missing.",signs:["You need an insertion boundary, not just an exact match.","The equal case still moves left.","A running answer index is maintained."],helps:"This is the standard divide-and-conquer way to answer boundary queries in sorted arrays.",caution:"Lower bound returns an index boundary, so the meaning of the answer must be explained clearly.",divide:"Use the midpoint to test whether the answer could be at mid or to the left.",conquer:"If a[mid] is big enough, keep the left half including mid; otherwise go right.",combine:"Record the best boundary index seen so far.",payoff:"Every step discards half the remaining candidates for the boundary index.",code:`ans = n\nlow = 0, high = n - 1\nwhile (low <= high):\n  mid = (low + high) / 2\n  if a[mid] >= target:\n    ans = mid\n    high = mid - 1\n  else:\n    low = mid + 1\nreturn ans`,build(n){const a=Array.from({length:n},(_,i)=>i*3+2);const target=a[Math.floor(n*0.58)]+1;return{a,target,label:String(target)}}},
+      {id:"first_true",name:"First True Predicate",summary:"Binary search can run over any monotone boolean predicate, not only a sorted numeric array.",signs:["The predicate is false then true.","You search a monotone answer space.","The first true position is a boundary problem."],helps:"It generalizes binary search to decision problems, answer-space search, and optimization tasks.",caution:"The monotonicity proof is the whole algorithm. Without it, halving is not justified.",divide:"Test the midpoint of the answer space.",conquer:"If mid is true, the first true could be on the left; otherwise it must be on the right.",combine:"Store the earliest true index found so far.",payoff:"The answer space halves each step, so the complexity remains logarithmic.",code:`ans = n\nlow = 0, high = n - 1\nwhile (low <= high):\n  mid = (low + high) / 2\n  if predicate(mid):\n    ans = mid\n    high = mid - 1\n  else:\n    low = mid + 1\nreturn ans`,build(n){const threshold=Math.floor(n*0.62);const a=Array.from({length:n},(_,i)=>i>=threshold);return{a,target:threshold,label:`first true @ ${threshold}`}}}
+    ];
+    const tabs=[...document.querySelectorAll(".tab")],panels=[...document.querySelectorAll(".panel")],modeSelect=document.getElementById("modeSelect"),sizeRange=document.getElementById("sizeRange"),stepRange=document.getElementById("stepRange");
+    const fmt=n=>new Intl.NumberFormat("en-US",{notation:n>=1e6?"compact":"standard",maximumFractionDigits:n>=1000?0:2}).format(n);
+    const cur=()=>modes.find(x=>x.id===modeSelect.value)||modes[0];
+    function problem(){const n=2**Number(sizeRange.value);return{mode:cur(),n,...cur().build(n)}}
+    function traceFor(p){const m=p.mode.id,a=p.a,target=p.target;let l=0,r=a.length-1,ans=-1,steps=[];while(l<=r){const mid=(l+r)>>1,val=a[mid];let cmp="",act="",nl=l,nr=r;if(m==="first_true"){cmp=`predicate(${mid}) = ${val ? "true" : "false"}`;if(val){ans=mid;act="Keep left half and remember mid as candidate.";nr=mid-1}else{act="Discard left half including mid.";nl=mid+1}}else if(m==="lower_bound"){cmp=`a[mid] = ${val} vs target ${target}`;if(val>=target){ans=mid;act="mid can be answer, move left for an earlier boundary.";nr=mid-1}else{act="Need a larger value, move right.";nl=mid+1}}else if(m==="first_occurrence"){cmp=`a[mid] = ${val} vs target ${target}`;if(val>=target){if(val===target)ans=mid;act=val===target?"Found target, but continue left for the first one.":"Value too large, move left.";nr=mid-1}else{act="Value too small, move right.";nl=mid+1}}else{cmp=`a[mid] = ${val} vs target ${target}`;if(val===target){act="Found the target. Stop.";steps.push({l,r,mid,val,cmp,act,nextL:l,nextR:r,ans,done:true});break}else if(val<target){act="Target is larger, discard the left half.";nl=mid+1}else{act="Target is smaller, discard the right half.";nr=mid-1}}steps.push({l,r,mid,val,cmp,act,nextL:nl,nextR:nr,ans,done:false});l=nl;r=nr}if(m==="classic_missing"&&steps.length&&steps[steps.length-1].done===false&&ans===-1&&!(steps[steps.length-1].val===target)){}if((m==="classic_found"||m==="classic_missing")&&steps.length&&steps[steps.length-1].done!==true&&a[steps[steps.length-1].mid]!==target)steps.push({l,r,mid:-1,val:null,cmp:"Interval became empty.",act:"Target is not present.",nextL:l,nextR:r,ans:-1,done:true});if((m==="first_occurrence"||m==="lower_bound"||m==="first_true"))steps.push({l,r,mid:-1,val:null,cmp:"Search complete.",act:m==="first_true"?`First true index = ${ans===-1?a.length:ans}.`:m==="lower_bound"?`Lower bound index = ${ans===-1?a.length:ans}.`:`First occurrence index = ${ans}.`,nextL:l,nextR:r,ans,done:true});return steps}
+    function answerText(p,steps){const last=steps[steps.length-1],m=p.mode.id;if(m==="classic_found")return steps.find(s=>s.done&&s.mid>=0)?`index ${steps.find(s=>s.done&&s.mid>=0).mid}`:"not found";if(m==="classic_missing")return "not found";if(m==="first_occurrence")return last.ans>=0?`index ${last.ans}`:"not found";if(m==="lower_bound")return last.ans>=0?`index ${last.ans}`:`index ${p.a.length}`;return last.ans>=0?`index ${last.ans}`:`index ${p.a.length}`}
+    function render(){const p=problem(),steps=traceFor(p),maxStep=steps.length-1;stepRange.max=maxStep;const wanted=Math.min(Number(stepRange.value),maxStep);stepRange.value=String(wanted);const s=steps[wanted],windowSize=s.mid>=0?s.r-s.l+1:0;document.getElementById("sizeValue").textContent=fmt(p.n);document.getElementById("stepValue").textContent=`${wanted}/${maxStep}`;document.getElementById("focusTitle").textContent=p.mode.name;document.getElementById("focusSummary").textContent=p.mode.summary;document.getElementById("recurrenceText").textContent="T(n) = T(n/2) + 1";document.getElementById("metricTarget").textContent=p.label;document.getElementById("metricAnswer").textContent=answerText(p,steps);document.getElementById("metricSteps").textContent=String(steps.length);document.getElementById("metricWindow").textContent=windowSize>0?fmt(windowSize):"0";document.getElementById("signList").innerHTML=p.mode.signs.map(x=>`<div>${x}</div>`).join("");document.getElementById("helpsText").textContent=p.mode.helps;document.getElementById("cautionText").textContent=p.mode.caution;document.getElementById("variantChips").innerHTML=modes.map(x=>`<span class="chip">${x.name}</span>`).join("");
+      document.getElementById("statusText").textContent=`${p.mode.name} treats binary search as divide and conquer: pick a midpoint, discard one half, and continue on the surviving interval. Use the step slider to walk the trace.`;
+      document.getElementById("heroTitle").textContent=`${p.mode.name} on n = ${fmt(p.n)}`;
+      document.getElementById("heroSummary").textContent=s.mid>=0?`Current interval is [${s.l}, ${s.r}] and midpoint is index ${s.mid}.`:`The active interval is empty; the search has finished.`;
+      document.getElementById("heroBadges").innerHTML=["T(n)=T(n/2)+1","O(log n)",`step ${wanted}`].map(x=>`<span class="badge">${x}</span>`).join("");
+      document.getElementById("arrayView").innerHTML=p.a.map((v,i)=>{const inWindow=s.mid>=0&&i>=s.l&&i<=s.r,off=s.mid>=0&&!inWindow,mid=i===s.mid,ans=(typeof s.ans==="number"&&s.ans>=0&&i===s.ans)||(answerText(p,steps).includes(`index ${i}`)&&s.mid<0),label=typeof v==="boolean"?(v?"true":"false"):v;return `<div class="cell ${inWindow?"window":""} ${off?"off":""} ${mid?"mid":""} ${ans?"answer":""}"><span class="idx">${i}</span><span class="val">${label}</span></div>`}).join("");
+      document.getElementById("boundsText").textContent=s.mid>=0?`low = ${s.l}, high = ${s.r}`:`low = ${s.nextL}, high = ${s.nextR}`;
+      document.getElementById("midText").textContent=s.mid>=0?`mid = ${s.mid}${s.val!==null?`, value = ${typeof s.val==="boolean"?(s.val?"true":"false"):s.val}`:""}`:"No midpoint because the interval is empty.";
+      document.getElementById("compareText").textContent=s.cmp;
+      document.getElementById("actionText").textContent=s.act;
+      document.getElementById("codeText").textContent=p.mode.code;
+      document.getElementById("traceList").innerHTML=steps.map((t,i)=>`<div class="trace-row ${i===wanted?"active":""}"><div class="trace-top"><strong>${t.mid>=0?`Step ${i}`:`Finish`}</strong><span>${t.mid>=0?`[${t.l}, ${t.r}] -> mid ${t.mid}`:"done"}</span></div><p>${t.cmp}</p><p>${t.act}</p></div>`).join("");
+      document.getElementById("divideText").textContent=p.mode.divide;
+      document.getElementById("conquerText").textContent=p.mode.conquer;
+      document.getElementById("combineText").textContent=p.mode.combine;
+      document.getElementById("payoffText").textContent=p.mode.payoff;
+      document.getElementById("barList").innerHTML=steps.filter(t=>t.mid>=0).map((t,i)=>{const w=t.r-t.l+1;const max=p.a.length;return `<div class="bar"><div><strong>Step ${i}</strong><br><span>window size ${fmt(w)}</span></div><div class="track"><div class="fill" style="width:${Math.max(5,Math.round(w/max*100))}%"></div></div><div class="barv">${fmt(w)}</div></div>`}).join("");
+      document.getElementById("variantGrid").innerHTML=modes.map(x=>`<div class="variant ${x.id===p.mode.id?"active":""}"><h3>${x.name}</h3><p>${x.summary}</p><div class="chips" style="padding:0"><span class="badge">T(n)=T(n/2)+1</span></div></div>`).join("");
+    }
+    tabs.forEach(btn=>btn.addEventListener("click",()=>{const t=btn.dataset.tab;tabs.forEach(x=>x.classList.toggle("active",x===btn));panels.forEach(p=>p.classList.toggle("active",p.id===`tab-${t}`))}));
+    modeSelect.innerHTML=modes.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");modeSelect.value="classic_found";modeSelect.addEventListener("change",()=>{stepRange.value="0";render()});sizeRange.addEventListener("input",()=>{stepRange.value="0";render()});stepRange.addEventListener("input",render);render();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

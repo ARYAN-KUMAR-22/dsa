@@ -1,0 +1,2142 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Code Visualizer - C++</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --accent: #00d9ff;
+            --accent-light: #00f7ff;
+            --good: #00ff88;
+            --warn: #ffaa00;
+            --error: #ff4444;
+            --bg-dark: #0a1e2e;
+            --bg-lighter: #1a3a4a;
+            --text: #e0e0e0;
+            --text-dim: #909090;
+        }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0891b2;
+      --good: #15803d;
+      --warn: #b45309;
+    }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+
+
+
+        body {
+            background: linear-gradient(135deg, #0d1f2e 0%, #1a0a2e 100%);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .panel {
+            background: rgba(var(--bg-dark), 0.9);
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, #00d9ff20 0%, #00ff8820 100%);
+            padding: 12px;
+            border-bottom: 2px solid var(--accent);
+            font-weight: bold;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        /* Left Panel - Code Input */
+        .left-panel {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #codeInput {
+            flex: 1;
+            background: var(--card);
+            color: var(--accent);
+            border: none;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        #codeInput::placeholder {
+            color: var(--text-dim);
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--accent);
+        }
+
+        button {
+            padding: 10px 15px;
+            border: 2px solid var(--accent);
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--accent);
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+            transform: scale(1.02);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        /* Middle Panel - Visualization */
+        .middle-panel {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            background: var(--card);
+            border-radius: 5px;
+            box-shadow: inset 0 0 30px rgba(0, 217, 255, 0.1);
+        }
+
+        #canvas {
+            display: block;
+            background: var(--card);
+            width: 100%;
+        }
+
+        /* Right Panel - Info */
+        .right-panel {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-box {
+            background: var(--surface);
+            border: 2px solid var(--accent);
+            border-radius: 5px;
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .info-box-header {
+            color: var(--accent-light);
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 6px;
+        }
+
+        .info-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .var-item {
+            padding: 6px;
+            margin: 4px 0;
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 3px;
+        }
+
+        .var-name {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .var-value {
+            color: var(--good);
+            margin-left: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dotted var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+        }
+
+        .stat-value {
+            color: var(--accent-light);
+            font-weight: bold;
+        }
+
+        .log-entry {
+            padding: 6px;
+            margin: 4px 0;
+            background: rgba(0, 255, 136, 0.05);
+            border-left: 3px solid var(--good);
+            border-radius: 3px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .log-error {
+            background: rgba(255, 68, 68, 0.05);
+            border-left-color: var(--error);
+            color: var(--error);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+
+        .status {
+            padding: 8px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border-top: 1px solid var(--good);
+            color: var(--good);
+            font-size: 11px;
+        }
+
+        .status.error {
+            background: rgba(255, 68, 68, 0.1);
+            border-top-color: var(--error);
+            color: var(--error);
+        }
+    
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT PANEL: CODE INPUT -->
+        <div class="panel left-panel">
+            <div class="panel-header">📝 Code Input (C++)</div>
+            <textarea id="codeInput" placeholder="// Enter C++ code here
+// Example:
+// vector&lt;int&gt; v;
+// v.push_back(10);
+// v.push_back(20);
+// v.push_back(30);"></textarea>
+            <div class="control-buttons">
+                <button onclick="visualizeCode()">▶ Visualize</button>
+                <button onclick="stepCode()">⏭ Step</button>
+                <button onclick="clearAll()">🗑 Clear</button>
+                <button onclick="loadExample()">📋 Example</button>
+            </div>
+            <div class="status" id="status">Ready</div>
+        </div>
+
+        <!-- MIDDLE PANEL: VISUALIZATION -->
+        <div class="panel middle-panel">
+            <div class="panel-header">🎨 Visual Representation</div>
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: INFO -->
+        <div class="right-panel">
+            <!-- Variables -->
+            <div class="info-box">
+                <div class="info-box-header">🔍 Variables & Memory</div>
+                <div class="info-content" id="variablesPanel">
+                    <div style="color: var(--text-dim); text-align: center; margin-top: 30px;">No data yet</div>
+                </div>
+            </div>
+
+            <!-- Memory Storage -->
+            <div class="info-box">
+                <div class="info-box-header">💾 Memory Layout</div>
+                <div class="info-content" id="memoryPanel">
+                    <div style="color: var(--text-dim); text-align: center; margin-top: 30px; font-size: 11px;">
+                        <div>Shows memory layout when you execute code</div>
+                    </div>
+                </div>
+            </div>
+                <div class="info-box-header">📊 Statistics</div>
+                <div class="info-content" id="statsPanel">
+                    <div class="stat-row">
+                        <span class="stat-label">Operations:</span>
+                        <span class="stat-value" id="opCount">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Memory Used:</span>
+                        <span class="stat-value" id="memoryUsed">0 bytes</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Current Line:</span>
+                        <span class="stat-value" id="currentLine">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Execution Log -->
+            <div class="info-box">
+                <div class="info-box-header">📜 Execution Log</div>
+                <div class="info-content" id="logPanel"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        const state = {
+            variables: {},
+            operations: 0,
+            lines: [],
+            currentLineIndex: 0,
+            log: [],
+            executionState: 'idle'
+        };
+
+        // Initialize Canvas
+        function setupCanvas() {
+            const canvas = document.getElementById('canvas');
+            const container = canvas.parentElement;
+            
+            // Set canvas width to container width
+            canvas.width = container.offsetWidth;
+            
+            // Calculate required height based on content
+            let requiredHeight = calculateRequiredHeight();
+            const minHeight = container.offsetHeight;
+            canvas.height = Math.max(requiredHeight, minHeight);
+            
+            return canvas.getContext('2d');
+        }
+
+        // Calculate required height for all visualizations
+        function calculateRequiredHeight() {
+            let height = 80; // Start with header offset
+            
+            for (const [varName, varData] of Object.entries(state.variables)) {
+                height += 40; // Title
+                
+                if (varData.type === '2dvector') {
+                    const rows = varData.rows.length;
+                    height += Math.max(150, rows * 68 + 50) + 50;
+                } else if (varData.type === 'vector-pair') {
+                    const pairCount = (varData.pairs && varData.pairs.length > 0) ? varData.pairs.length : 3;
+                    height += Math.max(120, pairCount * 70) + 70;
+                } else if (varData.type === 'vector-map') {
+                    height += Math.max(150, varData.maps.length * 100) + 50;
+                } else if (varData.type === 'map-vector') {
+                    height += Math.max(150, Object.keys(varData.data).length * 80) + 50;
+                } else if (varData.type === 'pair-vectors') {
+                    height += 240 + 30;
+                } else if (varData.type === 'pair') {
+                    height += 180 + 30;
+                } else if (varData.type === 'vector' || varData.type === 'array') {
+                    height += 80 + 30;
+                } else if (varData.type === 'deque' || varData.type === 'queue' || varData.type === 'list') {
+                    height += 100 + 30;
+                } else if (varData.type === 'map') {
+                    height += Math.max(80, varData.pairs.length * 35) + 30;
+                } else if (varData.type === 'set') {
+                    height += 100 + 30;
+                } else if (varData.type === 'stack') {
+                    height += 200 + 30;
+                }
+            }
+            
+            return Math.max(height, 600);
+        }
+
+        // Parse and Execute Code
+        function visualizeCode() {
+            const code = document.getElementById('codeInput').value;
+            if (!code.trim()) {
+                setStatus('Please enter some code', true);
+                return;
+            }
+
+            state.variables = {};
+            state.operations = 0;
+            state.log = [];
+
+            // Handle multiline initializations with nested braces
+            const processedCode = preprocessCode(code);
+            state.lines = processedCode.filter(line => line.trim());
+            state.currentLineIndex = 0;
+
+            try {
+                for (let i = 0; i < state.lines.length; i++) {
+                    state.currentLineIndex = i;
+                    executeLine(state.lines[i]);
+                }
+                setStatus('Execution completed successfully');
+                redrawCanvas();
+                updatePanels();
+            } catch (error) {
+                setStatus(`Error: ${error.message}`, true);
+                addLog(`Error: ${error.message}`, true);
+            }
+        }
+
+        // Preprocess code to handle multiline initializations
+        function preprocessCode(code) {
+            const lines = [];
+            let currentLine = '';
+            let braceDepth = 0;
+            let parenDepth = 0;
+
+            for (let i = 0; i < code.length; i++) {
+                const char = code[i];
+                currentLine += char;
+
+                if (char === '{') braceDepth++;
+                if (char === '}') braceDepth--;
+                if (char === '(') parenDepth++;
+                if (char === ')') parenDepth--;
+
+                if (char === ';') {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                    braceDepth = 0;
+                    parenDepth = 0;
+                } else if (char === '\n' && braceDepth === 0 && parenDepth === 0 && currentLine.trim()) {
+                    const trimmed = currentLine.trim();
+                    if (!trimmed.endsWith(',') && !trimmed.endsWith('{')) {
+                        lines.push(trimmed);
+                        currentLine = '';
+                    }
+                }
+            }
+
+            if (currentLine.trim()) {
+                lines.push(currentLine.trim());
+            }
+
+            return lines;
+        }
+
+        // Step through code
+        function stepCode() {
+            if (state.currentLineIndex >= state.lines.length) {
+                setStatus('Execution complete. Click [Visualize] to restart.', true);
+                return;
+            }
+
+            try {
+                executeLine(state.lines[state.currentLineIndex]);
+                state.currentLineIndex++;
+                redrawCanvas();
+                updatePanels();
+            } catch (error) {
+                setStatus(`Error: ${error.message}`, true);
+                addLog(`Error: ${error.message}`, true);
+            }
+        }
+
+        // Enhanced value parser
+        function parseValue(val) {
+            val = val.trim().replace(/['"{}]/g, '');
+            if (val === 'true') return true;
+            if (val === 'false') return false;
+            if (!isNaN(val) && val !== '') return parseInt(val);
+            return val;
+        }
+
+        // Execute individual line
+        function executeLine(line) {
+            line = line.trim();
+            if (!line || line.startsWith('//') || line.startsWith('*')) return;
+
+            addLog(`Executing: ${line}`);
+            state.operations++;
+
+            // 2D Vector declaration: vector<vector<int>> matrix;
+            if (line.match(/vector\s*<\s*vector\s*<(\w+)\s*>\s*>\s+(\w+)/)) {
+                const match = line.match(/vector\s*<\s*vector\s*<(\w+)\s*>\s*>\s+(\w+)/);
+                const type = match[1];
+                const name = match[2];
+                state.variables[name] = { type: '2dvector', dataType: type, rows: [] };
+                addLog(`✓ Created 2D vector<vector<${type}>> ${name}`);
+                return;
+            }
+
+            // 2D Vector with initialization: vector<vector<int>> matrix = {{1,2,3}, {4,5,6}};
+            if (line.includes('{{') || line.includes('vector<vector')) {
+                const match = line.match(/vector\s*<\s*vector\s*<(\w+)\s*>\s*>\s+(\w+)\s*=\s*(.+)/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    const matrixStr = match[3];
+                    state.variables[name] = { type: '2dvector', dataType: type, rows: [] };
+                    
+                    // Extract all rows: {{...}, {...}, ...}
+                    const rowMatches = matrixStr.match(/\{[^{}]*\}/g) || [];
+                    
+                    rowMatches.forEach(row => {
+                        // Extract numbers from each row
+                        const values = row.match(/\d+/g) || [];
+                        if (values.length > 0) {
+                            state.variables[name].rows.push(values.map(v => parseInt(v)));
+                        }
+                    });
+                    
+                    addLog(`✓ Created 2D vector ${name} with ${state.variables[name].rows.length} rows and ${state.variables[name].rows[0]?.length || 0} columns`);
+                    return;
+                }
+            }
+
+            // Vector with initialization: vector<int> v = {1, 2, 3, 4};
+            if (line.includes('vector<') && line.includes('=')) {
+                const match = line.match(/vector<(\w+)>\s+(\w+)\s*=\s*\{([^}]+)\}/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    const values = match[3].split(',').map(v => parseValue(v));
+                    state.variables[name] = { type: 'vector', dataType: type, values: values };
+                    addLog(`✓ Created vector<${type}> ${name} with ${values.length} elements`);
+                    return;
+                }
+            }
+
+            // Regular vector declaration
+            if (line.match(/vector\s*<\s*(\w+)\s*>\s+(\w+)/)) {
+                const match = line.match(/vector\s*<\s*(\w+)\s*>\s+(\w+)/);
+                const type = match[1];
+                const name = match[2];
+                state.variables[name] = { type: 'vector', dataType: type, values: [] };
+                addLog(`✓ Created vector<${type}> ${name}`);
+                return;
+            }
+
+            // Push back to vector/stack
+            if (line.includes('.push_back(') || line.includes('.push(')) {
+                // Handle pair.first.push_back() and pair.second.push_back()
+                if (line.includes('.first.push_back(') || line.includes('.second.push_back(')) {
+                    const match = line.match(/(\w+)\.(first|second)\.push_back\(([^)]*)\)/);
+                    if (match) {
+                        const varName = match[1];
+                        const field = match[2];
+                        const value = parseValue(match[3]);
+                        if (state.variables[varName] && state.variables[varName].type === 'pair-vectors') {
+                            if (field === 'first') {
+                                state.variables[varName].first.push(value);
+                            } else {
+                                state.variables[varName].second.push(value);
+                            }
+                            addLog(`✓ Pushed ${value} to ${varName}.${field}`);
+                            return;
+                        }
+                    }
+                }
+
+                // Generic push_back for regular vectors and stacks
+                const methodName = line.includes('.push_back(') ? 'push_back' : 'push';
+                const regex = new RegExp(`(\\w+)\\.${methodName}\\(([^)]*)\\)`);
+                const match = line.match(regex);
+                if (match) {
+                    const varName = match[1];
+                    const value = parseValue(match[2]);
+                    if (state.variables[varName] && state.variables[varName].values) {
+                        state.variables[varName].values.push(value);
+                        addLog(`✓ Pushed "${value}" to ${varName}`);
+                    }
+                    return;
+                }
+            }
+
+            // Push front to deque
+            if (line.includes('.push_front(')) {
+                const match = line.match(/(\w+)\.push_front\(([^)]*)\)/);
+                if (match) {
+                    const varName = match[1];
+                    const value = parseValue(match[2]);
+                    if (state.variables[varName] && state.variables[varName].values) {
+                        state.variables[varName].values.unshift(value);
+                        addLog(`✓ Pushed front "${value}" to ${varName}`);
+                    }
+                    return;
+                }
+            }
+
+            // Pop operations
+            if (line.includes('.pop()')) {
+                const match = line.match(/(\w+)\.pop\(\)/);
+                if (match) {
+                    const varName = match[1];
+                    if (state.variables[varName] && state.variables[varName].values && state.variables[varName].values.length > 0) {
+                        const popped = state.variables[varName].values.pop();
+                        addLog(`✓ Popped "${popped}" from ${varName}`);
+                    }
+                    return;
+                }
+            }
+
+            // Pop front
+            if (line.includes('.pop_front()')) {
+                const match = line.match(/(\w+)\.pop_front\(\)/);
+                if (match) {
+                    const varName = match[1];
+                    if (state.variables[varName] && state.variables[varName].values && state.variables[varName].values.length > 0) {
+                        const popped = state.variables[varName].values.shift();
+                        addLog(`✓ Popped front "${popped}" from ${varName}`);
+                    }
+                    return;
+                }
+            }
+
+            // Push to queue (enqueue)
+            if (line.includes('queue<')) {
+                const match = line.match(/queue\s*<\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    state.variables[name] = { type: 'queue', dataType: type, values: [] };
+                    addLog(`✓ Created queue<${type}> ${name}`);
+                    return;
+                }
+            }
+
+            // Stack declaration
+            if (line.includes('stack<')) {
+                const match = line.match(/stack\s*<\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    state.variables[name] = { type: 'stack', dataType: type, values: [] };
+                    addLog(`✓ Created stack<${type}> ${name}`);
+                    return;
+                }
+            }
+
+            // Deque declaration
+            if (line.includes('deque<')) {
+                const match = line.match(/deque\s*<\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    state.variables[name] = { type: 'deque', dataType: type, values: [] };
+                    addLog(`✓ Created deque<${type}> ${name}`);
+                    return;
+                }
+            }
+
+            // Map declaration
+            if (line.includes('map<')) {
+                const match = line.match(/map\s*<\s*(\w+)\s*,\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const keyType = match[1];
+                    const valType = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'map', keyType: keyType, valType: valType, pairs: [] };
+                    addLog(`✓ Created map<${keyType}, ${valType}> ${name}`);
+                    return;
+                }
+            }
+
+            // Unordered map declaration
+            if (line.includes('unordered_map<')) {
+                const match = line.match(/unordered_map\s*<\s*(\w+)\s*,\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const keyType = match[1];
+                    const valType = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'map', keyType: keyType, valType: valType, pairs: [] };
+                    addLog(`✓ Created unordered_map<${keyType}, ${valType}> ${name}`);
+                    return;
+                }
+            }
+
+            // Map/unordered_map insertion: map[key] = value;
+            if (line.match(/(\w+)\[(.+?)\]\s*=\s*(.+);/)) {
+                const match = line.match(/(\w+)\[(.+?)\]\s*=\s*(.+);/);
+                const varName = match[1];
+                const key = parseValue(match[2]);
+                const value = parseValue(match[3]);
+                
+                if (state.variables[varName] && state.variables[varName].type === 'map') {
+                    state.variables[varName].pairs.push({ key: key, value: value });
+                    addLog(`✓ Inserted ${key}: ${value} into ${varName}`);
+                    return;
+                }
+            }
+
+            // Set declaration
+            if (line.includes('set<')) {
+                const match = line.match(/set\s*<\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const type = match[1];
+                    const name = match[2];
+                    state.variables[name] = { type: 'set', dataType: type, values: [] };
+                    addLog(`✓ Created set<${type}> ${name}`);
+                    return;
+                }
+            }
+
+            // Set insert
+            if (line.includes('.insert(')) {
+                const match = line.match(/(\w+)\.insert\(([^)]*)\)/);
+                if (match) {
+                    const varName = match[1];
+                    const value = parseValue(match[2]);
+                    if (state.variables[varName] && state.variables[varName].type === 'set') {
+                        if (!state.variables[varName].values.includes(value)) {
+                            state.variables[varName].values.push(value);
+                            addLog(`✓ Inserted "${value}" into ${varName}`);
+                        }
+                    }
+                    return;
+                }
+            }
+
+            // Array declaration
+            if (line.includes('int ') && line.includes('[')) {
+                const match = line.match(/int\s+(\w+)\[(\d+)\]/);
+                if (match) {
+                    const name = match[1];
+                    const size = parseInt(match[2]);
+                    state.variables[name] = { type: 'array', dataType: 'int', size: size, values: new Array(size).fill(0) };
+                    addLog(`✓ Created array ${name}[${size}]`);
+                    return;
+                }
+            }
+
+            // Array assignment
+            if (line.match(/(\w+)\[(\d+)\]\s*=\s*(.+);/)) {
+                const match = line.match(/(\w+)\[(\d+)\]\s*=\s*(.+);/);
+                const varName = match[1];
+                const index = parseInt(match[2]);
+                const value = parseValue(match[3]);
+                if (state.variables[varName]) {
+                    state.variables[varName].values[index] = value;
+                    addLog(`✓ Set ${varName}[${index}] = ${value}`);
+                    return;
+                }
+            }
+
+            // 2D vector row access: matrix[i].push_back(val)
+            const rowAccessMatch = line.match(/(\w+)\[(\d+)\]\.push_back\(([^)]*)\)/);
+            if (rowAccessMatch) {
+                const varName = rowAccessMatch[1];
+                const rowIdx = parseInt(rowAccessMatch[2]);
+                const value = parseValue(rowAccessMatch[3]);
+                if (state.variables[varName]) {
+                    if (state.variables[varName].type === '2dvector') {
+                        if (!state.variables[varName].rows[rowIdx]) {
+                            state.variables[varName].rows[rowIdx] = [];
+                        }
+                        state.variables[varName].rows[rowIdx].push(value);
+                        addLog(`✓ Pushed "${value}" to ${varName}[${rowIdx}]`);
+                    } else if (state.variables[varName].type === 'vector') {
+                        state.variables[varName].values.push(value);
+                        addLog(`✓ Pushed "${value}" to ${varName}[${rowIdx}]`);
+                    }
+                }
+                return;
+            }
+
+            // Vector of Pairs: vector<pair<int, int>> coordinates;
+            if (line.includes('vector<pair<')) {
+                const match = line.match(/vector\s*<\s*pair\s*<(\w+)\s*,\s*(\w+)\s*>\s*>\s+(\w+)/);
+                if (match) {
+                    const type1 = match[1];
+                    const type2 = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'vector-pair', dataType1: type1, dataType2: type2, pairs: [] };
+                    addLog(`✓ Created vector<pair<${type1}, ${type2}>> ${name}`);
+                    return;
+                }
+            }
+
+            // Vector of Maps: vector<map<string, int>> maps;
+            if (line.includes('vector<map<')) {
+                const match = line.match(/vector\s*<\s*map\s*<(\w+)\s*,\s*(\w+)\s*>\s*>\s+(\w+)/);
+                if (match) {
+                    const keyType = match[1];
+                    const valType = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'vector-map', keyType: keyType, valType: valType, maps: [] };
+                    addLog(`✓ Created vector<map<${keyType}, ${valType}>> ${name}`);
+                    return;
+                }
+            }
+
+            // Map with Vector values: map<string, vector<int>> mapVec;
+            if (line.includes('map<') && line.includes('vector<')) {
+                const match = line.match(/map\s*<(\w+)\s*,\s*vector\s*<(\w+)\s*>\s*>\s+(\w+)/);
+                if (match) {
+                    const keyType = match[1];
+                    const valType = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'map-vector', keyType: keyType, valType: valType, data: {} };
+                    addLog(`✓ Created map<${keyType}, vector<${valType}>> ${name}`);
+                    return;
+                }
+            }
+
+            // Pair<Vector, Vector>: pair<vector<int>, vector<int>> p;
+            if (line.includes('pair<vector<')) {
+                const match = line.match(/pair\s*<\s*vector\s*<(\w+)\s*>\s*,\s*vector\s*<(\w+)\s*>\s*>\s+(\w+)/);
+                if (match) {
+                    const type1 = match[1];
+                    const type2 = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'pair-vectors', type1: type1, type2: type2, first: [], second: [] };
+                    addLog(`✓ Created pair<vector<${type1}>, vector<${type2}>> ${name}`);
+                    return;
+                }
+            }
+
+            // Simple pair: pair<int, string> p;
+            if (line.includes('pair<')) {
+                const match = line.match(/pair\s*<(\w+)\s*,\s*(\w+)\s*>\s+(\w+)/);
+                if (match) {
+                    const type1 = match[1];
+                    const type2 = match[2];
+                    const name = match[3];
+                    state.variables[name] = { type: 'pair', type1: type1, type2: type2, first: null, second: null };
+                    addLog(`✓ Created pair<${type1}, ${type2}> ${name}`);
+                    return;
+                }
+            }
+
+            // Push to vector of pairs: vp.push_back({1, 2});
+            if (line.includes('.push_back({')) {
+                const match = line.match(/(\w+)\.push_back\(\{([^,}]*),\s*([^}]*)\}\)/);
+                if (match) {
+                    const varName = match[1];
+                    const val1 = parseValue(match[2]);
+                    const val2 = parseValue(match[3]);
+                    if (state.variables[varName] && state.variables[varName].type === 'vector-pair') {
+                        state.variables[varName].pairs.push({ first: val1, second: val2 });
+                        addLog(`✓ Pushed pair({${val1}, ${val2}}) to ${varName}`);
+                        return;
+                    }
+                }
+            }
+
+            // Map assignment to vector<map>: vm[0]["key"] = value;
+            if (line.match(/(\w+)\[\d+\]\[.+\]\s*=/)) {
+                const match = line.match(/(\w+)\[(\d+)\]\[(.+?)\]\s*=\s*(.+);/);
+                if (match) {
+                    const varName = match[1];
+                    const mapIdx = parseInt(match[2]);
+                    const key = parseValue(match[3]);
+                    const value = parseValue(match[4]);
+                    if (state.variables[varName] && state.variables[varName].type === 'vector-map') {
+                        if (!state.variables[varName].maps[mapIdx]) {
+                            state.variables[varName].maps[mapIdx] = [];
+                        }
+                        state.variables[varName].maps[mapIdx].push({ key: key, value: value });
+                        addLog(`✓ Added ${key}: ${value} to ${varName}[${mapIdx}]`);
+                        return;
+                    }
+                }
+            }
+
+            // Map with vector values: data["key"] = {1,2,3};
+            if (line.match(/(\w+)\[(.+?)\]\s*=\s*\{[^}]*\}/)) {
+                const match = line.match(/(\w+)\[(.+?)\]\s*=\s*\{([^}]*)\};/);
+                if (match) {
+                    const varName = match[1];
+                    const key = parseValue(match[2]);
+                    const values = match[3].split(',').map(v => parseValue(v)).filter(v => v !== '');
+                    if (state.variables[varName] && state.variables[varName].type === 'map-vector') {
+                        state.variables[varName].data[key] = values;
+                        addLog(`✓ Map[${key}] = [${values.join(', ')}]`);
+                        return;
+                    }
+                }
+            }
+
+            // Pair assignment: p.first = val; p.second = val;
+            if (line.includes('.first =') || line.includes('.second =')) {
+                const match = line.match(/(\w+)\.(first|second)\s*=\s*([^;]+);/);
+                if (match) {
+                    const varName = match[1];
+                    const field = match[2];
+                    const value = parseValue(match[3]);
+                    if (state.variables[varName]) {
+                        if (state.variables[varName].type === 'pair') {
+                            state.variables[varName][field] = value;
+                            addLog(`✓ ${varName}.${field} = ${value}`);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            // Linked list
+            if (line.includes('LinkedList') || line.includes('list<')) {
+                const match = line.match(/(?:LinkedList|list<\w+>)\s+(\w+)/);
+                if (match) {
+                    const name = match[1];
+                    state.variables[name] = { type: 'list', values: [] };
+                    addLog(`✓ Created linked list ${name}`);
+                    return;
+                }
+            }
+        }
+
+        // Drawing Functions
+        const colors = {
+            vector: '#00d9ff',
+            '2dvector': '#00ff88',
+            array: '#00ff88',
+            map: '#ffaa00',
+            stack: '#ff6b9d',
+            queue: '#6bcf7f',
+            list: '#a78bfa',
+            deque: '#ffa500',
+            set: '#ff99ff',
+            pair: '#ff00ff',
+            'vector-pair': '#ff00ff',
+            'vector-map': '#ff9900',
+            'map-vector': '#00ffff',
+            'pair-vectors': '#ff00aa'
+        };
+
+        function redrawCanvas() {
+            const canvas = document.getElementById('canvas');
+            const ctx = setupCanvas();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let yOffset = 40;
+            let varIndex = 0;
+
+            for (const [varName, varData] of Object.entries(state.variables)) {
+                ctx.fillStyle = '#00d9ff';
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${varName}: ${varData.type}`, 30, yOffset);
+                yOffset += 40;
+
+                const color = colors[varData.type] || '#00d9ff';
+
+                // 2D Vector visualization
+                if (varData.type === '2dvector') {
+                    const rows = varData.rows.length;
+                    const cols = varData.rows[0]?.length || 0;
+                    drawMatrix(ctx, 50, yOffset, varData.rows, color);
+                    yOffset += Math.max(150, rows * 68 + 50);
+                }
+                // Vector visualization
+                else if (varData.type === 'vector') {
+                    drawVector(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 80;
+                }
+                // Array visualization
+                else if (varData.type === 'array') {
+                    drawArray(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 80;
+                }
+                // Deque visualization
+                else if (varData.type === 'deque') {
+                    drawDeque(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 100;
+                }
+                // Map visualization
+                else if (varData.type === 'map') {
+                    drawMap(ctx, 50, yOffset, varData.pairs, color);
+                    yOffset += Math.max(80, varData.pairs.length * 35);
+                }
+                // Set visualization
+                else if (varData.type === 'set') {
+                    drawSet(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 100;
+                }
+                // Stack visualization
+                else if (varData.type === 'stack') {
+                    drawStack(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 200;
+                }
+                // Queue visualization
+                else if (varData.type === 'queue') {
+                    drawQueue(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 100;
+                }
+                // List visualization
+                else if (varData.type === 'list') {
+                    drawLinkedList(ctx, 50, yOffset, varData.values, color);
+                    yOffset += 100;
+                }
+                // Vector of Pairs visualization
+                else if (varData.type === 'vector-pair') {
+                    const pairCount = (varData.pairs && varData.pairs.length > 0) ? varData.pairs.length : 3;
+                    drawVectorOfPairs(ctx, 50, yOffset, varData.pairs, color);
+                    yOffset += Math.max(120, pairCount * 70) + 40;
+                }
+                // Vector of Maps visualization
+                else if (varData.type === 'vector-map') {
+                    drawVectorOfMaps(ctx, 50, yOffset, varData.maps, color);
+                    yOffset += Math.max(150, varData.maps.length * 100);
+                }
+                // Map with Vector values visualization
+                else if (varData.type === 'map-vector') {
+                    drawMapOfVectors(ctx, 50, yOffset, varData.data, color);
+                    yOffset += Math.max(150, Object.keys(varData.data).length * 80);
+                }
+                // Pair of Vectors visualization
+                else if (varData.type === 'pair-vectors') {
+                    drawPairOfVectors(ctx, 50, yOffset, varData.first, varData.second, color);
+                    yOffset += 240;
+                }
+                // Simple Pair visualization
+                else if (varData.type === 'pair') {
+                    drawPair(ctx, 50, yOffset, varData.first, varData.second, varData.type1, varData.type2, color);
+                    yOffset += 180;
+                }
+
+                yOffset += 30;
+                varIndex++;
+            }
+
+            if (varIndex === 0) {
+                ctx.fillStyle = '#909090';
+                ctx.font = '14px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText('No data structures to visualize', 30, canvas.height / 2);
+            }
+        }
+
+        function drawMatrix(ctx, x, y, rows, color) {
+            // If rows is empty or invalid, use test data
+            const testRows = (rows && rows.length > 0) ? rows : [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+            
+            const cellSize = 60;
+            const gap = 8;
+
+            // Draw title with dimensions
+            ctx.fillStyle = color;
+            ctx.font = 'bold 14px Courier New';
+            ctx.textAlign = 'left';
+            const cols = testRows[0] ? testRows[0].length : 0;
+            ctx.fillText(`[${testRows.length}×${cols}] Matrix`, x, y - 15);
+
+            // Draw grid cells
+            testRows.forEach((row, rowIdx) => {
+                if (!row) return;
+                row.forEach((val, colIdx) => {
+                    const posX = x + colIdx * (cellSize + gap);
+                    const posY = y + rowIdx * (cellSize + gap);
+
+                    // Draw cell border - prominent
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(posX, posY, cellSize, cellSize);
+
+                    // Fill cell
+                    ctx.fillStyle = color;
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillRect(posX, posY, cellSize, cellSize);
+                    ctx.globalAlpha = 1;
+
+                    // Draw value
+                    ctx.fillStyle = color;
+                    ctx.font = 'bold 18px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(val, posX + cellSize / 2, posY + cellSize / 2);
+
+                    // Draw row/column indices
+                    if (colIdx === 0) {
+                        ctx.fillStyle = '#00ff88';
+                        ctx.font = '11px Courier New';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(`r${rowIdx}`, x - 10, posY + cellSize / 2 + 3);
+                    }
+                    if (rowIdx === 0) {
+                        ctx.fillStyle = '#00ff88';
+                        ctx.font = '11px Courier New';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`c${colIdx}`, posX + cellSize / 2, y - 25);
+                    }
+                });
+            });
+
+            // Draw memory info
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.6;
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'left';
+            const totalCells = testRows.reduce((sum, row) => sum + row.length, 0);
+            ctx.fillText(`Memory: ${totalCells * 4} bytes`, x, y + testRows.length * (cellSize + gap) + 25);
+            ctx.globalAlpha = 1;
+        }
+
+        function drawVector(ctx, x, y, values, color) {
+            if (!values) return;
+            const boxWidth = 50;
+            const boxHeight = 40;
+            const gap = 5;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * (boxWidth + gap);
+                
+                // Draw memory address at top
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '9px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`0x${(1000 + idx * 4).toString(16)}`, posX + boxWidth / 2, y - 8);
+
+                // Draw cell
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(posX, y, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(posX, y, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                // Draw value
+                ctx.fillStyle = color;
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
+                
+                // Draw index below
+                ctx.fillStyle = '#909090';
+                ctx.font = '10px Courier New';
+                ctx.fillText(`[${idx}]`, posX + boxWidth / 2, y + boxHeight + 15);
+            });
+
+            ctx.fillStyle = color;
+            ctx.font = '12px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Total: ${values.length} elements × 4 bytes = ${values.length * 4} bytes`, x, y + boxHeight + 30);
+        }
+
+        function drawArray(ctx, x, y, values, color) {
+            if (!values) return;
+            const boxWidth = 50;
+            const boxHeight = 40;
+            const gap = 5;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * (boxWidth + gap);
+                
+                // Draw memory address
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '9px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`0x${(3000 + idx * 4).toString(16)}`, posX + boxWidth / 2, y - 8);
+
+                // Draw cell
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(posX, y, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(posX, y, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
+                
+                // Draw index
+                ctx.fillStyle = '#909090';
+                ctx.font = '10px Courier New';
+                ctx.fillText(`[${idx}]`, posX + boxWidth / 2, y + boxHeight + 15);
+            });
+
+            ctx.fillStyle = color;
+            ctx.font = '12px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Total: ${values.length} elements × 4 bytes = ${values.length * 4} bytes`, x, y + boxHeight + 30);
+        }
+
+        function drawDeque(ctx, x, y, values, color) {
+            const boxWidth = 45;
+            const boxHeight = 40;
+            const gap = 3;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * (boxWidth + gap);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(posX, y, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(posX, y, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
+            });
+
+            ctx.fillStyle = color;
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('FRONT', x, y - 8);
+            ctx.textAlign = 'right';
+            ctx.fillText('BACK', x + values.length * (boxWidth + gap), y - 8);
+        }
+
+        function drawMap(ctx, x, y, pairs, color) {
+            const boxHeight = 30;
+            const boxWidth = 200;
+            
+            // Draw header with key info
+            ctx.fillStyle = color;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('Key → Value', x, y - 10);
+            
+            pairs.forEach((pair, idx) => {
+                const posY = y + idx * (boxHeight + 8);
+
+                // Draw address
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '9px Courier New';
+                ctx.fillText(`0x${(2000 + idx * 16).toString(16)}`, x - 5, posY + boxHeight - 5);
+
+                // Draw cell
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, posY, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(x, posY, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                // Draw content
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${pair.key} → ${pair.value}`, x + 10, posY + boxHeight / 2);
+            });
+        }
+
+        function drawSet(ctx, x, y, values, color) {
+            const circleRadius = 20;
+            const gap = 55;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * gap;
+                const posY = y;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(posX, posY, circleRadius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX, posY);
+            });
+
+            ctx.fillStyle = color;
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`[${values.length} unique items]`, x, y + circleRadius + 25);
+        }
+
+        function drawStack(ctx, x, y, values, color) {
+            const boxWidth = 80;
+            const boxHeight = 35;
+            const maxDisplay = 5;
+            const displayValues = values.slice(-maxDisplay);
+
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.08;
+            ctx.fillRect(x - 15, y - 30, boxWidth + 30, Math.min(maxDisplay, displayValues.length) * (boxHeight + 5) + 50);
+            ctx.globalAlpha = 1;
+
+            displayValues.forEach((val, idx) => {
+                const posY = y + idx * (boxHeight + 5);
+                
+                // Memory address on the right
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '9px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText(`0x${(4000 + (values.length - displayValues.length + idx) * 4).toString(16)}`, x + boxWidth + 10, posY + boxHeight - 5);
+
+                // Draw stack frame
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, posY, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.15;
+                ctx.fillRect(x, posY, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, x + boxWidth / 2, posY + boxHeight / 2);
+
+                // Highlight TOP
+                if (idx === displayValues.length - 1) {
+                    ctx.strokeStyle = '#ffaa00';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x - 3, posY - 3, boxWidth + 6, boxHeight + 6);
+                    ctx.fillStyle = '#ffaa00';
+                    ctx.font = 'bold 12px Courier New';
+                    ctx.fillText('▲ TOP', x + boxWidth / 2, posY - 15);
+                }
+            });
+
+            if (values.length > maxDisplay) {
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.5;
+                ctx.font = '10px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`...+${values.length - maxDisplay} more`, x + boxWidth / 2, y + (maxDisplay + 1) * (boxHeight + 5));
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = color;
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`LIFO: Last In, First Out | Size: ${values.length * 4} bytes`, x, y + (maxDisplay + 2) * (boxHeight + 5) + 10);
+        }
+
+        function drawQueue(ctx, x, y, values, color) {
+            const boxWidth = 45;
+            const boxHeight = 40;
+            const gap = 3;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * (boxWidth + gap);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(posX, y, boxWidth, boxHeight);
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(posX, y, boxWidth, boxHeight);
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX + boxWidth / 2, y + boxHeight / 2);
+            });
+
+            ctx.fillStyle = color;
+            ctx.font = '11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('← FRONT', x, y - 8);
+            ctx.textAlign = 'right';
+            ctx.fillText('BACK →', x + values.length * (boxWidth + gap), y - 8);
+        }
+
+        function drawLinkedList(ctx, x, y, values, color) {
+            const nodeRadius = 20;
+            const gap = 60;
+
+            values.forEach((val, idx) => {
+                const posX = x + idx * gap;
+                const posY = y;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(posX, posY, nodeRadius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.1;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, posX, posY);
+
+                if (idx < values.length - 1) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(posX + nodeRadius, posY);
+                    ctx.lineTo(posX + gap - nodeRadius, posY);
+                    ctx.stroke();
+
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(posX + gap - nodeRadius, posY);
+                    ctx.lineTo(posX + gap - nodeRadius - 8, posY - 6);
+                    ctx.lineTo(posX + gap - nodeRadius - 8, posY + 6);
+                    ctx.fill();
+                }
+            });
+        }
+
+        // Vector of Pairs visualization
+        function drawVectorOfPairs(ctx, x, y, pairs, color) {
+            // Use test data if pairs is empty
+            const testPairs = (pairs && pairs.length > 0) ? pairs : [{first: 10, second: 20}, {first: 30, second: 40}, {first: 50, second: 60}];
+            
+            ctx.fillStyle = color;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('Index    [First] [Second]', x, y - 10);
+
+            testPairs.forEach((pair, idx) => {
+                const posY = y + idx * 70;
+                
+                // Index label
+                ctx.fillStyle = '#ffaa00';
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText(`[${idx}]`, x, posY + 25);
+
+                // First box
+                let posX = x + 50;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(posX, posY, 55, 45);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.2;
+                ctx.fillRect(posX, posY, 55, 45);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = color;
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(pair.first, posX + 27, posY + 22);
+
+                // Arrow connector
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(posX + 60, posY + 22);
+                ctx.lineTo(posX + 75, posY + 22);
+                ctx.stroke();
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(posX + 75, posY + 22);
+                ctx.lineTo(posX + 68, posY + 18);
+                ctx.lineTo(posX + 68, posY + 26);
+                ctx.fill();
+
+                // Second box
+                posX = x + 120;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(posX, posY, 55, 45);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.2;
+                ctx.fillRect(posX, posY, 55, 45);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = color;
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(pair.second, posX + 27, posY + 22);
+            });
+        }
+
+        // Vector of Maps visualization
+        function drawVectorOfMaps(ctx, x, y, maps, color) {
+            if (!maps || maps.length === 0) return;
+            
+            ctx.fillStyle = color;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('Map Index: Key → Value', x, y - 10);
+
+            maps.forEach((mapData, mapIdx) => {
+                if (!mapData) return;
+                const posY = y + mapIdx * 100;
+                
+                // Map container
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, posY, 350, 90);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.08;
+                ctx.fillRect(x, posY, 350, 90);
+                ctx.globalAlpha = 1;
+
+                // Map label
+                ctx.fillStyle = '#ffaa00';
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText(`[${mapIdx}]`, x + 10, posY + 20);
+
+                // Key-value pairs
+                mapData.forEach((pair, pairIdx) => {
+                    const pairX = x + 10 + (pairIdx % 2) * 160;
+                    const pairY = posY + 30 + Math.floor(pairIdx / 2) * 30;
+
+                    ctx.fillStyle = color;
+                    ctx.font = '10px Courier New';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`${pair.key}:`, pairX, pairY);
+                    ctx.fillStyle = '#00ff88';
+                    ctx.fillText(pair.value, pairX + 60, pairY);
+                });
+            });
+        }
+
+        // Map with Vector values visualization
+        function drawMapOfVectors(ctx, x, y, data, color) {
+            if (!data || Object.keys(data).length === 0) return;
+            
+            let yOffset = y;
+            
+            for (const [key, values] of Object.entries(data)) {
+                // Container box for each key
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                const containerHeight = 70;
+                ctx.strokeRect(x, yOffset, 400, containerHeight);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.08;
+                ctx.fillRect(x, yOffset, 400, containerHeight);
+                ctx.globalAlpha = 1;
+
+                // Key label
+                ctx.fillStyle = '#ffaa00';
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText(`"${key}"`, x + 10, yOffset + 25);
+
+                // Arrow
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x + 80, yOffset + 25);
+                ctx.lineTo(x + 100, yOffset + 25);
+                ctx.stroke();
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(x + 100, yOffset + 25);
+                ctx.lineTo(x + 93, yOffset + 21);
+                ctx.lineTo(x + 93, yOffset + 29);
+                ctx.fill();
+
+                // Vector values
+                values.forEach((val, idx) => {
+                    const boxX = x + 115 + idx * 50;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(boxX, yOffset + 10, 40, 40);
+                    ctx.fillStyle = color;
+                    ctx.globalAlpha = 0.1;
+                    ctx.fillRect(boxX, yOffset + 10, 40, 40);
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = color;
+                    ctx.font = 'bold 12px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(val, boxX + 20, yOffset + 30);
+                });
+
+                yOffset += 85;
+            }
+        }
+
+        // Pair of Vectors visualization
+        function drawPairOfVectors(ctx, x, y, first, second, color) {
+            const containerPadding = 15;
+            const maxElements = Math.max(first.length, second.length);
+            const elementBoxSize = 60;
+            const containerWidth = maxElements * (elementBoxSize + 10) + 120;
+            const containerHeight = 160;
+
+            // Outer container with enhanced styling
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x - containerPadding, y - containerPadding, containerWidth, containerHeight);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.08;
+            ctx.fillRect(x - containerPadding, y - containerPadding, containerWidth, containerHeight);
+            ctx.globalAlpha = 1;
+
+            // Title
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Pair<Vector,Vector>`, x - containerPadding + 8, y - containerPadding - 8);
+
+            // First vector label and elements
+            ctx.fillStyle = '#00ff88';
+            ctx.font = 'bold 11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('.first', x, y + 8);
+
+            let xPos = x + 70;
+            first.forEach((val, idx) => {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(xPos, y, elementBoxSize, 45);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.16;
+                ctx.fillRect(xPos, y, elementBoxSize, 45);
+                ctx.globalAlpha = 1;
+                
+                ctx.fillStyle = color;
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, xPos + elementBoxSize / 2, y + 20);
+                
+                ctx.fillStyle = '#ffaa00';
+                ctx.globalAlpha = 0.6;
+                ctx.font = '8px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`[${idx}]`, xPos + elementBoxSize / 2, y + 38);
+                ctx.globalAlpha = 1;
+                
+                xPos += elementBoxSize + 10;
+            });
+
+            // Second vector label and elements
+            ctx.fillStyle = '#00ff88';
+            ctx.font = 'bold 11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('.second', x, y + 78);
+
+            xPos = x + 70;
+            second.forEach((val, idx) => {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(xPos, y + 60, elementBoxSize, 45);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.16;
+                ctx.fillRect(xPos, y + 60, elementBoxSize, 45);
+                ctx.globalAlpha = 1;
+                
+                ctx.fillStyle = color;
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, xPos + elementBoxSize / 2, y + 80);
+                
+                ctx.fillStyle = '#ffaa00';
+                ctx.globalAlpha = 0.6;
+                ctx.font = '8px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`[${idx}]`, xPos + elementBoxSize / 2, y + 98);
+                ctx.globalAlpha = 1;
+                
+                xPos += elementBoxSize + 10;
+            });
+        }
+
+        // Simple Pair visualization
+        function drawPair(ctx, x, y, first, second, type1, type2, color) {
+            const containerPadding = 12;
+            const boxWidth = 110;
+            const boxHeight = 55;
+            const containerWidth = boxWidth * 2 + 50 + 2 * containerPadding;
+            const containerHeight = boxHeight + 50;
+
+            // Outer container
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x - containerPadding, y - containerPadding, containerWidth, containerHeight);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.08;
+            ctx.fillRect(x - containerPadding, y - containerPadding, containerWidth, containerHeight);
+            ctx.globalAlpha = 1;
+
+            // Title
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Pair<${type1},${type2}>`, x - containerPadding + 8, y - containerPadding - 8);
+
+            // First box
+            ctx.fillStyle = '#00ff88';
+            ctx.font = 'bold 10px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(`.first`, x + boxWidth / 2, y + 6);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(x, y + 15, boxWidth, boxHeight);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.16;
+            ctx.fillRect(x, y + 15, boxWidth, boxHeight);
+            ctx.globalAlpha = 1;
+            
+            // Corner accents for first box
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            const accentLen = 5;
+            ctx.beginPath();
+            ctx.moveTo(x + accentLen, y + 15);
+            ctx.lineTo(x, y + 15);
+            ctx.lineTo(x, y + 15 + accentLen);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + boxWidth - accentLen, y + 15);
+            ctx.lineTo(x + boxWidth, y + 15);
+            ctx.lineTo(x + boxWidth, y + 15 + accentLen);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 20px Courier New';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(first !== null ? first : '?', x + boxWidth / 2, y + 15 + boxHeight / 2);
+
+            // Arrow between
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(x + boxWidth + 5, y + 40);
+            ctx.lineTo(x + boxWidth + 25, y + 40);
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x + boxWidth + 25, y + 40);
+            ctx.lineTo(x + boxWidth + 18, y + 35);
+            ctx.lineTo(x + boxWidth + 18, y + 45);
+            ctx.closePath();
+            ctx.fill();
+
+            // Second box
+            const secondX = x + boxWidth + 35;
+            ctx.fillStyle = '#ffaa00';
+            ctx.font = 'bold 10px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(`.second`, secondX + boxWidth / 2, y + 6);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(secondX, y + 15, boxWidth, boxHeight);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.16;
+            ctx.fillRect(secondX, y + 15, boxWidth, boxHeight);
+            ctx.globalAlpha = 1;
+            
+            // Corner accents for second box
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(secondX + accentLen, y + 15);
+            ctx.lineTo(secondX, y + 15);
+            ctx.lineTo(secondX, y + 15 + accentLen);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(secondX + boxWidth - accentLen, y + 15);
+            ctx.lineTo(secondX + boxWidth, y + 15);
+            ctx.lineTo(secondX + boxWidth, y + 15 + accentLen);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 20px Courier New';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(second !== null ? second : '?', secondX + boxWidth / 2, y + 15 + boxHeight / 2);
+
+            // Memory address
+            ctx.fillStyle = '#00ff88';
+            ctx.globalAlpha = 0.6;
+            ctx.font = 'italic 9px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`@0x7fff0000`, x - containerPadding, y + containerHeight + 5);
+            ctx.globalAlpha = 1;
+        }
+
+        // Update sidebar panels
+        function updatePanels() {
+            // Update variables
+            const varPanel = document.getElementById('variablesPanel');
+            let html = '';
+            for (const [name, data] of Object.entries(state.variables)) {
+                html += `<div class="var-item"><span class="var-name">${name}</span><span class="var-value">${data.type}</span></div>`;
+                
+                if (data.type === '2dvector') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    html += `Rows: ${data.rows.length}<br/>`;
+                    data.rows.forEach((row, idx) => {
+                        html += `<div style="margin: 2px 0; padding: 3px; background: rgba(0,217,255,0.1);">[${row.join(', ')}]</div>`;
+                    });
+                    html += `</div>`;
+                } else if (data.type === 'vector' || data.type === 'array') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">Values: [${data.values.join(', ')}]</div>`;
+                } else if (data.type === 'map') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    data.pairs.forEach(pair => {
+                        html += `<div style="margin: 2px 0;">${pair.key}: ${pair.value}</div>`;
+                    });
+                    html += `</div>`;
+                } else if (data.type === 'set') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">Items: [${data.values.join(', ')}]</div>`;
+                } else if (data.type === 'stack' || data.type === 'queue' || data.type === 'deque') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">Values: [${data.values.join(', ')}]</div>`;
+                } else if (data.type === 'list') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">Nodes: [${data.values.join(' → ')}]</div>`;
+                } else if (data.type === 'vector-pair') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    html += `Pairs: ${data.pairs.length}<br/>`;
+                    data.pairs.forEach((pair, idx) => {
+                        html += `<div style="margin: 2px 0; padding: 3px; background: rgba(255,0,255,0.1);">({${pair.first}, ${pair.second}})</div>`;
+                    });
+                    html += `</div>`;
+                } else if (data.type === 'vector-map') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    html += `Maps: ${data.maps.length}<br/>`;
+                    data.maps.forEach((map, idx) => {
+                        if (map) {
+                            html += `<div style="margin: 2px 0; padding: 2px; background: rgba(255,153,0,0.1);">[${idx}]: ${map.length} pairs</div>`;
+                        }
+                    });
+                    html += `</div>`;
+                } else if (data.type === 'map-vector') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    for (const [key, values] of Object.entries(data.data)) {
+                        html += `<div style="margin: 2px 0; padding: 2px; background: rgba(0,255,255,0.1);">"${key}": [${values.join(', ')}]</div>`;
+                    }
+                    html += `</div>`;
+                } else if (data.type === 'pair-vectors') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    html += `<div>.first: [${data.first.join(', ')}]</div>`;
+                    html += `<div>.second: [${data.second.join(', ')}]</div>`;
+                    html += `</div>`;
+                } else if (data.type === 'pair') {
+                    html += `<div style="margin-left: 10px; color: var(--text-dim); font-size: 11px;">`;
+                    html += `<div>.first&lt;${data.type1}&gt;: ${data.first}</div>`;
+                    html += `<div>.second&lt;${data.type2}&gt;: ${data.second}</div>`;
+                    html += `</div>`;
+                }
+            }
+            varPanel.innerHTML = html || '<div style="color: var(--text-dim); text-align: center; margin-top: 30px;">No variables</div>';
+
+            // Update stats
+            document.getElementById('opCount').textContent = state.operations;
+            document.getElementById('currentLine').textContent = state.currentLineIndex;
+
+            let memoryUsage = 0;
+            for (const data of Object.values(state.variables)) {
+                if (data.type === '2dvector') {
+                    memoryUsage += data.rows.reduce((sum, row) => sum + row.length, 0) * 4;
+                } else if (data.type === 'vector') {
+                    memoryUsage += data.values.length * 4;
+                } else if (data.type === 'array') {
+                    memoryUsage += data.size * 4;
+                } else if (data.type === 'map') {
+                    memoryUsage += data.pairs.length * 16;
+                } else if (data.type === 'set') {
+                    memoryUsage += data.values.length * 4;
+                } else if (data.type === 'vector-pair') {
+                    memoryUsage += data.pairs.length * 8;
+                } else if (data.type === 'vector-map') {
+                    memoryUsage += data.maps.reduce((sum, m) => sum + (m ? m.length * 16 : 0), 0);
+                } else if (data.type === 'map-vector') {
+                    memoryUsage += Object.values(data.data).reduce((sum, v) => sum + v.length * 4, 0);
+                } else if (data.type === 'pair-vectors') {
+                    memoryUsage += (data.first.length + data.second.length) * 4;
+                } else if (data.type === 'pair') {
+                    memoryUsage += 8;
+                }
+            }
+            document.getElementById('memoryUsed').textContent = memoryUsage + ' bytes';
+
+            // Update log
+            const logPanel = document.getElementById('logPanel');
+            logPanel.innerHTML = state.log.map(entry => 
+                `<div class="log-entry${entry.error ? ' log-error' : ''}">${entry.text}</div>`
+            ).join('');
+            logPanel.scrollTop = logPanel.scrollHeight;
+
+            // Update memory layout
+            const memoryPanel = document.getElementById('memoryPanel');
+            let memoryHtml = '';
+            let baseAddress = 0x7fff0000;
+            
+            for (const [name, data] of Object.entries(state.variables)) {
+                const addr = `0x${baseAddress.toString(16).toUpperCase()}`;
+                let info = `<div style="background: rgba(0,217,255,0.15); padding: 8px; margin: 6px 0; border-left: 3px solid var(--accent); font-size: 10px;">`;
+                info += `<div><strong>${name}</strong> @ ${addr}</div>`;
+                
+                if (data.type === '2dvector') {
+                    const totalElements = data.rows.reduce((s, r) => s + r.length, 0);
+                    info += `<div>Type: vector&lt;vector&lt;${data.dataType}&gt;&gt;</div>`;
+                    info += `<div>Layout: ${data.rows.length} rows × ${data.rows[0]?.length || 0} cols</div>`;
+                    info += `<div>Size: ${totalElements * 4} bytes (${totalElements} elements)</div>`;
+                } else if (data.type === 'vector' || data.type === 'array') {
+                    info += `<div>Type: ${data.type === 'vector' ? 'vector' : 'array'}${data.dataType ? `&lt;${data.dataType}&gt;` : ''}</div>`;
+                    info += `<div>Elements: ${data.values.length}</div>`;
+                    info += `<div>Size: ${data.values.length * 4} bytes</div>`;
+                } else if (data.type === 'stack' || data.type === 'queue' || data.type === 'deque') {
+                    info += `<div>Type: ${data.type}&lt;${data.dataType}&gt;</div>`;
+                    info += `<div>Elements: ${data.values.length}</div>`;
+                    info += `<div>Size: ${data.values.length * 4} bytes</div>`;
+                } else if (data.type === 'map') {
+                    info += `<div>Type: map&lt;${data.keyType}, ${data.valType}&gt;</div>`;
+                    info += `<div>Pairs: ${data.pairs.length}</div>`;
+                    info += `<div>Size: ~${data.pairs.length * 16} bytes (approx)</div>`;
+                } else if (data.type === 'vector-pair') {
+                    info += `<div>Type: vector&lt;pair&lt;${data.dataType1}, ${data.dataType2}&gt;&gt;</div>`;
+                    info += `<div>Pairs: ${data.pairs.length}</div>`;
+                    info += `<div>Size: ~${data.pairs.length * 8} bytes</div>`;
+                } else if (data.type === 'vector-map') {
+                    const mapCount = data.maps.reduce((sum, m) => sum + (m ? m.length : 0), 0);
+                    info += `<div>Type: vector&lt;map&lt;${data.keyType}, ${data.valType}&gt;&gt;</div>`;
+                    info += `<div>Maps: ${data.maps.length}, Total pairs: ${mapCount}</div>`;
+                    info += `<div>Size: ~${mapCount * 16} bytes</div>`;
+                } else if (data.type === 'map-vector') {
+                    const totalVals = Object.values(data.data).reduce((sum, v) => sum + v.length, 0);
+                    info += `<div>Type: map&lt;${data.keyType}, vector&lt;${data.valType}&gt;&gt;</div>`;
+                    info += `<div>Keys: ${Object.keys(data.data).length}, Total elements: ${totalVals}</div>`;
+                    info += `<div>Size: ~${totalVals * 4} bytes</div>`;
+                } else if (data.type === 'pair-vectors') {
+                    const totalElements = data.first.length + data.second.length;
+                    info += `<div>Type: pair&lt;vector&lt;${data.type1}&gt;, vector&lt;${data.type2}&gt;&gt;</div>`;
+                    info += `<div>.first: ${data.first.length} | .second: ${data.second.length}</div>`;
+                    info += `<div>Size: ~${totalElements * 4} bytes</div>`;
+                } else if (data.type === 'pair') {
+                    info += `<div>Type: pair&lt;${data.type1}, ${data.type2}&gt;</div>`;
+                    info += `<div>.first: ${data.first} | .second: ${data.second}</div>`;
+                    info += `<div>Size: ~8 bytes (typical)</div>`;
+                }
+                
+                info += `</div>`;
+                memoryHtml += info;
+                baseAddress += 0x1000; // Increment base address
+            }
+            
+            memoryPanel.innerHTML = memoryHtml || '<div style="color: var(--text-dim); text-align: center; margin-top: 30px;">No variables allocated</div>';
+        }
+
+        function addLog(text, error = false) {
+            state.log.push({ text, error });
+            if (state.log.length > 50) state.log.shift();
+        }
+
+        function setStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status' + (isError ? ' error' : '');
+        }
+
+        function clearAll() {
+            document.getElementById('codeInput').value = '';
+            state.variables = {};
+            state.operations = 0;
+            state.lines = [];
+            state.currentLineIndex = 0;
+            state.log = [];
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            document.getElementById('variablesPanel').innerHTML = '<div style="color: var(--text-dim); text-align: center; margin-top: 30px;">No variables</div>';
+            document.getElementById('logPanel').innerHTML = '';
+            document.getElementById('opCount').textContent = '0';
+            document.getElementById('memoryUsed').textContent = '0 bytes';
+            document.getElementById('currentLine').textContent = '0';
+
+            setStatus('Ready');
+        }
+
+        function loadExample() {
+            const example = `// Vector of Pairs
+vector<pair<int, int>> coordinates;
+coordinates.push_back({10,20});
+coordinates.push_back({30,40});
+coordinates.push_back({50,60});
+
+// Simple Pair
+pair<int, string> student;
+student.first = 1001;
+student.second = Alice;
+
+// Pair of Vectors
+pair<vector<int>, vector<int>> twins;
+twins.first.push_back(1);
+twins.first.push_back(2);
+twins.first.push_back(3);
+twins.second.push_back(4);
+twins.second.push_back(5);
+
+// Vector of Maps
+vector<map<string, int>> vm;
+vm[0]["A"] = 100;
+vm[0]["B"] = 200;
+
+// Map with Vector values
+map<string, vector<int>> scores;
+scores["Q1"] = {10,20,30};
+scores["Q2"] = {15,25,35};`;
+            document.getElementById('codeInput').value = example;
+        }
+
+        // Initialize on load
+        window.addEventListener('resize', () => {
+            setupCanvas();
+            redrawCanvas();
+        });
+
+        setupCanvas();
+        setStatus('Ready');
+    </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

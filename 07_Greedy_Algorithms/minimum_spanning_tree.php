@@ -1,0 +1,1097 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minimum Spanning Tree</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #8b5cf6;
+      --accent-2: #a78bfa;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #6d28d9;
+      --accent-2: #6d28d9;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #1f0d2e, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      animation: pulse 1.3s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .metrics {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(167, 139, 250, 0.06), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none !important;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    .tab-panel.active {
+      display: flex !important;
+      flex-direction: column;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .content-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .content-card h3 {
+      color: var(--accent-2);
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .content-card p {
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .content-card ul {
+      margin-left: 20px;
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .content-card code {
+      background: var(--card);
+      color: var(--accent-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    @media (max-width: 1024px) {
+      .left-panel { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Minimum Spanning <span>Tree</span></h1>
+      <p>Connecting all vertices with minimum total edge weight</p>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Left Panel -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        algoritm overview
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Type</div>
+          <div class="metric-value">Greedy Graph</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Best For</div>
+          <div class="metric-value">Networks</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Time Complexity</div>
+          <div class="metric-value">O(E log E)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Space</div>
+          <div class="metric-value">O(V + E)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Algorithms</div>
+          <div class="metric-value">Kruskal, Prim</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Greedy Choice</div>
+          <div class="metric-value">Min Weight Edge</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('theory', this)">📚 Theory</button>
+        <button class="tab-btn" onclick="switchTab('algorithm', this)">⚙️ Algorithm</button>
+        <button class="tab-btn" onclick="switchTab('examples', this)">💡 Examples</button>
+        <button class="tab-btn" onclick="switchTab('animation', this)">🎬 Animation</button>
+        <button class="tab-btn" onclick="switchTab('reference', this)">📖 Reference</button>
+      </div>
+
+      <!-- Theory Tab -->
+      <div id="theory" class="tab-panel active">
+        <div class="content-card">
+          <h3>Problem Statement</h3>
+          <p>
+            Given a connected, undirected graph with weighted edges, find a subset of edges that:
+          </p>
+          <ul>
+            <li><strong>Connects all vertices</strong> (forms a tree)</li>
+            <li><strong>Uses N-1 edges</strong> for N vertices</li>
+            <li><strong>Has minimum total weight</strong> among all possible spanning trees</li>
+            <li><strong>Has no cycles</strong></li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Key Applications</h3>
+          <ul>
+            <li><strong>Network Design:</strong> Minimize cost of connecting cities/servers</li>
+            <li><strong>Electrical Grids:</strong> Minimize wiring between power stations</li>
+            <li><strong>Telecommunications:</strong> Optimal phone network layout</li>
+            <li><strong>Robotics:</strong> Efficient movement path planning</li>
+            <li><strong>Image Processing:</strong> Region clustering and merge operations</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Greedy Approach</h3>
+          <p>
+            MST algorithms use the greedy strategy:
+          </p>
+          <ul>
+            <li><strong>Kruskal's:</strong> Sort edges by weight, add minimum weight edge if it doesn't create cycle</li>
+            <li><strong>Prim's:</strong> Start from a vertex, repeatedly add minimum weight edge connecting visited to unvisited vertices</li>
+            <li><strong>Both are optimal</strong> due to the "cut property" of graphs</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Why Greedy Works (Cut Property)</h3>
+          <p>
+            For any cut of the graph, the minimum weight edge crossing the cut is part of some MST.
+          </p>
+          <ul>
+            <li>At each step, we partition vertices into two sets</li>
+            <li>Taking the minimum edge between sets maintains optimality</li>
+            <li>Proof by exchange argument (cannot replace with smaller edge)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Algorithm Tab -->
+      <div id="algorithm" class="tab-panel">
+        <div class="content-card">
+          <h3>Kruskal's Algorithm</h3>
+          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--card); padding: 12px; border-radius: 8px; margin-top: 8px;">
+            1. Sort all edges by weight (ascending)<br/>
+            2. Initialize empty MST<br/>
+            3. For each edge in sorted order:<br/>
+            4.&nbsp;&nbsp;&nbsp;&nbsp;If edge connects two different components:<br/>
+            5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add edge to MST<br/>
+            6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Merge the two components<br/>
+            7. Return MST (N-1 edges)
+          </p>
+          <p style="margin-top: 12px; color: var(--muted); font-size: 0.85rem;">
+            Time: O(E log E) for sorting<br/>
+            Space: O(V) for union-find
+          </p>
+        </div>
+
+        <div class="content-card">
+          <h3>Prim's Algorithm</h3>
+          <p style="font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--card); padding: 12px; border-radius: 8px; margin-top: 8px;">
+            1. Start with arbitrary vertex<br/>
+            2. Initialize MST with this vertex<br/>
+            3. While vertices remain unvisited:<br/>
+            4.&nbsp;&nbsp;&nbsp;&nbsp;Find minimum weight edge from MST to unvisited vertex<br/>
+            5.&nbsp;&nbsp;&nbsp;&nbsp;Add this edge and vertex to MST<br/>
+            6. Return MST (N-1 edges)
+          </p>
+          <p style="margin-top: 12px; color: var(--muted); font-size: 0.85rem;">
+            Time: O(E log V) with binary heap<br/>
+            Space: O(V + E)
+          </p>
+        </div>
+
+        <div class="content-card">
+          <h3>Comparison</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>Kruskal</th>
+                <th>Prim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Start Point</strong></td>
+                <td>Edges (global)</td>
+                <td>Arbitrary vertex</td>
+              </tr>
+              <tr>
+                <td><strong>Strategy</strong></td>
+                <td>Sort all edges first</td>
+                <td>Grow from vertex</td>
+              </tr>
+              <tr>
+                <td><strong>Data Structure</strong></td>
+                <td>Union-Find</td>
+                <td>Priority Queue</td>
+              </tr>
+              <tr>
+                <td><strong>Best For</strong></td>
+                <td>Sparse graphs</td>
+                <td>Dense graphs</td>
+              </tr>
+              <tr>
+                <td><strong>Result</strong></td>
+                <td colspan="2" style="text-align: center;"><strong>Both produce optimal MST</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Examples Tab -->
+      <div id="examples" class="tab-panel">
+        <div class="content-card">
+          <h3>Example: Network Design</h3>
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Problem Setup:</p>
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+            <p>Vertices: A, B, C, D, E (5 cities)</p>
+            <p>Edges: A-B(4), A-C(2), B-C(1), B-D(5), C-D(8), D-E(3)</p>
+          </div>
+
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Kruskal's Solution:</p>
+          <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #a78bfa; padding: 10px; border-radius: 4px; margin-bottom: 12px;">
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 1:</strong> Sort edges: B-C(1), A-C(2), D-E(3), A-B(4), B-D(5), C-D(8)</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 2:</strong> Add B-C(1) ✓ [Components: {B,C}, {A}, {D}, {E}]</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 3:</strong> Add A-C(2) ✓ [Components: {A,B,C}, {D}, {E}]</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Step 4:</strong> Add D-E(3) ✓ [Components: {A,B,C}, {D,E}]</p>
+            <p style="font-size: 0.82rem;"><strong>Step 5:</strong> Add B-D(5) ✓ [Components: {A,B,C,D,E}] - MST Complete!</p>
+          </div>
+
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--good); margin-bottom: 8px;">Result:</p>
+          <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+            <p style="font-size: 0.82rem;"><strong>MST Edges:</strong> B-C(1), A-C(2), D-E(3), B-D(5)</p>
+            <p style="font-size: 0.82rem;"><strong>Total Cost:</strong> 1 + 2 + 3 + 5 = 11</p>
+            <p style="font-size: 0.82rem;"><strong>All vertices connected:</strong> ✓</p>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Example: Prim's Algorithm</h3>
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Using same graph, starting from A:</p>
+          <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #a78bfa; padding: 10px; border-radius: 4px;">
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Start:</strong> MST = {A}</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Iter 1:</strong> Min from A: A-C(2) → MST = {A,C}</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Iter 2:</strong> Min from {A,C}: B-C(1) → MST = {A,B,C}</p>
+            <p style="font-size: 0.82rem; margin-bottom: 8px;"><strong>Iter 3:</strong> Min from {A,B,C}: B-D(5) → MST = {A,B,C,D}</p>
+            <p style="font-size: 0.82rem;"><strong>Iter 4:</strong> Min from {A,B,C,D}: D-E(3) → MST = {A,B,C,D,E}</p>
+          </div>
+          <p style="margin-top: 12px; font-size: 0.82rem; color: var(--good);"><strong>Same Result:</strong> Total cost = 11</p>
+        </div>
+      </div>
+
+      <!-- Animation Tab -->
+      <div id="animation" class="tab-panel">
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+            <strong>Algorithm:</strong>
+            <select id="algorithmSelect" style="padding: 6px 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 4px; cursor: pointer;">
+              <option value="kruskal">Kruskal's Algorithm</option>
+              <option value="prim">Prim's Algorithm</option>
+            </select>
+          </label>
+          <button onclick="initializeMSTAnimation()" style="padding: 6px 14px; background: #a78bfa; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">Reset</button>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+          <button onclick="playMSTAnimation()" id="playBtn" style="padding: 6px 14px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">▶ Play</button>
+          <button onclick="pauseMSTAnimation()" id="pauseBtn" style="padding: 6px 14px; background: #f59e0b; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⏸ Pause</button>
+          <button onclick="stepMSTAnimation()" style="padding: 6px 14px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⊞ Step</button>
+          <button onclick="skipMSTAnimation()" style="padding: 6px 14px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;">⤵ Skip</button>
+          
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+            <strong>Speed:</strong>
+            <input type="range" id="speedSlider" min="1" max="3" value="1" style="width: 100px; cursor: pointer;">
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 16px; height: 600px;">
+          <!-- Graph Canvas -->
+          <div style="flex: 1; display: flex; flex-direction: column;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #a78bfa; margin-bottom: 8px;">Graph Visualization</div>
+            <canvas id="mstCanvas" style="flex: 1; background: var(--card); border: 1px solid #a78bfa; border-radius: 8px;"></canvas>
+          </div>
+
+          <!-- Statistics Panel -->
+          <div style="width: 220px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
+              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Status</div>
+              <div id="mstStatus" style="font-size: 1.1rem; font-weight: 700; color: #a78bfa;">Ready</div>
+            </div>
+
+            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
+              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Edges Selected</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #10b981;" id="edgesSelected">0 / 5</div>
+            </div>
+
+            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px;">
+              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Total Cost</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #f59e0b;" id="totalCost">0</div>
+            </div>
+
+            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #a78bfa; border-radius: 8px; padding: 12px; flex: 1; overflow-y: auto; min-height: 0;">
+              <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Algorithm Trace</div>
+              <div id="mstLog" style="font-size: 0.8rem; color: var(--muted);">
+                <div style="color: #10b981;">Initialization complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Tab -->
+      <div id="reference" class="tab-panel">
+        <div class="content-card">
+          <h3>Advantages</h3>
+          <ul>
+            <li>✓ Always produces optimal solution (mathematically proven)</li>
+            <li>✓ Efficient: Kruskal O(E log E), Prim O(E log V)</li>
+            <li>✓ Works on any connected undirected weighted graph</li>
+            <li>✓ Intuitive greedy approach</li>
+            <li>✓ Well-studied with many implementations</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Disadvantages</h3>
+          <ul>
+            <li>✗ Requires graph to be connected</li>
+            <li>✗ Prim requires dense graph for efficiency</li>
+            <li>✗ Kruskal requires sorting (O(E log E))</li>
+            <li>✗ Not applicable to directed graphs (use different algorithms)</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Real-World Use Cases</h3>
+          <ul>
+            <li><strong>Electricity Distribution:</strong> Minimize cable length connecting households</li>
+            <li><strong>Road Networks:</strong> Optimal highway construction between cities</li>
+            <li><strong>Airlines:</strong> Minimum distance to connect all airports</li>
+            <li><strong>Internet Backbones:</strong> Efficient server connectivity</li>
+            <li><strong>Data Clustering:</strong> Single-link agglomerative clustering</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Key Formulas</h3>
+          <p style="font-size: 0.85rem;">
+            <strong>Number of edges in MST:</strong> N - 1 (for N vertices)<br/>
+            <strong>Kruskal Time:</strong> O(E log E + α(V)) where α is inverse Ackermann<br/>
+            <strong>Prim Time:</strong> O((V + E) log V) with binary heap<br/>
+            <strong>Space:</strong> O(V + E) for graph representation
+          </p>
+        </div>
+
+        <div class="content-card">
+          <h3>Important Properties</h3>
+          <ul>
+            <li><strong>Cut Property:</strong> Min weight edge across cut is in some MST</li>
+            <li><strong>Cycle Property:</strong> Max weight edge in any cycle is not in MST</li>
+            <li><strong>Uniqueness:</strong> If all weights distinct, unique MST exists</li>
+            <li><strong>Exchange Property:</strong> Can transform one MST to another by edge exchange</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName, buttonElement) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.tab-panel');
+      panels.forEach(panel => panel.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(button => button.classList.remove('active'));
+      
+      // Show selected panel
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked button
+      if (buttonElement) {
+        buttonElement.classList.add('active');
+      }
+
+      // Reinitialize canvas when animation tab is opened
+      if (tabName === 'animation') {
+        setTimeout(() => {
+          initializeMSTAnimation();
+        }, 50);
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeMSTAnimation();
+    });
+
+    // MST Animation System
+    let mstCanvas, mstCtx;
+    let graph = {
+      vertices: [
+        { id: 'A', x: 100, y: 150 },
+        { id: 'B', x: 300, y: 100 },
+        { id: 'C', x: 400, y: 250 },
+        { id: 'D', x: 250, y: 350 },
+        { id: 'E', x: 100, y: 300 }
+      ],
+      edges: [
+        { from: 'A', to: 'B', weight: 4, visited: false, selected: false },
+        { from: 'A', to: 'C', weight: 2, visited: false, selected: false },
+        { from: 'B', to: 'C', weight: 1, visited: false, selected: false },
+        { from: 'B', to: 'D', weight: 5, visited: false, selected: false },
+        { from: 'C', to: 'D', weight: 8, visited: false, selected: false },
+        { from: 'D', to: 'E', weight: 3, visited: false, selected: false },
+        { from: 'A', to: 'E', weight: 7, visited: false, selected: false }
+      ]
+    };
+
+    let animationState = {
+      isRunning: false,
+      isPaused: false,
+      currentStep: 0,
+      algorithm: 'kruskal',
+      selectedEdges: [],
+      totalCost: 0,
+      edges: [],
+      mstEdges: []
+    };
+
+    function initializeMSTAnimation() {
+      mstCanvas = document.getElementById('mstCanvas');
+      if (!mstCanvas) return;
+      
+      mstCtx = mstCanvas.getContext('2d');
+      const width = mstCanvas.offsetWidth || 600;
+      const height = mstCanvas.offsetHeight || 400;
+      
+      mstCanvas.width = width;
+      mstCanvas.height = height;
+
+      animationState = {
+        isRunning: false,
+        isPaused: false,
+        currentStep: 0,
+        algorithm: 'kruskal',
+        selectedEdges: [],
+        totalCost: 0,
+        edges: JSON.parse(JSON.stringify(graph.edges)),
+        mstEdges: []
+      };
+
+      // Reset graph state
+      graph.edges.forEach(e => {
+        e.visited = false;
+        e.selected = false;
+      });
+
+      document.getElementById('mstLog').innerHTML = '<div style="color: #10b981;">Graph initialized with 5 vertices</div>';
+      document.getElementById('mstStatus').textContent = 'Ready';
+      document.getElementById('edgesSelected').textContent = '0 / 4';
+      document.getElementById('totalCost').textContent = '0';
+
+      drawMSTGraph();
+    }
+
+    function drawMSTGraph() {
+      if (!mstCtx || !mstCanvas) return;
+      
+      mstCtx.fillStyle = 'rgba(12, 18, 34, 0.9)';
+      mstCtx.fillRect(0, 0, mstCanvas.width, mstCanvas.height);
+
+      // Draw edges first (so they appear behind vertices)
+      graph.edges.forEach(edge => {
+        drawEdge(edge);
+      });
+
+      // Draw vertices on top
+      graph.vertices.forEach(vertex => {
+        drawVertex(vertex);
+      });
+    }
+
+    function drawEdge(edge) {
+      if (!mstCtx) return;
+      const fromVert = graph.vertices.find(v => v.id === edge.from);
+      const toVert = graph.vertices.find(v => v.id === edge.to);
+      if (!fromVert || !toVert) return;
+
+      mstCtx.beginPath();
+      mstCtx.moveTo(fromVert.x, fromVert.y);
+      mstCtx.lineTo(toVert.x, toVert.y);
+
+      if (edge.selected) {
+        mstCtx.strokeStyle = '#10b981';
+        mstCtx.lineWidth = 3;
+      } else if (edge.visited) {
+        mstCtx.strokeStyle = '#ef4444';
+        mstCtx.lineWidth = 2;
+      } else {
+        mstCtx.strokeStyle = '#a78bfa';
+        mstCtx.lineWidth = 2;
+      }
+
+      mstCtx.stroke();
+
+      // Draw weight label
+      const midX = (fromVert.x + toVert.x) / 2;
+      const midY = (fromVert.y + toVert.y) / 2;
+      mstCtx.fillStyle = edge.selected ? '#10b981' : '#f59e0b';
+      mstCtx.font = 'bold 12px Inter';
+      mstCtx.textAlign = 'center';
+      mstCtx.fillText(edge.weight, midX, midY - 10);
+    }
+
+    function drawVertex(vertex) {
+      if (!mstCtx) return;
+      const radius = 25;
+      mstCtx.beginPath();
+      mstCtx.arc(vertex.x, vertex.y, radius, 0, Math.PI * 2);
+
+      if (animationState.algorithm === 'prim' && animationState.mstEdges.length > 0) {
+        // Check if vertex is in MST
+        const inMST = isVertexInMST(vertex.id);
+        mstCtx.fillStyle = inMST ? 'rgba(139, 92, 246, 0.8)' : 'rgba(139, 92, 246, 0.2)';
+      } else {
+        mstCtx.fillStyle = 'rgba(139, 92, 246, 0.2)';
+      }
+
+      mstCtx.fill();
+      mstCtx.strokeStyle = '#a78bfa';
+      mstCtx.lineWidth = 2;
+      mstCtx.stroke();
+
+      mstCtx.fillStyle = '#a78bfa';
+      mstCtx.font = 'bold 16px Inter';
+      mstCtx.textAlign = 'center';
+      mstCtx.textBaseline = 'middle';
+      mstCtx.fillText(vertex.id, vertex.x, vertex.y);
+    }
+
+    function isVertexInMST(vertexId) {
+      return animationState.mstEdges.some(e => e.from === vertexId || e.to === vertexId);
+    }
+
+    function playMSTAnimation() {
+      if (animationState.isRunning && !animationState.isPaused) return;
+
+      if (animationState.currentStep === 0) {
+        animationState.algorithm = document.getElementById('algorithmSelect').value;
+      }
+
+      animationState.isRunning = true;
+      animationState.isPaused = false;
+      document.getElementById('playBtn').disabled = true;
+
+      const speed = [2000, 1000, 500][parseInt(document.getElementById('speedSlider').value) - 1];
+
+      const stepInterval = setInterval(() => {
+        if (!animationState.isPaused) {
+          stepMSTAnimation();
+          if (animationState.mstEdges.length === 4) {
+            clearInterval(stepInterval);
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('mstStatus').textContent = 'Complete!';
+          }
+        }
+      }, speed);
+    }
+
+    function pauseMSTAnimation() {
+      animationState.isPaused = true;
+      document.getElementById('mstStatus').textContent = 'Paused';
+    }
+
+    function stepMSTAnimation() {
+      if (animationState.mstEdges.length >= 4) {
+        document.getElementById('mstStatus').textContent = 'Complete!';
+        return;
+      }
+
+      if (animationState.algorithm === 'kruskal') {
+        stepKruskal();
+      } else {
+        stepPrim();
+      }
+
+      drawMSTGraph();
+    }
+
+    function stepKruskal() {
+      // Sort edges by weight on first step
+      if (animationState.currentStep === 0) {
+        animationState.edges.sort((a, b) => a.weight - b.weight);
+        logMSTOp('Edges sorted by weight: ' + animationState.edges.map(e => e.weight).join(', '));
+      }
+
+      // Find unvisited edge that doesn't create cycle
+      for (let i = 0; i < animationState.edges.length; i++) {
+        const edge = animationState.edges[i];
+        if (!edge.visited) {
+          edge.visited = true;
+
+          if (!createsCycle(edge)) {
+            edge.selected = true;
+            animationState.mstEdges.push(edge);
+            animationState.totalCost += edge.weight;
+            const originalEdge = graph.edges.find(e => 
+              (e.from === edge.from && e.to === edge.to) || (e.from === edge.to && e.to === edge.from)
+            );
+            if (originalEdge) {
+              originalEdge.selected = true;
+              originalEdge.visited = true;
+            }
+            logMSTOp(`✓ Added edge ${edge.from}-${edge.to} (weight: ${edge.weight})`);
+          } else {
+            logMSTOp(`✗ Skipped edge ${edge.from}-${edge.to} (creates cycle)`);
+            const originalEdge = graph.edges.find(e => 
+              (e.from === edge.from && e.to === edge.to) || (e.from === edge.to && e.to === edge.from)
+            );
+            if (originalEdge) originalEdge.visited = true;
+          }
+          break;
+        }
+      }
+
+      animationState.currentStep++;
+      updateMSTStats();
+    }
+
+    function stepPrim() {
+      if (animationState.currentStep === 0) {
+        // Start from vertex A
+        const startEdge = animationState.edges.find(e => e.from === 'A' || e.to === 'A');
+        if (startEdge) {
+          logMSTOp('Starting Prim from vertex A');
+        }
+      }
+
+      // Find minimum weight edge connecting MST to non-MST vertex
+      let minEdge = null;
+      let minWeight = Infinity;
+
+      for (const edge of animationState.edges) {
+        if (edge.visited || edge.selected) continue;
+
+        const fromInMST = isVertexInMST(edge.from) || animationState.mstEdges.length === 0 && edge.from === 'A';
+        const toInMST = isVertexInMST(edge.to) || animationState.mstEdges.length === 0 && edge.to === 'A';
+
+        if ((fromInMST && !toInMST) || (!fromInMST && toInMST)) {
+          if (edge.weight < minWeight) {
+            minWeight = edge.weight;
+            minEdge = edge;
+          }
+        }
+      }
+
+      if (minEdge) {
+        minEdge.visited = true;
+        minEdge.selected = true;
+        animationState.mstEdges.push(minEdge);
+        animationState.totalCost += minEdge.weight;
+
+        const originalEdge = graph.edges.find(e => 
+          (e.from === minEdge.from && e.to === minEdge.to) || (e.from === minEdge.to && e.to === minEdge.from)
+        );
+        if (originalEdge) {
+          originalEdge.selected = true;
+          originalEdge.visited = true;
+        }
+
+        logMSTOp(`✓ Added edge ${minEdge.from}-${minEdge.to} (weight: ${minEdge.weight})`);
+      }
+
+      animationState.currentStep++;
+      updateMSTStats();
+    }
+
+    function createsCycle(edge) {
+      // Simple cycle detection: check if both vertices already connected in MST
+      const visited = new Set();
+
+      function dfs(vertex, target) {
+        visited.add(vertex);
+        if (vertex === target) return true;
+
+        for (const mstEdge of animationState.mstEdges) {
+          if (mstEdge === edge) continue;
+
+          let next = null;
+          if (mstEdge.from === vertex && !visited.has(mstEdge.to)) next = mstEdge.to;
+          if (mstEdge.to === vertex && !visited.has(mstEdge.from)) next = mstEdge.from;
+
+          if (next && dfs(next, target)) return true;
+        }
+        return false;
+      }
+
+      return dfs(edge.from, edge.to);
+    }
+
+    function skipMSTAnimation() {
+      while (animationState.mstEdges.length < 4) {
+        stepMSTAnimation();
+      }
+      document.getElementById('mstStatus').textContent = 'Complete!';
+    }
+
+    function logMSTOp(message) {
+      const log = document.getElementById('mstLog');
+      const entry = document.createElement('div');
+      entry.style.marginBottom = '4px';
+      entry.style.padding = '4px';
+      entry.style.borderLeft = '2px solid #a78bfa';
+      entry.style.paddingLeft = '8px';
+      entry.textContent = message;
+      log.insertBefore(entry, log.firstChild);
+      if (log.children.length > 8) log.removeChild(log.lastChild);
+    }
+
+    function updateMSTStats() {
+      document.getElementById('edgesSelected').textContent = `${animationState.mstEdges.length} / 4`;
+      document.getElementById('totalCost').textContent = animationState.totalCost;
+      document.getElementById('mstStatus').textContent = `Running (${animationState.mstEdges.length}/4 edges)`;
+    }
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

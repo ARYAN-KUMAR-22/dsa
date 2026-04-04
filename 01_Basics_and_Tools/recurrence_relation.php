@@ -1,0 +1,2019 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recurrence Relation Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --accent: #06b6d4;
+      --accent-2: #67e8f9;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --focus-ring: rgba(103, 232, 249, .42);
+      --focus-glow: rgba(6, 182, 212, .14);
+      --shadow: 0 18px 45px rgba(0, 0, 0, .28);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0e7490;
+      --accent-2: #0e7490;
+      --good: #15803d;
+      --warn: #b45309;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #07171d, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-link {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .header-link.primary {
+      background: linear-gradient(135deg, #0ea5e9, var(--accent));
+      color: #05171c;
+      border-color: transparent;
+    }
+
+    .header-link:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .speed-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .78rem;
+      padding-left: 6px;
+    }
+
+    .speed-wrap input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 360px;
+      min-width: 360px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .45;
+        transform: scale(.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: .67rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 7px 12px 4px;
+    }
+
+    .summary-grid {
+      padding: 1px 9px 5px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: .64rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: "Fira Code", monospace;
+      font-size: .78rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .flow-merge {
+      padding: 0 8px 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .flow-block {
+      display: grid;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .panel-mini-title {
+      padding: 0 4px;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(6, 182, 212, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(103, 232, 249, 0.06), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 8px 16px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      transition: all .2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .field span {
+      font-size: .72rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field select {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: "Fira Code", monospace;
+      font-size: .8rem;
+      outline: none;
+      min-width: 130px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: .8rem;
+      font-weight: 600;
+      font-family: Inter, sans-serif;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #0ea5e9, var(--accent));
+      color: #05171c;
+      border-color: transparent;
+    }
+
+    .viz-area {
+      display: grid;
+      grid-template-columns: 1.06fr .94fr;
+      grid-template-rows: 348px 238px;
+      gap: 12px;
+      padding: 12px 16px 16px;
+      align-items: start;
+    }
+
+    .canvas-card,
+    .stack-card,
+    .footer-card,
+    .theory-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .stack-card,
+    .canvas-card {
+      overflow: hidden;
+    }
+
+    .focus-card {
+      border-color: var(--focus-ring);
+      box-shadow: 0 0 0 1px var(--focus-ring), 0 20px 40px var(--focus-glow);
+      transform: translateY(-1px);
+    }
+
+    .canvas-card.focus-card {
+      transform: none;
+    }
+
+    .canvas-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      grid-column: 1;
+      grid-row: 1;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .corner-expand-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      min-height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(103, 232, 249, .34);
+      background: rgba(6, 182, 212, .14);
+      color: var(--accent-2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: .75rem;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .corner-expand-btn:hover,
+    .corner-expand-btn.active {
+      border-color: rgba(103, 232, 249, .52);
+      background: rgba(6, 182, 212, .22);
+    }
+
+    .breakdown-card {
+      grid-column: 1;
+      grid-row: 2;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+      grid-template-rows: 242px 188px 144px;
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      height: 598px;
+      min-height: 598px;
+      align-self: stretch;
+    }
+
+    .card-head {
+      padding: 12px 14px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-head > div:first-child {
+      flex: 1 1 320px;
+      min-width: 0;
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: .75rem;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: .72rem;
+      color: var(--muted);
+      justify-content: flex-end;
+      flex: 0 1 360px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .tree-stage {
+      height: 280px;
+      min-height: 280px;
+      max-height: 280px;
+      padding: 0 14px 14px;
+      margin-top: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .tree-stage svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .tree-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: var(--surface);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+
+    .tree-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .tree-modal-card {
+      position: relative;
+      width: min(1180px, calc(100vw - 56px));
+      height: min(760px, calc(100vh - 56px));
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+      border: 1px solid rgba(103, 232, 249, .38);
+      border-radius: 24px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .48);
+      overflow: hidden;
+    }
+
+    .tree-modal-head {
+      padding: 18px 22px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(43, 53, 80, 0.82);
+    }
+
+    .tree-modal-head > div:first-child {
+      flex: 1 1 340px;
+      min-width: 0;
+    }
+
+    .tree-modal-stage {
+      flex: 1;
+      min-height: 0;
+      padding: 14px 18px 18px;
+    }
+
+    .tree-modal-stage svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .modal-close-btn {
+      top: 16px;
+      right: 16px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+      font-size: .78rem;
+      z-index: 2;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .stack-card-body,
+    .footer-card {
+      height: 100%;
+      min-height: 0;
+      padding: 10px;
+    }
+
+    .stack-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stack-card-head {
+      display: grid;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .stack-card h2,
+    .footer-card h2,
+    .theory-card h3 {
+      font-size: .9rem;
+    }
+
+    .stack-card-head p,
+    .footer-card p,
+    .theory-card p,
+    .theory-card li {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.6;
+    }
+
+    .level-list,
+    .log-list,
+    .code-lines {
+      display: grid;
+      gap: 8px;
+      min-height: 0;
+      align-content: start;
+      grid-auto-rows: max-content;
+    }
+
+    .level-list,
+    .log-list,
+    .code-lines,
+    .footer-card {
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .level-list::-webkit-scrollbar,
+    .log-list::-webkit-scrollbar,
+    .code-lines::-webkit-scrollbar,
+    .footer-card::-webkit-scrollbar,
+    .theory-log-list::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    .level-list::-webkit-scrollbar-thumb,
+    .log-list::-webkit-scrollbar-thumb,
+    .code-lines::-webkit-scrollbar-thumb,
+    .footer-card::-webkit-scrollbar-thumb,
+    .theory-log-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .level-item,
+    .log-item,
+    .code-line,
+    .master-tile {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .level-item,
+    .log-item {
+      display: grid;
+      gap: 6px;
+      padding: 8px 10px;
+    }
+
+    .level-item.done,
+    .log-item.done {
+      border-color: rgba(34, 197, 94, .28);
+    }
+
+    .level-item.active,
+    .log-item.active {
+      border-color: rgba(6, 182, 212, .42);
+      background: rgba(6, 182, 212, .09);
+      box-shadow: 0 0 0 1px rgba(6, 182, 212, .14);
+    }
+
+    .level-item.pending,
+    .log-item.pending {
+      opacity: .58;
+    }
+
+    .item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .item-type,
+    .item-state,
+    .level-meta,
+    .master-label {
+      font-family: "Fira Code", monospace;
+      font-size: .69rem;
+    }
+
+    .item-type,
+    .master-value,
+    .master-case {
+      color: var(--accent-2);
+    }
+
+    .item-state,
+    .level-meta,
+    .master-note {
+      color: #64748b;
+    }
+
+    .item-msg {
+      color: var(--text);
+      font-size: .72rem;
+      line-height: 1.45;
+    }
+
+    .level-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .master-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .master-tile {
+      padding: 9px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .master-value {
+      font-family: "Fira Code", monospace;
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .master-summary {
+      padding: 8px 2px 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .master-case {
+      font-weight: 700;
+      font-size: .82rem;
+    }
+
+    #insightText {
+      margin: 0;
+      color: var(--text);
+      font-size: .8rem;
+      line-height: 1.55;
+    }
+
+    .step-list,
+    .code-lines {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      line-height: 1.55;
+      font-size: .76rem;
+    }
+
+    .step-item.done {
+      border-color: rgba(34, 197, 94, .3);
+    }
+
+    .step-item.active {
+      border-color: rgba(6, 182, 212, .42);
+      background: rgba(6, 182, 212, .08);
+    }
+
+    .step-index {
+      min-width: 24px;
+      font-family: "Fira Code", monospace;
+      color: var(--accent-2);
+    }
+
+    .step-item.done .step-index {
+      color: var(--good);
+    }
+
+    .flow-code-lines {
+      margin-top: 0;
+      min-height: 220px;
+      max-height: 220px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 8px;
+      padding: 7px 8px;
+      font-family: "Fira Code", monospace;
+      font-size: .74rem;
+      color: #cbd5e1;
+    }
+
+    .code-line.active {
+      border-color: rgba(6, 182, 212, .38);
+      background: rgba(6, 182, 212, .1);
+    }
+
+    .code-line-num {
+      color: #64748b;
+      text-align: right;
+    }
+
+    .code-text {
+      white-space: pre;
+    }
+
+    .theory-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .theory-card {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .theory-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .theory-log-card {
+      grid-column: 1 / -1;
+    }
+
+    .theory-log-list {
+      max-height: 250px;
+      min-height: 250px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    pre {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #09101f;
+      overflow: auto;
+    }
+
+    code {
+      font-family: "Fira Code", monospace;
+      color: #dbe4f3;
+      white-space: pre;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      .app-body {
+        flex-direction: column;
+        overflow: visible;
+      }
+
+      .left-panel {
+        width: auto;
+        min-width: 0;
+      }
+
+      .workspace {
+        overflow: visible;
+      }
+
+      .viz-area,
+      .theory-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .canvas-card,
+      .breakdown-card,
+      .stack {
+        grid-column: auto;
+        grid-row: auto;
+        height: auto;
+        min-height: 0;
+      }
+
+      .stack {
+        grid-template-rows: none;
+      }
+
+      .tree-stage {
+        height: 260px;
+        min-height: 260px;
+        max-height: 260px;
+      }
+
+      .tree-modal {
+        padding: 12px;
+      }
+
+      .tree-modal-card {
+        width: calc(100vw - 24px);
+        height: calc(100vh - 24px);
+      }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Recurrence Relation <span>Dashboard</span></h1>
+      <p>Expand common divide-and-conquer recurrences level by level and connect the recursion tree to the final asymptotic bound.</p>
+    </div>
+    <div class="header-actions">
+      <a class="header-link primary" href="index.php">Home</a>
+      <a class="header-link" href="sorting%20techniques/merge_sort_animation.php">Merge Sort</a>
+      <label class="speed-wrap">Speed:
+        <input id="speedSlider" type="range" min="1" max="10" value="6" />
+      </label>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header"><div class="pulse-dot"></div>Recurrence Panel</div>
+      <section class="panel-section">
+        <div class="panel-section-title">Snapshot</div>
+        <div class="summary-grid">
+          <div class="metric"><div class="metric-label">Recurrence</div><div class="metric-value" id="recurrenceMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Input n</div><div class="metric-value" id="nMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Branches a</div><div class="metric-value" id="aMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Shrink b</div><div class="metric-value" id="bMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Depth</div><div class="metric-value" id="depthMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Current Level</div><div class="metric-value" id="levelMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Leaf Count</div><div class="metric-value" id="leafMetric">-</div></div>
+          <div class="metric"><div class="metric-label">Result</div><div class="metric-value" id="resultMetric">-</div></div>
+        </div>
+      </section>
+      <section class="panel-section" style="flex:1; min-height:0;">
+        <div class="panel-section-title">Algorithm Flow + Active Pseudocode</div>
+        <div class="flow-merge">
+          <div class="flow-block">
+            <div class="panel-mini-title">Flow Steps</div>
+            <div class="step-list" id="stepBox"></div>
+          </div>
+          <div class="flow-block">
+            <div class="panel-mini-title">Live Pseudocode</div>
+            <div class="code-lines flow-code-lines" id="codeLines"></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('animation',this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('theory',this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('pseudocode',this)">Pseudocode</button>
+      </nav>
+
+      <section id="animation" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Sample</span>
+            <select id="sampleSelect"></select>
+          </label>
+          <label class="field">
+            <span>Input n</span>
+            <select id="nSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="loadBtn">Load Sample</button>
+            <button id="nextBtn">Next Level</button>
+            <button class="primary" id="playBtn">Auto Play</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+
+        <section class="viz-area">
+          <article class="canvas-card" id="treeCard">
+            <button id="expandTreeBtn" class="corner-expand-btn" type="button" title="Expand recursion tree" aria-label="Expand recursion tree">+</button>
+            <div class="card-head">
+              <div>
+                <div class="card-title">Recursion Tree</div>
+                <div class="card-subtitle" id="statusText">Load a sample to expand the recurrence tree one level at a time and compare the work across levels.</div>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-dot" style="background:#22c55e;"></span><span>Completed levels</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:#06b6d4;"></span><span>Current level</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:#64748b;"></span><span>Not yet expanded</span></div>
+              </div>
+            </div>
+            <div class="tree-stage"><svg id="treeSvg" viewBox="0 0 760 430" preserveAspectRatio="xMidYMid meet"></svg></div>
+          </article>
+
+          <article class="stack-card breakdown-card" id="breakdownCard">
+            <div class="stack-card-body">
+              <div class="stack-card-head">
+                <h2>Level Breakdown</h2>
+                <p>Track how node count, subproblem size, and per-level work change from the root to the leaves.</p>
+              </div>
+              <div class="level-list" id="levelList"></div>
+            </div>
+          </article>
+
+          <section class="stack">
+            <article class="stack-card" id="logCard">
+              <div class="stack-card-body">
+                <div class="stack-card-head">
+                  <h2>Expansion Log</h2>
+                  <p>Each step describes what the current level contributes to the recurrence tree.</p>
+                </div>
+                <div class="log-list" id="actionList"></div>
+              </div>
+            </article>
+
+            <article class="stack-card" id="masterCard">
+              <div class="stack-card-body">
+                <div class="stack-card-head">
+                  <h2 id="analysisTitle">Master Theorem Check</h2>
+                  <p id="analysisSubtitle">Compare <code>f(n)</code> against <code>n<sup>log_b a</sup></code> to see which part dominates.</p>
+                </div>
+                <div id="masterBox"></div>
+              </div>
+            </article>
+
+            <article class="footer-card" id="insightCard">
+              <h2>Current Insight</h2>
+              <p id="insightText">Recurrence relations summarize recursive work, and the recursion tree helps you see which levels dominate the total cost.</p>
+            </article>
+          </section>
+        </section>
+      </section>
+
+      <section id="theory" class="tab-panel">
+        <section class="theory-grid">
+          <article class="theory-card">
+            <h3>What A Recurrence Relation Is</h3>
+            <ul>
+              <li>A recurrence relation defines a problem in terms of smaller versions of itself.</li>
+              <li>In divide-and-conquer algorithms, it often has the form <code>T(n) = aT(n / b) + f(n)</code>.</li>
+              <li>The recursive part describes smaller calls, while <code>f(n)</code> captures the extra work done at each level.</li>
+            </ul>
+          </article>
+          <article class="theory-card">
+            <h3>Why Recursion Trees Help</h3>
+            <ul>
+              <li>Each level of the tree groups together all subproblems of the same size.</li>
+              <li>You can sum the work of every level and then compare that against the leaves.</li>
+              <li>This makes it easier to see whether the root, the middle levels, or the leaves dominate.</li>
+            </ul>
+          </article>
+          <article class="theory-card">
+            <h3>Master Theorem Cases</h3>
+            <ul>
+              <li><strong>Case 1:</strong> Leaves dominate when <code>f(n)</code> grows slower than <code>n<sup>log_b a</sup></code>.</li>
+              <li><strong>Case 2:</strong> Levels tie when <code>f(n)</code> matches <code>n<sup>log_b a</sup></code>, producing an extra <code>log n</code>.</li>
+              <li><strong>Case 3:</strong> The combine step dominates when <code>f(n)</code> grows faster than <code>n<sup>log_b a</sup></code>.</li>
+            </ul>
+          </article>
+          <article class="theory-card">
+            <h3>Where You See These</h3>
+            <ul>
+              <li>Binary search uses a narrow tree with one recursive branch.</li>
+              <li>Merge sort spreads work evenly across all levels.</li>
+              <li>Matrix multiplication variants often create many children while still doing heavy combine work.</li>
+            </ul>
+          </article>
+          <article class="theory-card theory-log-card">
+            <h3>Execution Log</h3>
+            <p>The same level-by-level expansion shown in the animation is mirrored here so the theory and live state stay aligned.</p>
+            <div class="log-list theory-log-list" id="theoryActionList"></div>
+          </article>
+        </section>
+      </section>
+
+      <section id="pseudocode" class="tab-panel">
+        <section class="theory-grid">
+          <article class="theory-card">
+            <h3>Recursion Tree Pseudocode</h3>
+            <pre><code>depth = 0
+size = n
+while size &gt; 1:
+    nodes = a^depth
+    workPerNode = f(size)
+    levelWork = nodes * workPerNode
+    size = size / b
+    depth += 1
+leafWork = a^depth * T(1)
+compare internal work and leaf work</code></pre>
+          </article>
+          <article class="theory-card">
+            <h3>Master Theorem Skeleton</h3>
+            <pre><code>Given T(n) = aT(n / b) + f(n)
+compute c = log_b(a)
+compare f(n) with n^c
+if f(n) is smaller:
+    answer is Theta(n^c)
+if f(n) matches:
+    answer is Theta(n^c log n)
+if f(n) is larger:
+    answer is Theta(f(n))</code></pre>
+          </article>
+          <article class="theory-card">
+            <h3>Merge Sort Example</h3>
+            <pre><code>T(n) = 2T(n / 2) + n
+level 0: 1 * n
+level 1: 2 * (n / 2) = n
+level 2: 4 * (n / 4) = n
+...
+there are log n levels
+total = n log n</code></pre>
+          </article>
+          <article class="theory-card">
+            <h3>Reading The Dashboard</h3>
+            <p>The left panel tracks the recurrence parameters, the main tree shows the current expansion depth, the breakdown card totals the work per level, and the theorem card explains why the final asymptotic answer follows.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="tree-modal" id="treeModal" aria-hidden="true">
+    <div class="tree-modal-card" role="dialog" aria-modal="true" aria-labelledby="treeModalTitle">
+      <button id="treeModalClose" class="corner-expand-btn modal-close-btn" type="button" title="Close expanded tree" aria-label="Close expanded tree">x</button>
+      <div class="tree-modal-head">
+        <div>
+          <div class="card-title" id="treeModalTitle">Expanded Recursion Tree</div>
+          <div class="card-subtitle" id="treeModalStatus">Load a sample to inspect the tree in a larger focused view.</div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#22c55e;"></span><span>Completed levels</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#06b6d4;"></span><span>Current level</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#64748b;"></span><span>Not yet expanded</span></div>
+        </div>
+      </div>
+      <div class="tree-modal-stage">
+        <svg id="treeModalSvg" viewBox="0 0 1180 700" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const FLOW_STEPS = [
+      'Read the recurrence in the form T(n) = aT(n / b) + f(n).',
+      'Expand one more level of recursive subproblems.',
+      'Compute the work contributed by that entire level.',
+      'Reach the leaves where T(1) handles the base cases.',
+      'Compare the tree totals and read the final asymptotic bound.'
+    ];
+
+    const PSEUDO_LINES = [
+      'depth = 0',
+      'size = n',
+      'while size > 1:',
+      '    nodes = a^depth',
+      '    levelWork = nodes * f(size)',
+      '    size = size / b',
+      '    depth += 1',
+      'leafWork = a^depth * T(1)',
+      'answer = compare(level sums, leaf work)'
+    ];
+
+    const DIVIDE_SIZES = [8, 16, 32, 64];
+    const SIMPLE_SIZES = [3, 4, 5, 6, 7, 8];
+
+    const samples = {
+      binarySearch: {
+        label: 'Binary Search',
+        mode: 'divide',
+        recurrence: 'T(n) = T(n / 2) + 1',
+        a: 1,
+        b: 2,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(log n)',
+        analysisType: 'master',
+        analysisTitle: 'Master Theorem Check',
+        analysisSubtitle: 'Compare f(n) with n^(log_b a) to decide whether the leaves, the levels, or the root dominate.',
+        masterCase: 'Case 2',
+        compareText: 'f(n) = 1 matches n^0, so every level has similar constant cost.',
+        finalInsight: 'Because the tree has only one branch per level, the total work comes from the number of levels, giving a logarithmic bound.',
+        sizeOptions: DIVIDE_SIZES
+      },
+      mergeSort: {
+        label: 'Merge Sort',
+        mode: 'divide',
+        recurrence: 'T(n) = 2T(n / 2) + n',
+        a: 2,
+        b: 2,
+        workKind: 'linear',
+        workLabel: 'n',
+        result: 'Theta(n log n)',
+        analysisType: 'master',
+        analysisTitle: 'Master Theorem Check',
+        analysisSubtitle: 'Compare f(n) with n^(log_b a) to decide whether the leaves, the levels, or the root dominate.',
+        masterCase: 'Case 2',
+        compareText: 'f(n) = n matches n^(log_2 2) = n, so the same cost repeats across all levels.',
+        finalInsight: 'Every internal level contributes about n work, and there are log n levels, so the total becomes n log n.',
+        sizeOptions: DIVIDE_SIZES
+      },
+      strassenStyle: {
+        label: 'Strassen Style',
+        mode: 'divide',
+        recurrence: 'T(n) = 7T(n / 2) + n^2',
+        a: 7,
+        b: 2,
+        workKind: 'quadratic',
+        workLabel: 'n^2',
+        result: 'Theta(n^log_2 7)',
+        analysisType: 'master',
+        analysisTitle: 'Master Theorem Check',
+        analysisSubtitle: 'Compare f(n) with n^(log_b a) to decide whether the leaves, the levels, or the root dominate.',
+        masterCase: 'Case 1',
+        compareText: 'n^(log_2 7) grows faster than n^2, so the leaves dominate the total.',
+        finalInsight: 'The branching factor is so large that the leaf work eventually outweighs the quadratic combine work, leading to n^log_2 7.',
+        sizeOptions: [4, 8, 16, 32]
+      },
+      heavyCombine: {
+        label: 'Heavy Combine',
+        mode: 'divide',
+        recurrence: 'T(n) = 2T(n / 2) + n^2',
+        a: 2,
+        b: 2,
+        workKind: 'quadratic',
+        workLabel: 'n^2',
+        result: 'Theta(n^2)',
+        analysisType: 'master',
+        analysisTitle: 'Master Theorem Check',
+        analysisSubtitle: 'Compare f(n) with n^(log_b a) to decide whether the leaves, the levels, or the root dominate.',
+        masterCase: 'Case 3',
+        compareText: 'f(n) = n^2 grows faster than n^(log_2 2) = n, so the top combine work dominates.',
+        finalInsight: 'The root and upper levels already spend quadratic work, so the recursive leaves never catch up with that dominant combine step.',
+        sizeOptions: [4, 8, 16, 32]
+      },
+      sumOfN: {
+        label: 'Sum Of First n Numbers',
+        mode: 'decrement',
+        recurrence: 'T(n) = T(n - 1) + 1',
+        a: 1,
+        step: 1,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(n)',
+        analysisType: 'reduction',
+        analysisTitle: 'Reduction Pattern',
+        analysisSubtitle: 'For n-1 recurrences, each level removes one unit and the tree depth itself drives the running time.',
+        reductionCase: 'Single chain',
+        compareText: 'One recursive call continues with n - 1, so the recursion forms a straight chain of levels.',
+        finalInsight: 'Every level does constant work and there are n levels, so the total cost grows linearly.',
+        sizeOptions: SIMPLE_SIZES
+      },
+      factorial: {
+        label: 'Factorial',
+        mode: 'decrement',
+        recurrence: 'T(n) = T(n - 1) + 1',
+        a: 1,
+        step: 1,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(n)',
+        analysisType: 'reduction',
+        analysisTitle: 'Reduction Pattern',
+        analysisSubtitle: 'For n-1 recurrences, each level removes one unit and the tree depth itself drives the running time.',
+        reductionCase: 'Single chain',
+        compareText: 'Factorial makes one recursive call on n - 1 and does constant extra work after the call.',
+        finalInsight: 'Because factorial peels off one number at a time, the recursion depth is n and the work stays linear.',
+        sizeOptions: SIMPLE_SIZES
+      },
+      towerOfHanoi: {
+        label: 'Tower Of Hanoi',
+        mode: 'decrement',
+        recurrence: 'T(n) = 2T(n - 1) + 1',
+        a: 2,
+        step: 1,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(2^n)',
+        analysisType: 'reduction',
+        analysisTitle: 'Reduction Pattern',
+        analysisSubtitle: 'The subproblem size drops by 1, but each level doubles the number of recursive calls.',
+        reductionCase: 'Binary expansion',
+        compareText: 'Each disk move creates two recursive calls on n - 1, so the number of nodes doubles at every deeper level.',
+        finalInsight: 'The depth is only n, but the branching factor of 2 creates an exponential number of leaves, which dominates the total.',
+        sizeOptions: [2, 3, 4, 5, 6, 7, 8]
+      },
+      hcf: {
+        label: 'HCF / GCD (Recursive Subtraction)',
+        mode: 'decrement',
+        recurrence: 'T(n) = T(n - 1) + 1',
+        a: 1,
+        step: 1,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(n)',
+        analysisType: 'reduction',
+        analysisTitle: 'Reduction Pattern',
+        analysisSubtitle: 'This dashboard uses the subtraction-style recursive view so the reduction chain stays visible.',
+        reductionCase: 'Single chain',
+        compareText: 'Each recursive subtraction reduces the larger value by one effective step in this simplified recurrence view.',
+        finalInsight: 'In the subtraction-style version, HCF behaves like a linear reduction chain. The recursion tree is narrow but deep.',
+        sizeOptions: SIMPLE_SIZES
+      },
+      lcm: {
+        label: 'LCM Via GCD Helper',
+        mode: 'decrement',
+        recurrence: 'T(n) = T(n - 1) + 1',
+        a: 1,
+        step: 1,
+        workKind: 'constant',
+        workLabel: '1',
+        result: 'Theta(n)',
+        analysisType: 'reduction',
+        analysisTitle: 'Reduction Pattern',
+        analysisSubtitle: 'LCM is often implemented through a recursive GCD helper, so the helper recurrence determines the recursive cost.',
+        reductionCase: 'Helper chain',
+        compareText: 'The recursive cost comes from the GCD/HCF helper, while the final multiplication and division stay constant.',
+        finalInsight: 'When LCM is built on a recursive GCD helper, the tree looks like the helper chain and stays linear in this simplified model.',
+        sizeOptions: SIMPLE_SIZES
+      }
+    };
+
+    const ui = {
+      sampleSelect: document.getElementById('sampleSelect'),
+      nSelect: document.getElementById('nSelect'),
+      loadBtn: document.getElementById('loadBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      playBtn: document.getElementById('playBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      expandTreeBtn: document.getElementById('expandTreeBtn'),
+      treeModal: document.getElementById('treeModal'),
+      treeModalClose: document.getElementById('treeModalClose'),
+      treeModalSvg: document.getElementById('treeModalSvg'),
+      treeModalStatus: document.getElementById('treeModalStatus'),
+      speedSlider: document.getElementById('speedSlider'),
+      vizArea: document.querySelector('.viz-area'),
+      treeSvg: document.getElementById('treeSvg'),
+      levelList: document.getElementById('levelList'),
+      actionList: document.getElementById('actionList'),
+      theoryActionList: document.getElementById('theoryActionList'),
+      masterBox: document.getElementById('masterBox'),
+      analysisTitle: document.getElementById('analysisTitle'),
+      analysisSubtitle: document.getElementById('analysisSubtitle'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText'),
+      recurrenceMetric: document.getElementById('recurrenceMetric'),
+      nMetric: document.getElementById('nMetric'),
+      aMetric: document.getElementById('aMetric'),
+      bMetric: document.getElementById('bMetric'),
+      depthMetric: document.getElementById('depthMetric'),
+      levelMetric: document.getElementById('levelMetric'),
+      leafMetric: document.getElementById('leafMetric'),
+      resultMetric: document.getElementById('resultMetric'),
+      stepBox: document.getElementById('stepBox'),
+      codeLines: document.getElementById('codeLines'),
+      treeCard: document.getElementById('treeCard'),
+      breakdownCard: document.getElementById('breakdownCard'),
+      logCard: document.getElementById('logCard'),
+      masterCard: document.getElementById('masterCard'),
+      insightCard: document.getElementById('insightCard')
+    };
+
+    const state = {
+      sampleKey: 'mergeSort',
+      sample: samples.mergeSort,
+      n: 32,
+      stepIndex: 0,
+      running: false,
+      timer: null,
+      delay: 620,
+      treeExpanded: false
+    };
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function populateControls() {
+      ui.sampleSelect.innerHTML = Object.entries(samples)
+        .map(([key, sample]) => `<option value="${key}">${sample.label}</option>`)
+        .join('');
+      ui.sampleSelect.value = state.sampleKey;
+      populateSizeOptions();
+    }
+
+    function populateSizeOptions() {
+      const selectedKey = ui.sampleSelect.value || state.sampleKey;
+      const sample = samples[selectedKey];
+      const sizeOptions = sample.sizeOptions || DIVIDE_SIZES;
+      ui.nSelect.innerHTML = sizeOptions.map(size => `<option value="${size}">${size}</option>`).join('');
+      if (!sizeOptions.includes(state.n)) {
+        state.n = sizeOptions[0];
+      }
+      ui.nSelect.value = String(state.n);
+    }
+
+    function speedToDelay(value) {
+      return 1260 - value * 95;
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat('en-US').format(Math.round(value));
+    }
+
+    function formatExponent(value) {
+      if (Math.abs(value - Math.round(value)) < 0.0001) return String(Math.round(value));
+      return value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+    }
+
+    function getDepth(sample, n) {
+      if (sample.mode === 'decrement') {
+        const step = sample.step || 1;
+        let depth = 0;
+        let size = n;
+        while (size > 1) {
+          size = Math.max(1, size - step);
+          depth += 1;
+        }
+        return depth;
+      }
+
+      let depth = 0;
+      let size = n;
+      while (size > 1) {
+        size = Math.max(1, size / sample.b);
+        depth += 1;
+      }
+      return depth;
+    }
+
+    function getWorkValue(sample, size) {
+      switch (sample.workKind) {
+        case 'constant':
+          return 1;
+        case 'linear':
+          return size;
+        case 'quadratic':
+          return size * size;
+        default:
+          return size;
+      }
+    }
+
+    function getWorkFormula(sample, level, depth) {
+      if (level === depth) return 'T(1)';
+      const sizeText = sample.mode === 'decrement'
+        ? (level === 0 ? 'n' : `n - ${level * (sample.step || 1)}`)
+        : (level === 0 ? 'n' : `n / ${sample.b}^${level}`);
+      switch (sample.workKind) {
+        case 'constant':
+          return '1';
+        case 'linear':
+          return sizeText;
+        case 'quadratic':
+          return `(${sizeText})^2`;
+        default:
+          return sizeText;
+      }
+    }
+
+    function getLevels() {
+      const sample = state.sample;
+      const depth = getDepth(sample, state.n);
+      const levels = [];
+
+      for (let level = 0; level <= depth; level += 1) {
+        const leaf = level === depth;
+        const nodeCount = sample.a ** level;
+        const size = leaf
+          ? 1
+          : sample.mode === 'decrement'
+            ? Math.max(1, state.n - level * (sample.step || 1))
+            : Math.max(1, state.n / (sample.b ** level));
+        const workPerNode = leaf ? 1 : getWorkValue(sample, size);
+        const totalWork = nodeCount * workPerNode;
+        levels.push({
+          level,
+          leaf,
+          nodeCount,
+          size,
+          workPerNode,
+          totalWork,
+          formula: `${formatNumber(nodeCount)} x ${getWorkFormula(sample, level, depth)} = ${formatNumber(totalWork)}`
+        });
+      }
+
+      return levels;
+    }
+
+    function getActiveFlowStep(levels) {
+      const current = levels[state.stepIndex];
+      if (state.stepIndex === 0) return 0;
+      if (current.leaf) return 4;
+      return 2;
+    }
+
+    function getActiveCodeLines(levels) {
+      const current = levels[state.stepIndex];
+      if (state.stepIndex === 0) return new Set([0, 1, 2, 3, 4]);
+      if (current.leaf) return new Set([7, 8]);
+      return new Set([2, 3, 4, 5, 6]);
+    }
+
+    function getMasterSummary(sample) {
+      if (sample.analysisType !== 'master') {
+        return {
+          exponent: null,
+          exponentText: '-'
+        };
+      }
+      const exponent = Math.log(sample.a) / Math.log(sample.b);
+      return {
+        exponent,
+        exponentText: formatExponent(exponent)
+      };
+    }
+
+    function renderSteps(activeStep) {
+      ui.stepBox.innerHTML = FLOW_STEPS.map((step, index) => {
+        const done = state.stepIndex > 0 && index < activeStep;
+        const active = index === activeStep;
+        return `<div class="step-item ${done ? 'done' : ''} ${active ? 'active' : ''}"><span class="step-index">${index + 1}.</span><span>${step}</span></div>`;
+      }).join('');
+    }
+
+    function renderCodeLines(activeLineSet) {
+      ui.codeLines.innerHTML = PSEUDO_LINES.map((line, index) => `<div class="code-line ${activeLineSet.has(index) ? 'active' : ''}"><span class="code-line-num">${index + 1}</span><span class="code-text">${line}</span></div>`).join('');
+    }
+
+    function toggleFocus(element, active) {
+      element.classList.toggle('focus-card', active);
+    }
+
+    function toggleTreeExpand() {
+      state.treeExpanded = !state.treeExpanded;
+      ui.treeModal.classList.toggle('open', state.treeExpanded);
+      ui.treeModal.setAttribute('aria-hidden', String(!state.treeExpanded));
+      document.body.classList.toggle('modal-open', state.treeExpanded);
+      ui.expandTreeBtn.classList.toggle('active', state.treeExpanded);
+      ui.expandTreeBtn.textContent = state.treeExpanded ? '-' : '+';
+      ui.expandTreeBtn.title = state.treeExpanded ? 'Close expanded recursion tree' : 'Expand recursion tree';
+      ui.expandTreeBtn.setAttribute('aria-label', ui.expandTreeBtn.title);
+      if (state.treeExpanded) {
+        const levels = getLevels();
+        renderTree(levels, ui.treeModalSvg, { width: 1180, height: 700, expanded: true });
+        ui.treeModalStatus.textContent = ui.statusText.textContent;
+      }
+    }
+
+    function buildLevelItems(levels) {
+      return levels.map((item, index) => {
+        const done = index < state.stepIndex;
+        const active = index === state.stepIndex;
+        const pending = index > state.stepIndex;
+        const title = item.leaf ? `Leaves L${item.level}` : `Level ${item.level}`;
+        const subtitle = item.leaf
+          ? `${formatNumber(item.nodeCount)} leaves reach the base case.`
+          : `${formatNumber(item.nodeCount)} subproblems of size ${formatNumber(item.size)} each.`;
+        return `<div class="level-item ${done ? 'done' : ''} ${active ? 'active' : ''} ${pending ? 'pending' : ''}">
+          <div class="item-head">
+            <span class="item-type">${title}</span>
+            <span class="item-state">${active ? 'current' : done ? 'seen' : 'upcoming'}</span>
+          </div>
+          <div class="item-msg">${subtitle}</div>
+          <div class="level-meta">
+            <span>per node ${formatNumber(item.workPerNode)}</span>
+            <span>total ${formatNumber(item.totalWork)}</span>
+            <span>${item.formula}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function buildLogItems(levels) {
+      return levels.map((item, index) => {
+        const done = index < state.stepIndex;
+        const active = index === state.stepIndex;
+        const pending = index > state.stepIndex;
+        const message = item.leaf
+          ? `The tree bottoms out with ${formatNumber(item.nodeCount)} leaves, each contributing the base cost T(1).`
+          : `Level ${item.level} has ${formatNumber(item.nodeCount)} nodes of size ${formatNumber(item.size)}, so the total work is ${formatNumber(item.totalWork)}.`;
+        return `<div class="log-item ${done ? 'done' : ''} ${active ? 'active' : ''} ${pending ? 'pending' : ''}">
+          <div class="item-head">
+            <span class="item-type">${item.leaf ? 'leaf level' : `level ${item.level}`}</span>
+            <span class="item-state">${active ? 'current' : done ? 'processed' : 'pending'}</span>
+          </div>
+          <div class="item-msg">${message}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderMaster(sample) {
+      const master = getMasterSummary(sample);
+      ui.analysisTitle.textContent = sample.analysisTitle;
+      ui.analysisSubtitle.innerHTML = sample.analysisSubtitle;
+
+      if (sample.analysisType === 'master') {
+        ui.masterBox.innerHTML = `
+          <div class="master-grid">
+            <div class="master-tile"><div class="master-label">a</div><div class="master-value">${sample.a}</div></div>
+            <div class="master-tile"><div class="master-label">b</div><div class="master-value">${sample.b}</div></div>
+            <div class="master-tile"><div class="master-label">f(n)</div><div class="master-value">${sample.workLabel}</div></div>
+            <div class="master-tile"><div class="master-label">log_b a</div><div class="master-value">${master.exponentText}</div></div>
+          </div>
+          <div class="master-summary">
+            <div class="master-case">${sample.masterCase}</div>
+            <div class="master-note">${sample.compareText}</div>
+            <div class="master-note">Final bound: ${sample.result}</div>
+          </div>
+        `;
+        return;
+      }
+
+      ui.masterBox.innerHTML = `
+        <div class="master-grid">
+          <div class="master-tile"><div class="master-label">branches</div><div class="master-value">${sample.a}</div></div>
+          <div class="master-tile"><div class="master-label">reduce by</div><div class="master-value">${sample.step || 1}</div></div>
+          <div class="master-tile"><div class="master-label">extra work</div><div class="master-value">${sample.workLabel}</div></div>
+          <div class="master-tile"><div class="master-label">pattern</div><div class="master-value">${sample.reductionCase}</div></div>
+        </div>
+        <div class="master-summary">
+          <div class="master-case">${sample.reductionCase}</div>
+          <div class="master-note">${sample.compareText}</div>
+          <div class="master-note">Final bound: ${sample.result}</div>
+        </div>
+      `;
+    }
+
+    function renderTree(levels, targetSvg, options = {}) {
+      const width = options.width || 760;
+      const height = options.height || 430;
+      const expanded = Boolean(options.expanded);
+      const visible = levels.slice(0, state.stepIndex + 1);
+      const outerPad = expanded ? 24 : 18;
+      const availableHeight = height - outerPad * 2;
+      const rowGapPad = expanded ? 10 : 8;
+      const rowHeight = Math.max(
+        expanded ? 58 : 48,
+        Math.min(
+          expanded ? 80 : 60,
+          Math.floor((availableHeight - rowGapPad * Math.max(visible.length - 1, 0)) / Math.max(visible.length, 1))
+        )
+      );
+      const rowStep = visible.length > 1 ? (availableHeight - rowHeight) / (visible.length - 1) : 0;
+      const rowX = outerPad;
+      const rowWidth = width - outerPad * 2;
+      const labelWidth = expanded ? 96 : 72;
+      const infoWidth = expanded ? 350 : 248;
+      const nodeZoneStart = rowX + labelWidth + (expanded ? 56 : 50);
+      const nodeZoneEnd = width - outerPad - infoWidth - (expanded ? 36 : 28);
+      const nodeZoneWidth = Math.max(200, nodeZoneEnd - nodeZoneStart);
+      const lines = [];
+      const rows = [];
+      let previousXs = [];
+      let previousNodeRadius = expanded ? 16 : 14;
+      let previousY = 0;
+
+      visible.forEach((item, index) => {
+        const y = outerPad + rowHeight / 2 + rowStep * index;
+        const shown = Math.min(item.nodeCount, expanded ? 8 : 6);
+        const nodeRadius = Math.max(expanded ? 12 : 10, Math.min(expanded ? 18 : 14, rowHeight * 0.27));
+        const gap = shown > 1 ? Math.min(expanded ? 84 : 74, nodeZoneWidth / (shown - 1)) : 0;
+        const totalNodeSpan = gap * (shown - 1);
+        const startX = shown === 1
+          ? nodeZoneStart + nodeZoneWidth / 2
+          : nodeZoneStart + (nodeZoneWidth - totalNodeSpan) / 2;
+        const nodeXs = Array.from({ length: shown }, (_, nodeIndex) => startX + nodeIndex * gap);
+        const currentRow = index === state.stepIndex;
+        const rowFill = currentRow ? 'rgba(6, 182, 212, 0.10)' : 'rgba(34, 197, 94, 0.08)';
+        const rowStroke = currentRow ? 'rgba(103, 232, 249, 0.42)' : 'rgba(134, 239, 172, 0.22)';
+        const nodeFill = currentRow ? '#06b6d4' : '#22c55e';
+        const nodeStroke = currentRow ? '#67e8f9' : '#86efac';
+        const textFill = currentRow ? '#041519' : '#04150a';
+        const rowRadius = Math.max(16, Math.min(24, rowHeight / 2 - 4));
+        const labelFont = Math.max(expanded ? 15 : 12, Math.min(expanded ? 18 : 14, rowHeight * 0.26));
+        const infoFont = Math.max(expanded ? 12 : 10, Math.min(expanded ? 15 : 11.5, rowHeight * 0.22));
+        const metaFont = Math.max(expanded ? 11 : 9.6, Math.min(expanded ? 13 : 10.5, rowHeight * 0.2));
+        const infoX = nodeZoneEnd + (expanded ? 26 : 20);
+        const lineOneY = y - Math.max(4, rowHeight * 0.08);
+        const lineTwoY = y + Math.max(12, rowHeight * 0.2);
+
+        rows.push(`<rect x="${rowX}" y="${y - rowHeight / 2}" width="${rowWidth}" height="${rowHeight}" rx="${rowRadius}" fill="${rowFill}" stroke="${rowStroke}"/>`);
+        rows.push(`<text x="${rowX + 18}" y="${y + 4}" font-family="Fira Code, monospace" font-size="${labelFont}" fill="#67e8f9">${item.leaf ? `Leaf ${item.level}` : `L${item.level}`}</text>`);
+        rows.push(`<text x="${infoX}" y="${lineOneY}" font-family="Inter, sans-serif" font-size="${infoFont}" fill="#94a3b8">nodes ${formatNumber(item.nodeCount)} | size ${formatNumber(item.size)} | total ${formatNumber(item.totalWork)}</text>`);
+        rows.push(`<text x="${infoX}" y="${lineTwoY}" font-family="Inter, sans-serif" font-size="${metaFont}" fill="#64748b">${item.nodeCount > shown ? `showing ${shown} of ${formatNumber(item.nodeCount)} nodes` : item.formula}</text>`);
+
+        nodeXs.forEach(x => {
+          rows.push(`<circle cx="${x}" cy="${y}" r="${nodeRadius}" fill="${nodeFill}" stroke="${nodeStroke}" stroke-width="2"/>`);
+          rows.push(`<text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Fira Code, monospace" font-size="${Math.max(9, nodeRadius * 0.72)}" fill="${textFill}">${item.leaf ? '1' : formatNumber(item.size)}</text>`);
+        });
+
+        if (index > 0) {
+          nodeXs.forEach((x, nodeIndex) => {
+            const sourceX = previousXs[Math.floor(nodeIndex * previousXs.length / nodeXs.length)];
+            lines.push(`<line x1="${sourceX}" y1="${previousY + previousNodeRadius}" x2="${x}" y2="${y - nodeRadius}" stroke="rgba(100, 116, 139, .38)" stroke-width="2" stroke-linecap="round"/>`);
+          });
+        }
+
+        previousXs = nodeXs;
+        previousNodeRadius = nodeRadius;
+        previousY = y;
+      });
+
+      targetSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      targetSvg.innerHTML = `<rect x="10" y="10" width="${width - 20}" height="${height - 20}" rx="${expanded ? 28 : 24}" fill="#101826" stroke="#263247"/>${lines.join('')}${rows.join('')}`;
+    }
+
+    function render() {
+      const sample = state.sample;
+      const levels = getLevels();
+      const current = levels[state.stepIndex];
+      const next = levels[state.stepIndex + 1];
+      const depth = levels.length - 1;
+      const master = getMasterSummary(sample);
+      const activeStep = getActiveFlowStep(levels);
+      const activeLines = getActiveCodeLines(levels);
+
+      ui.recurrenceMetric.textContent = sample.recurrence;
+      ui.nMetric.textContent = formatNumber(state.n);
+      ui.aMetric.textContent = formatNumber(sample.a);
+      ui.bMetric.textContent = sample.mode === 'divide' ? formatNumber(sample.b) : `- ${sample.step || 1}`;
+      ui.depthMetric.textContent = formatNumber(depth);
+      ui.levelMetric.textContent = current.leaf ? `Leaf ${current.level}` : `L${current.level}`;
+      ui.leafMetric.textContent = formatNumber(levels[depth].nodeCount);
+      ui.resultMetric.textContent = sample.result;
+
+      ui.statusText.textContent = current.leaf
+        ? `The recursion tree has reached the leaves. Comparing the leaf contribution against the internal levels gives ${sample.result}.`
+        : `Level ${current.level} contains ${formatNumber(current.nodeCount)} subproblems of size ${formatNumber(current.size)}. This level contributes ${formatNumber(current.totalWork)} work.${next ? ` Next level: ${formatNumber(next.nodeCount)} subproblems of size ${formatNumber(next.size)}.` : ''}`;
+
+      const sameScaleText = sample.analysisType === 'master'
+        ? (sample.masterCase === 'Case 2'
+          ? `Here, f(n) matches n^${master.exponentText}, so each level contributes roughly the same scale of work.`
+          : sample.masterCase === 'Case 1'
+            ? `Here, n^${master.exponentText} grows faster than f(n), so the lower levels and leaves dominate the tree.`
+            : `Here, f(n) grows faster than n^${master.exponentText}, so the combine work near the top dominates.`)
+        : sample.compareText;
+      ui.insightText.textContent = current.leaf ? sample.finalInsight : sameScaleText;
+
+      renderSteps(activeStep);
+      renderCodeLines(activeLines);
+      ui.levelList.innerHTML = buildLevelItems(levels);
+      ui.actionList.innerHTML = buildLogItems(levels);
+      ui.theoryActionList.innerHTML = buildLogItems(levels);
+      renderMaster(sample);
+      renderTree(levels, ui.treeSvg, { width: 760, height: 430 });
+      renderTree(levels, ui.treeModalSvg, { width: 1180, height: 700, expanded: true });
+      ui.treeModalStatus.textContent = ui.statusText.textContent;
+
+      toggleFocus(ui.treeCard, true);
+      toggleFocus(ui.breakdownCard, true);
+      toggleFocus(ui.logCard, true);
+      toggleFocus(ui.masterCard, current.leaf);
+      toggleFocus(ui.insightCard, true);
+    }
+
+    function resetCurrent() {
+      stop();
+      state.stepIndex = 0;
+      ui.playBtn.textContent = 'Auto Play';
+      render();
+    }
+
+    function loadSample() {
+      stop();
+      state.sampleKey = ui.sampleSelect.value;
+      state.sample = samples[state.sampleKey];
+      state.n = Number(ui.nSelect.value);
+      state.stepIndex = 0;
+      ui.playBtn.textContent = 'Auto Play';
+      render();
+    }
+
+    function nextLevel() {
+      const lastIndex = getLevels().length - 1;
+      if (state.stepIndex >= lastIndex) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      state.stepIndex += 1;
+      render();
+    }
+
+    function stop() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function loop() {
+      if (!state.running) return;
+      const lastIndex = getLevels().length - 1;
+      if (state.stepIndex >= lastIndex) {
+        stop();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+      nextLevel();
+      state.timer = setTimeout(loop, state.delay);
+    }
+
+    ui.sampleSelect.addEventListener('change', () => {
+      state.sampleKey = ui.sampleSelect.value;
+      state.sample = samples[state.sampleKey];
+      state.n = state.sample.sizeOptions[0];
+      populateSizeOptions();
+    });
+    ui.loadBtn.addEventListener('click', loadSample);
+    ui.nextBtn.addEventListener('click', () => {
+      stop();
+      ui.playBtn.textContent = 'Auto Play';
+      nextLevel();
+    });
+    ui.playBtn.addEventListener('click', () => {
+      if (state.running) {
+        stop();
+        ui.playBtn.textContent = 'Resume';
+        return;
+      }
+      if (state.stepIndex >= getLevels().length - 1) {
+        resetCurrent();
+      }
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      loop();
+    });
+    ui.resetBtn.addEventListener('click', resetCurrent);
+    ui.expandTreeBtn.addEventListener('click', toggleTreeExpand);
+    ui.treeModalClose.addEventListener('click', toggleTreeExpand);
+    ui.treeModal.addEventListener('click', event => {
+      if (event.target === ui.treeModal) toggleTreeExpand();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.treeExpanded) {
+        toggleTreeExpand();
+      }
+    });
+    ui.speedSlider.addEventListener('input', () => {
+      state.delay = speedToDelay(Number(ui.speedSlider.value));
+    });
+
+    populateControls();
+    state.delay = speedToDelay(Number(ui.speedSlider.value));
+    loadSample();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

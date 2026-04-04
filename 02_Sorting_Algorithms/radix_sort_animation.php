@@ -1,0 +1,2032 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radix Sort - Interactive Visualizer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #38bdf8;  
+      --accent-2: #7dd3fc;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0369a1;
+      --accent-2: #0284c7;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #04141f, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.45;
+        transform: scale(0.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .step-box {
+      padding: 8px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 128px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      line-height: 1.45;
+      font-size: 0.77rem;
+    }
+
+    .step-num {
+      min-width: 18px;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+      font-size: 0.66rem;
+      padding-top: 1px;
+    }
+
+    .step-item.done .step-num {
+      color: var(--good);
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #42506d;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.71rem;
+      line-height: 1.55;
+      border-left: 2px solid transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .log-entry.info {
+      color: var(--accent-2);
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .log-entry.warn {
+      color: #fcd34d;
+      border-color: var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .log-entry.success {
+      color: #86efac;
+      border-color: var(--good);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .log-entry .ts {
+      color: #46516d;
+      margin-right: 6px;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.07), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+      transform: none;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel.visualizer-panel.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .field span {
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 240px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #7dd3fc);
+      color: #04141f;
+      border-color: transparent;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    .viz-area {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 16px;
+      padding: 16px 18px;
+    }
+
+    .canvas-card,
+    .code-card,
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .canvas-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .canvas-card::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .canvas-card::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .bars-wrap {
+      flex: 0 0 auto;
+      min-height: 220px;
+      height: clamp(220px, 30vh, 280px);
+      padding: 22px 18px 18px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    .bars-wrap::-webkit-scrollbar,
+    .buffer-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .bars-wrap::-webkit-scrollbar-thumb,
+    .buffer-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .bar-col {
+      flex: 1 0 52px;
+      min-width: 52px;
+      max-width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      height: calc(clamp(220px, 30vh, 280px) - 40px);
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 12px 12px 4px 4px;
+      background: linear-gradient(180deg, #475569, #0f172a);
+      position: relative;
+      transition: height 0.35s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .bar.count-source {
+      background: linear-gradient(180deg, #fde68a, #f59e0b);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+      transform: translateY(-8px);
+    }
+
+    .bar.place-source {
+      background: linear-gradient(180deg, #fb7185, var(--danger));
+      transform: translateY(-10px);
+      box-shadow: 0 0 18px rgba(244, 63, 94, 0.22);
+    }
+
+    .bar.sorted {
+      background: linear-gradient(180deg, #4ade80, var(--good));
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.22);
+    }
+
+    .bar-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.74rem;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .index-badge {
+      font-size: 0.64rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .buffer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--card);
+      flex-shrink: 0;
+    }
+
+    .buffer-panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .buffer-panel.tight {
+      border-top: 1px solid var(--border);
+      padding: 12px 16px 14px;
+    }
+
+    .buffer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .buffer-title {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .buffer-subtitle {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .buffer-wrap {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      min-height: 58px;
+      padding-bottom: 2px;
+    }
+
+    .buffer-empty {
+      min-height: 58px;
+      width: 100%;
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .buffer-cell {
+      min-width: 58px;
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      background: var(--surface);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .buffer-cell.filled {
+      border-style: solid;
+      border-color: rgba(103, 232, 249, 0.28);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .buffer-cell.active {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.16);
+    }
+
+    .buffer-index {
+      font-size: 0.64rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .buffer-value {
+      font-size: 0.86rem;
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .code-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .code-wrap {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .code-wrap::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .code-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .code-line.active {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.28);
+      color: #f8fafc;
+    }
+
+    .line-no {
+      color: #4f5d79;
+      text-align: right;
+      user-select: none;
+    }
+
+    .explain-box {
+      margin-top: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .explain-box h3 {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+    }
+
+    .explain-box p {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .bottom-row {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .theory-grid {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .theory-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .theory-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--accent-2);
+    }
+
+    .theory-card p,
+    .theory-card li {
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .theory-card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .theory-card code {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+    }
+
+    .footer-card {
+      padding: 14px 16px;
+    }
+
+    .footer-card h3 {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      font-size: 0.74rem;
+      color: var(--text);
+    }
+
+    .status-line {
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .status-line strong {
+      color: var(--accent-2);
+    }
+
+    @media (max-width: 1180px) {
+      .viz-area {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+
+      .theory-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .buffer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-body {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        width: 100%;
+        min-width: 0;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .workspace {
+        display: block;
+      }
+
+      .tab-panel.visualizer-panel.active {
+        display: block;
+        overflow-y: auto;
+      }
+
+      .field input {
+        width: 180px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-wrap: wrap;
+      }
+
+      .speed-label {
+        margin-left: 0;
+      }
+
+      .control-row {
+        padding: 14px;
+      }
+
+      .field {
+        width: 100%;
+      }
+
+      .field input {
+        width: 100%;
+      }
+
+      .button-row {
+        margin-left: 0;
+      }
+
+      .viz-area,
+      .bottom-row {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+</head>
+<body>
+<a href="../dashboard.php?view=02_Sorting_Algorithms/index.php" style="position:fixed; top:20px; left:20px; z-index:9999999; padding:10px 20px; background:#ef4444; color:white; font-family:'Inter', sans-serif; font-size:14px; text-decoration:none; border-radius:8px; box-shadow:0 8px 15px rgba(0,0,0,0.2); font-weight:600; display:flex; align-items:center; gap:8px; transition:transform 0.2s;">&larr; Back to Dashboard</a>
+
+  <header>
+    <div>
+      <h1><span>Radix Sort</span> Visualizer</h1>
+      <p>Watch LSD radix sort process ones, tens, and higher digits with stable counting passes.</p>
+    </div>
+    <label class="speed-label">
+      Speed
+      <input id="speedRange" type="range" min="1" max="100" value="55" />
+    </label>
+  </header>
+
+  <div class="app-body">
+    <aside class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Radix Runtime Feed
+      </div>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Live Metrics</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Pass</div>
+            <div class="metric-value" id="passOps">0/0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Prefix</div>
+            <div class="metric-value" id="prefixOps">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Output</div>
+            <div class="metric-value" id="outputWrites">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Digits</div>
+            <div class="metric-value" id="digitPasses">0</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="panel-section-title">Algorithm Flow</div>
+        <div class="step-box" id="stepBox"></div>
+      </section>
+
+      <section class="panel-section" style="flex:1; min-height: 180px;">
+        <div class="panel-section-title">Execution Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('tab-visualizer', this)">Animation</button>
+        <button class="tab-btn" onclick="showTab('tab-theory', this)">Theory</button>
+        <button class="tab-btn" onclick="showTab('tab-comparison', this)">Comparison</button>
+      </nav>
+
+      <section id="tab-visualizer" class="tab-panel visualizer-panel active">
+        <section class="control-row">
+          <label class="field">
+            <span>Input</span>
+            <input id="inputArray" type="text" value="170, 45, 75, 90, 802, 24, 2, 66"
+              aria-label="Enter comma separated numbers" />
+          </label>
+
+          <div class="button-row">
+            <button class="ghost" id="randomBtn">Randomize</button>
+            <button id="loadBtn">Load Array</button>
+            <button class="primary" id="playBtn">Start Sort</button>
+            <button id="stepBtn">Next Step</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </section>
+
+        <section class="viz-area">
+          <article class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Bar Animation</div>
+                <div class="card-subtitle" id="statusText">Ready to simulate Radix Sort.</div>
+              </div>
+              <div class="legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b;"></span> Current digit source</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#38bdf8;"></span> Active digit slot</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#f43f5e;"></span> Stable pass placement</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#22c55e;"></span> Final sorted array</span>
+              </div>
+            </div>
+            <div class="bars-wrap" id="barsWrap"></div>
+            <div class="buffer-grid">
+              <div class="buffer-panel">
+                <div class="buffer-head">
+                  <div class="buffer-title">Digit Count Array</div>
+                  <div class="buffer-subtitle" id="countStatus">Counts digits 0 through 9 for the active place value.</div>
+                </div>
+                <div class="buffer-wrap" id="countWrap"></div>
+              </div>
+              <div class="buffer-panel">
+                <div class="buffer-head">
+                  <div class="buffer-title">Output Array</div>
+                  <div class="buffer-subtitle" id="outputStatus">Output is rebuilt on every digit pass using stable placement.</div>
+                </div>
+                <div class="buffer-wrap" id="outputWrap"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="code-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Pseudo Code</div>
+                <div class="card-subtitle">Current line follows the active animation step.</div>
+              </div>
+            </div>
+            <div class="code-wrap" id="codeWrap"></div>
+          </article>
+        </section>
+
+        <section class="bottom-row">
+          <article class="footer-card">
+            <h3>Complexity</h3>
+            <div class="badge-row">
+              <span class="badge">Best: O(d(n + b))</span>
+              <span class="badge">Average: O(d(n + b))</span>
+              <span class="badge">Worst: O(d(n + b))</span>
+              <span class="badge">Space: O(n + b)</span>
+              <span class="badge">Stable: Yes</span>
+            </div>
+          </article>
+
+          <article class="footer-card">
+            <h3>Current Insight</h3>
+            <p class="status-line" id="insightText">
+              <strong>Radix Sort</strong> repeatedly applies a stable counting pass to each digit place, from least
+              significant to most significant, until the whole array is ordered.
+            </p>
+          </article>
+        </section>
+      </section>
+
+      <section id="tab-theory" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>How Radix Sort Works</h3>
+            <ul>
+              <li>Choose a digit place such as ones, tens, or hundreds.</li>
+              <li>Run a stable counting sort using only that digit from every number.</li>
+              <li>Copy the output back so the array is now sorted by all processed lower digits.</li>
+              <li>Move to the next larger digit place and repeat the same stable pass.</li>
+              <li>Stop after the largest number has no more remaining higher digits.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Pseudo Logic</h3>
+            <ul>
+              <li><code>maxValue = max(a)</code></li>
+              <li><code>for exp = 1; maxValue / exp &gt; 0; exp *= 10</code></li>
+              <li><code>  count = array(10, 0)</code></li>
+              <li><code>  count digits at place exp</code></li>
+              <li><code>  convert count into prefix sums</code></li>
+              <li><code>  place values into output from right to left</code></li>
+              <li><code>  copy output back to a</code></li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>When It Is Useful</h3>
+            <ul>
+              <li>Excellent for sorting many non-negative integers when the number of digits <code>d</code> is small.</li>
+              <li>Useful when comparison sorts are not ideal and digit-wise processing is cheap.</li>
+              <li>Works especially well for fixed-width integer keys such as IDs, zip codes, or padded numbers.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Key Tradeoffs</h3>
+            <ul>
+              <li>It needs a stable inner counting sort for every digit place, so implementation is more involved than a single-pass sort.</li>
+              <li>It is best suited for non-negative integers unless extra handling is added for negatives or strings.</li>
+              <li>If numbers have many digits, the repeated passes can reduce its practical advantage.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-comparison" class="tab-panel">
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>Radix Sort At a Glance</h3>
+            <ul>
+              <li>Radix Sort processes keys digit by digit and can run in about <code>O(d * (n + k))</code>.</li>
+              <li>It is not comparison-based and stays stable when the inner digit sort is stable.</li>
+              <li>Its usefulness depends on bounded digit width and appropriate key formats.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Counting Sort</h3>
+            <ul>
+              <li><strong>Counting Sort</strong> is simpler when the full key range is already small.</li>
+              <li><strong>Radix Sort</strong> extends that idea to larger values by sorting one digit position at a time.</li>
+              <li>If there are many digits, Radix Sort pays for multiple passes.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Compared With Merge and Quick</h3>
+            <ul>
+              <li>Radix Sort can outperform comparison sorts for fixed-width integers or strings.</li>
+              <li><strong>Merge Sort</strong> and <strong>Quick Sort</strong> are more general because they do not depend on digit structure.</li>
+              <li>Radix Sort wins only when the input format matches its assumptions well.</li>
+            </ul>
+          </article>
+
+          <article class="theory-card">
+            <h3>Best Fit</h3>
+            <ul>
+              <li>Choose Radix Sort for bounded-width integers, zip codes, IDs, or digit-based keys.</li>
+              <li>It is a strong option when stability matters and non-comparison sorting is possible.</li>
+              <li>If values are arbitrary, comparison-based sorts are usually easier to apply.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const defaultArray = [170, 45, 75, 90, 802, 24, 2, 66];
+    const maxBars = 14;
+    const minValue = 0;
+    const maxValue = 999;
+
+    const stepsTemplate = [
+      'Choose the current digit place.',
+      'Count how often each digit 0-9 appears.',
+      'Convert digit counts into prefix positions.',
+      'Place values into output from right to left.',
+      'Copy the pass result back to the main array.',
+      'Repeat for the next higher digit place.'
+    ];
+
+    const pseudoCode = [
+      'maxValue = max(a)',
+      'for exp = 1; maxValue / exp > 0; exp *= 10',
+      '  count = array(10, 0)',
+      '  count digits at place exp',
+      '  convert count into prefix sums',
+      '  place values into output from right to left',
+      '  copy output back to a'
+    ];
+
+    const ui = {
+      barsWrap: document.getElementById('barsWrap'),
+      countWrap: document.getElementById('countWrap'),
+      outputWrap: document.getElementById('outputWrap'),
+      countStatus: document.getElementById('countStatus'),
+      outputStatus: document.getElementById('outputStatus'),
+      inputArray: document.getElementById('inputArray'),
+      playBtn: document.getElementById('playBtn'),
+      stepBtn: document.getElementById('stepBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      randomBtn: document.getElementById('randomBtn'),
+      loadBtn: document.getElementById('loadBtn'),
+      speedRange: document.getElementById('speedRange'),
+      passOps: document.getElementById('passOps'),
+      countOps: document.getElementById('countOps'),
+      prefixOps: document.getElementById('prefixOps'),
+      outputWrites: document.getElementById('outputWrites'),
+      digitPasses: document.getElementById('digitPasses'),
+      stepBox: document.getElementById('stepBox'),
+      logBox: document.getElementById('logBox'),
+      codeWrap: document.getElementById('codeWrap'),
+      statusText: document.getElementById('statusText'),
+      insightText: document.getElementById('insightText')
+    };
+
+    let state = {
+      original: [...defaultArray],
+      arr: [...defaultArray],
+      actions: [],
+      actionIndex: 0,
+      running: false,
+      timer: null,
+      currentPass: 0,
+      totalPasses: 0,
+      currentExp: 1,
+      countOps: 0,
+      prefixOps: 0,
+      outputWrites: 0,
+      activeInputIndex: null,
+      activeCountIndex: null,
+      activeOutputIndex: null,
+      phase: null,
+      sortedIndices: [],
+      countArray: Array.from({ length: 10 }, () => 0),
+      outputArray: [],
+      currentLine: -1,
+      currentStep: 0,
+      lastInsight: 'Ready to sort.'
+    };
+
+    function init() {
+      renderSteps();
+      renderPseudoCode();
+      loadArray(defaultArray, 'Loaded default Radix Sort sample.');
+      bindEvents();
+    }
+
+    function bindEvents() {
+      ui.randomBtn.addEventListener('click', randomizeArray);
+      ui.loadBtn.addEventListener('click', () => {
+        const parsed = parseInput(ui.inputArray.value);
+        if (!parsed.length) {
+          pushLog('warn', 'Invalid input. Enter up to 14 comma separated integers between 0 and 999.');
+          return;
+        }
+        loadArray(parsed, 'Loaded custom input array.');
+      });
+      ui.playBtn.addEventListener('click', togglePlay);
+      ui.stepBtn.addEventListener('click', stepForward);
+      ui.resetBtn.addEventListener('click', () => loadArray(state.original, 'Reset to the currently loaded array.'));
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+
+      if (id === 'tab-visualizer') {
+        requestAnimationFrame(() => renderAll());
+      }
+    }
+
+    function parseInput(raw) {
+      const parts = raw.split(',').map(part => part.trim()).filter(Boolean);
+      if (!parts.length || parts.length > maxBars) {
+        return [];
+      }
+      const nums = parts.map(Number);
+      if (nums.some(num => Number.isNaN(num) || !Number.isFinite(num))) {
+        return [];
+      }
+      return nums.map(num => Math.max(minValue, Math.min(maxValue, Math.round(num))));
+    }
+
+    function randomizeArray() {
+      const size = 8 + Math.floor(Math.random() * 4);
+      const random = Array.from({ length: size }, () => Math.floor(Math.random() * (maxValue + 1)));
+      ui.inputArray.value = random.join(', ');
+      loadArray(random, 'Generated a fresh random array.');
+    }
+
+    function loadArray(arr, message) {
+      stopRun();
+      const totalPasses = getTotalPasses(arr);
+      state.original = [...arr];
+      state.arr = [...arr];
+      state.actions = buildActions(arr, totalPasses);
+      state.actionIndex = 0;
+      state.running = false;
+      state.currentPass = 0;
+      state.totalPasses = totalPasses;
+      state.currentExp = 1;
+      state.countOps = 0;
+      state.prefixOps = 0;
+      state.outputWrites = 0;
+      state.activeInputIndex = null;
+      state.activeCountIndex = null;
+      state.activeOutputIndex = null;
+      state.phase = null;
+      state.sortedIndices = [];
+      state.countArray = Array.from({ length: 10 }, () => 0);
+      state.outputArray = Array.from({ length: arr.length }, () => null);
+      state.currentLine = -1;
+      state.currentStep = 0;
+      state.lastInsight = 'Ready to sort.';
+      ui.inputArray.value = arr.join(', ');
+      ui.playBtn.textContent = 'Start Sort';
+      clearLogs();
+      pushLog('info', message);
+      pushLog('info', `Prepared ${state.actions.length} animation steps across ${totalPasses} digit pass(es).`);
+      updateStatus('Ready to simulate Radix Sort.');
+      updateInsight('processes one digit place at a time, using a stable counting pass for each exponent.');
+      updateCountStatus(`Digits 0 through 9 will be counted for the ${digitPlaceName(1)} first.`);
+      updateOutputStatus('Output resets on every pass before stable placement begins.');
+      renderAll();
+    }
+
+    function getTotalPasses(arr) {
+      if (arr.length === 0) return 0;
+      let maxNum = Math.max(...arr, 0);
+      if (maxNum === 0) return 1;
+      return Math.floor(Math.log10(maxNum)) + 1;
+    }
+
+    function getDigit(value, exp) {
+      return Math.floor(value / exp) % 10;
+    }
+
+    function digitPlaceName(exp) {
+      if (exp === 1) return 'ones place';
+      if (exp === 10) return 'tens place';
+      if (exp === 100) return 'hundreds place';
+      if (exp === 1000) return 'thousands place';
+      return `10^${Math.round(Math.log10(exp))} place`;
+    }
+
+    function buildActions(source, totalPasses) {
+      const actions = [];
+      const maxNum = Math.max(...source, 0);
+      const runOnceForZero = maxNum === 0;
+      let working = [...source];
+
+      actions.push({
+        type: 'init',
+        totalPasses,
+        exp: 1,
+        workingSnapshot: [...working],
+        countSnapshot: Array.from({ length: 10 }, () => 0),
+        outputSnapshot: Array.from({ length: source.length }, () => null),
+        line: 1,
+        step: 0
+      });
+
+      let exp = 1;
+      let passNumber = 0;
+
+      while (Math.floor(maxNum / exp) > 0 || (runOnceForZero && passNumber === 0)) {
+        passNumber += 1;
+        const count = Array.from({ length: 10 }, () => 0);
+        const output = Array.from({ length: source.length }, () => null);
+
+        actions.push({
+          type: 'startPass',
+          passNumber,
+          totalPasses,
+          exp,
+          workingSnapshot: [...working],
+          countSnapshot: [...count],
+          outputSnapshot: [...output],
+          line: 2,
+          step: 0
+        });
+
+        working.forEach((value, index) => {
+          const digit = getDigit(value, exp);
+          actions.push({
+            type: 'scanDigit',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value,
+            digit,
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 4,
+            step: 1
+          });
+
+          count[digit] += 1;
+          actions.push({
+            type: 'incrementCount',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value,
+            digit,
+            newCount: count[digit],
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 4,
+            step: 1
+          });
+        });
+
+        actions.push({
+          type: 'startPrefix',
+          passNumber,
+          totalPasses,
+          exp,
+          countSnapshot: [...count],
+          outputSnapshot: [...output],
+          line: 5,
+          step: 2
+        });
+
+        for (let i = 1; i < count.length; i++) {
+          const previousCount = count[i];
+          const previousTotal = count[i - 1];
+          count[i] += count[i - 1];
+          actions.push({
+            type: 'prefixUpdate',
+            passNumber,
+            totalPasses,
+            exp,
+            prefixIndex: i,
+            previousCount,
+            previousTotal,
+            newValue: count[i],
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 5,
+            step: 2
+          });
+        }
+
+        for (let index = working.length - 1; index >= 0; index--) {
+          const value = working[index];
+          const digit = getDigit(value, exp);
+          const outputIndex = count[digit] - 1;
+
+          actions.push({
+            type: 'readForPlacement',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value,
+            digit,
+            outputIndex,
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 6,
+            step: 3
+          });
+
+          output[outputIndex] = value;
+          actions.push({
+            type: 'writeOutput',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value,
+            digit,
+            outputIndex,
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 6,
+            step: 3
+          });
+
+          count[digit] -= 1;
+          actions.push({
+            type: 'decrementCount',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value,
+            digit,
+            outputIndex,
+            newCount: count[digit],
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 6,
+            step: 3
+          });
+        }
+
+        const finalPass = passNumber === totalPasses;
+        for (let index = 0; index < output.length; index++) {
+          working[index] = output[index];
+          actions.push({
+            type: 'copyBackProgress',
+            passNumber,
+            totalPasses,
+            exp,
+            index,
+            value: output[index],
+            snapshot: [...working],
+            countSnapshot: [...count],
+            outputSnapshot: [...output],
+            line: 7,
+            step: 4,
+            sorted: finalPass ? Array.from({ length: index + 1 }, (_, i) => i) : []
+          });
+        }
+
+        exp *= 10;
+      }
+
+      actions.push({
+        type: 'complete',
+        totalPasses,
+        exp: exp / 10,
+        finalArray: [...working],
+        countSnapshot: Array.from({ length: 10 }, () => 0),
+        outputSnapshot: [...working],
+        line: 7,
+        step: 5,
+        sorted: working.map((_, index) => index)
+      });
+
+      return actions;
+    }
+
+    function togglePlay() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+        pushLog('warn', 'Animation paused.');
+        return;
+      }
+
+      if (state.actionIndex >= state.actions.length) {
+        loadArray(state.original, 'Restarted the loaded array.');
+      }
+
+      state.running = true;
+      ui.playBtn.textContent = 'Pause';
+      pushLog('info', 'Auto-play started.');
+      runLoop();
+    }
+
+    function stopRun() {
+      state.running = false;
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function stepForward() {
+      if (state.running) {
+        stopRun();
+        ui.playBtn.textContent = 'Resume';
+      }
+      if (state.actionIndex >= state.actions.length) {
+        pushLog('success', 'All steps have already completed.');
+        return;
+      }
+      applyAction(state.actions[state.actionIndex++]);
+    }
+
+    function runLoop() {
+      if (!state.running) {
+        return;
+      }
+      if (state.actionIndex >= state.actions.length) {
+        stopRun();
+        ui.playBtn.textContent = 'Replay';
+        return;
+      }
+
+      applyAction(state.actions[state.actionIndex++]);
+      state.timer = setTimeout(runLoop, getSpeedDelay());
+    }
+
+    function getSpeedDelay() {
+      const value = Number(ui.speedRange.value);
+      return 1100 - value * 9;
+    }
+
+    function resetHighlights() {
+      state.activeInputIndex = null;
+      state.activeCountIndex = null;
+      state.activeOutputIndex = null;
+      state.inputMode = null;
+    }
+
+    function applyAction(action) {
+      resetHighlights();
+      state.currentLine = action.line ?? -1;
+      state.currentStep = action.step ?? 0;
+
+      if (action.sorted) {
+        state.sortedIndices = [...action.sorted];
+      }
+
+      switch (action.type) {
+        case 'init':
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          updateStatus(`Initialized count array for values 0 through ${action.maxValue}.`);
+          updateInsight('works best when the input values come from a small non-negative range.');
+          updateCountStatus(`Tracking values from 0 to ${action.maxValue}.`);
+          updateOutputStatus('Output array is empty and ready for stable placement.');
+          pushLog('info', `Initialized ${action.countSnapshot.length} count slots.`);
+          break;
+
+        case 'readForCount':
+          state.activeInputIndex = action.index;
+          state.activeCountIndex = action.countIndex;
+          state.inputMode = 'count';
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          updateStatus(`Read value ${action.value} from input index ${action.index}.`);
+          updateInsight('starts by counting how often each value appears.');
+          updateCountStatus(`About to increment count[${action.countIndex}].`);
+          pushLog('info', `Scanning input index ${action.index} with value ${action.value}.`);
+          break;
+
+        case 'incrementCount':
+          state.activeInputIndex = action.index;
+          state.activeCountIndex = action.countIndex;
+          state.inputMode = 'count';
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          state.countOps += 1;
+          updateStatus(`Incremented count[${action.countIndex}] to ${action.newCount}.`);
+          updateInsight('raw frequency counts tell us how many copies of each value must be placed later.');
+          updateCountStatus(`count[${action.countIndex}] is now ${action.newCount}.`);
+          pushLog('warn', `Counted value ${action.value}. count[${action.countIndex}] = ${action.newCount}.`);
+          break;
+
+        case 'startPrefix':
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          updateStatus('Convert the count array into prefix sums.');
+          updateInsight('prefix sums turn frequencies into ending positions in the sorted output.');
+          updateCountStatus('Each slot will now include the totals of all smaller values.');
+          pushLog('info', 'Starting prefix-sum conversion on the count array.');
+          break;
+
+        case 'prefixUpdate':
+          state.activeCountIndex = action.prefixIndex;
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          state.prefixOps += 1;
+          updateStatus(`Updated count[${action.prefixIndex}] to ${action.newValue}.`);
+          updateInsight('after prefix conversion, each count value marks the next ending position for that number.');
+          updateCountStatus(`count[${action.prefixIndex}] = ${action.previousCount} + ${action.previousTotal} = ${action.newValue}.`);
+          pushLog('info', `Prefix update at index ${action.prefixIndex}: ${action.newValue}.`);
+          break;
+
+        case 'readForPlacement':
+          state.activeInputIndex = action.index;
+          state.activeCountIndex = action.countIndex;
+          state.activeOutputIndex = action.outputIndex;
+          state.inputMode = 'place';
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          updateStatus(`Place value ${action.value} from input index ${action.index} into output[${action.outputIndex}].`);
+          updateInsight('walking the input from right to left keeps counting sort stable for equal values.');
+          updateCountStatus(`count[${action.countIndex}] currently points at output slot ${action.outputIndex}.`);
+          updateOutputStatus(`Next stable slot for ${action.value} is output[${action.outputIndex}].`);
+          pushLog('info', `Preparing to place ${action.value} from input index ${action.index}.`);
+          break;
+
+        case 'writeOutput':
+          state.activeInputIndex = action.index;
+          state.activeCountIndex = action.countIndex;
+          state.activeOutputIndex = action.outputIndex;
+          state.inputMode = 'place';
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          state.outputWrites += 1;
+          updateStatus(`Wrote ${action.value} to output[${action.outputIndex}].`);
+          updateInsight('the prefix total gives the last free output position for the current value.');
+          updateOutputStatus(`Placed ${action.value} into output[${action.outputIndex}].`);
+          pushLog('warn', `Output[${action.outputIndex}] = ${action.value}.`);
+          break;
+
+        case 'decrementCount':
+          state.activeInputIndex = action.index;
+          state.activeCountIndex = action.countIndex;
+          state.activeOutputIndex = action.outputIndex;
+          state.inputMode = 'place';
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          updateStatus(`Decremented count[${action.countIndex}] to ${action.newCount}.`);
+          updateInsight('after placing one copy, the next equal value must move one slot to the left.');
+          updateCountStatus(`count[${action.countIndex}] now points to the next open position.`);
+          pushLog('success', `Decremented count[${action.countIndex}] to ${action.newCount}.`);
+          break;
+
+        case 'copyBack':
+          state.arr = [...action.finalArray];
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          state.copyWrites += action.copyAmount;
+          state.sortedIndices = [...action.sorted];
+          updateStatus('Copy the output array back to the main array.');
+          updateInsight('the output array now contains the sorted sequence and becomes the final result.');
+          updateCountStatus('All placements are complete.');
+          updateOutputStatus(`Final output: [${action.outputSnapshot.join(', ')}].`);
+          pushLog('success', `Copied ${action.copyAmount} values back from output.`);
+          break;
+
+        case 'complete':
+          state.arr = [...action.finalArray];
+          state.countArray = [...action.countSnapshot];
+          state.outputArray = [...action.outputSnapshot];
+          state.sortedIndices = [...action.sorted];
+          resetHighlights();
+          updateStatus('Sorting complete.');
+          updateInsight(`finished. Final sorted array: [${state.arr.join(', ')}].`);
+          updateCountStatus('Counting Sort has finished using the count array.');
+          updateOutputStatus(`Sorted output: [${state.outputArray.join(', ')}].`);
+          pushLog('success', `Sorting complete: [${state.arr.join(', ')}].`);
+          stopRun();
+          ui.playBtn.textContent = 'Replay';
+          break;
+      }
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderBars();
+      renderCountArray();
+      renderOutputArray();
+      renderMetrics();
+      renderSteps();
+      renderPseudoCode();
+    }
+
+    function renderBars() {
+      ui.barsWrap.innerHTML = '';
+      const max = Math.max(...state.arr, 1);
+
+      state.arr.forEach((value, index) => {
+        const col = document.createElement('div');
+        col.className = 'bar-col';
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = value;
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${Math.max(28, (value / max) * 170)}px`;
+
+        if (state.sortedIndices.includes(index)) {
+          bar.classList.add('sorted');
+        } else if (state.activeInputIndex === index && state.inputMode === 'place') {
+          bar.classList.add('place-source');
+        } else if (state.activeInputIndex === index) {
+          bar.classList.add('count-source');
+        }
+
+        const badge = document.createElement('div');
+        badge.className = 'index-badge';
+        badge.textContent = `i:${index}`;
+
+        col.appendChild(label);
+        col.appendChild(bar);
+        col.appendChild(badge);
+        ui.barsWrap.appendChild(col);
+      });
+    }
+
+    function renderCountArray() {
+      ui.countWrap.innerHTML = '';
+
+      if (!state.countArray.length) {
+        const empty = document.createElement('div');
+        empty.className = 'buffer-empty';
+        empty.textContent = 'Load an array to create count slots.';
+        ui.countWrap.appendChild(empty);
+        return;
+      }
+
+      state.countArray.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.className = `buffer-cell ${value !== 0 ? 'filled' : ''} ${state.activeCountIndex === index ? 'active' : ''}`.trim();
+
+        const slot = document.createElement('div');
+        slot.className = 'buffer-index';
+        slot.textContent = `v:${index}`;
+
+        const val = document.createElement('div');
+        val.className = 'buffer-value';
+        val.textContent = value;
+
+        cell.appendChild(slot);
+        cell.appendChild(val);
+        ui.countWrap.appendChild(cell);
+      });
+    }
+
+    function renderOutputArray() {
+      ui.outputWrap.innerHTML = '';
+
+      if (!state.outputArray.length) {
+        const empty = document.createElement('div');
+        empty.className = 'buffer-empty';
+        empty.textContent = 'Output array will appear here.';
+        ui.outputWrap.appendChild(empty);
+        return;
+      }
+
+      state.outputArray.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.className = `buffer-cell ${value !== null ? 'filled' : ''} ${state.activeOutputIndex === index ? 'active' : ''}`.trim();
+
+        const slot = document.createElement('div');
+        slot.className = 'buffer-index';
+        slot.textContent = `o:${index}`;
+
+        const val = document.createElement('div');
+        val.className = 'buffer-value';
+        val.textContent = value === null ? '...' : value;
+
+        cell.appendChild(slot);
+        cell.appendChild(val);
+        ui.outputWrap.appendChild(cell);
+      });
+    }
+
+    function renderMetrics() {
+      if (ui.passOps) ui.passOps.textContent = `${state.currentPass}/${state.totalPasses}`;
+      if (ui.countOps) ui.countOps.textContent = state.countOps;
+      if (ui.prefixOps) ui.prefixOps.textContent = state.prefixOps;
+      if (ui.outputWrites) ui.outputWrites.textContent = state.outputWrites;
+      if (ui.copyWrites) ui.copyWrites.textContent = state.copyWrites;
+      if (ui.digitPasses) ui.digitPasses.textContent = state.currentPass;
+    }
+
+    function renderSteps() {
+      ui.stepBox.innerHTML = '';
+      stepsTemplate.forEach((text, index) => {
+        const item = document.createElement('div');
+        let cls = 'pending';
+        if (index < state.currentStep) cls = 'done';
+        if (index === state.currentStep) cls = 'active';
+        item.className = `step-item ${cls}`;
+        item.innerHTML = `
+          <div class="step-num">0${index + 1}</div>
+          <div class="step-text">${text}</div>
+        `;
+        ui.stepBox.appendChild(item);
+      });
+    }
+
+    function renderPseudoCode() {
+      ui.codeWrap.innerHTML = '';
+      pseudoCode.forEach((text, index) => {
+        const line = document.createElement('div');
+        line.className = `code-line ${state.currentLine === index + 1 ? 'active' : ''}`;
+        line.innerHTML = `
+          <div class="line-no">${index + 1}</div>
+          <div>${text}</div>
+        `;
+        ui.codeWrap.appendChild(line);
+      });
+
+      const explain = document.createElement('div');
+      explain.className = 'explain-box';
+      explain.innerHTML = `
+        <h3>Why It Matters</h3>
+        <p>${state.lastInsight}</p>
+      `;
+      ui.codeWrap.appendChild(explain);
+    }
+
+    function updateStatus(text) {
+      ui.statusText.textContent = text;
+    }
+
+    function updateInsight(text) {
+      state.lastInsight = text;
+      ui.insightText.innerHTML = `<strong>Counting Sort</strong> ${text}`;
+    }
+
+    function updateCountStatus(text) {
+      ui.countStatus.textContent = text;
+    }
+
+    function updateOutputStatus(text) {
+      ui.outputStatus.textContent = text;
+    }
+
+    function clearLogs() {
+      ui.logBox.innerHTML = '';
+    }
+
+    function pushLog(type, message) {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const ts = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      entry.innerHTML = `<span class="ts">${ts}</span>${message}`;
+      ui.logBox.prepend(entry);
+    }
+
+    init();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

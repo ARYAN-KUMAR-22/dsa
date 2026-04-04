@@ -1,0 +1,1819 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knapsack Problem - Fractional</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #3b82f6;
+      --accent-2: #60a5fa;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #1d4ed8;
+      --accent-2: #1d4ed8;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .item-card {
+      background: var(--card);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #0f172e, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.84); }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(96, 165, 250, 0.06), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none !important;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    .tab-panel.active {
+      display: flex !important;
+      flex-direction: column;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .content-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .content-card h3 {
+      color: var(--accent-2);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .content-card p, .content-card li {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .content-card ul, .content-card ol {
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .concept-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .concept-box h4 {
+      color: var(--accent-2);
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+
+    .concept-box p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    code {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    .example-highlight {
+      background: rgba(59, 130, 246, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .example-highlight strong {
+      color: var(--accent-2);
+    }
+
+    .algorithm-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: #86efac;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.82rem;
+    }
+
+    table th {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-2);
+      padding: 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .comparison-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .comparison-box h4 {
+      color: var(--accent-2);
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .comparison-box ul {
+      font-size: 0.78rem;
+      padding-left: 15px;
+    }
+
+    @media (max-width: 900px) {
+      .left-panel { width: 240px; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .app-body { flex-direction: column; }
+      .left-panel { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+
+    /* Animation Styles */
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .control-btn {
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-2);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+      background: rgba(59, 130, 246, 0.3);
+      border-color: var(--accent);
+    }
+
+    .control-btn.active {
+      background: var(--accent);
+      color: #0d1117;
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .speed-control input {
+      width: 100px;
+      accent-color: var(--accent);
+    }
+
+    input[type="number"] {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      border-radius: 6px !important;
+      padding: 8px 10px !important;
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.9rem !important;
+      transition: all 0.2s ease !important;
+    }
+
+    input[type="number"]:focus {
+      outline: none !important;
+      border-color: var(--accent) !important;
+      background: var(--card) !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    input[type="number"]::placeholder {
+      color: var(--muted) !important;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .animation-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .knapsack-viz {
+      background: var(--card);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    .knapsack-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+    }
+
+    .knapsack-bar {
+      width: 100%;
+      height: 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .knapsack-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0d1117;
+    }
+
+    .knapsack-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--accent-2);
+    }
+
+    .items-grid {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    .items-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-2);
+      margin-bottom: 12px;
+    }
+
+    .items-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .item-card.selected {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: var(--good);
+    }
+
+    .item-card.partial {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--accent);
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .item-stats {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .item-badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.3);
+      color: #86efac;
+      margin-left: 8px;
+    }
+
+    .item-badge.partial {
+      background: rgba(59, 130, 246, 0.3);
+      color: var(--accent-2);
+    }
+
+    .log-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      min-height: 200px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.71rem;
+      color: var(--accent-2);
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-entry.highlight {
+      background: rgba(59, 130, 246, 0.1);
+      padding: 4px 6px;
+      border-radius: 4px;
+      color: #fbbf24;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .item-card.animating {
+      animation: slideIn 0.3s ease;
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <h1><span>Knapsack Problem</span> - Fractional</h1>
+    <p>Solving the fractional knapsack problem with greedy algorithm</p>
+  </header>
+
+  <div class="app-body">
+    <div class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Problem Overview
+      </div>
+      
+      <div class="panel-section">
+        <div class="panel-section-title">Problem Characteristics</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Type</div>
+            <div class="metric-value">Optimization</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Items</div>
+            <div class="metric-value">Divisible</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Strategy</div>
+            <div class="metric-value">Greedy</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Optimal?</div>
+            <div class="metric-value">Yes ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Complexity Analysis</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Time</div>
+            <div class="metric-value">O(n log n)</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Space</div>
+            <div class="metric-value">O(n)</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Sorting</div>
+            <div class="metric-value">Required</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Selection</div>
+            <div class="metric-value">Greedy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Key Properties</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Greedy Choice</div>
+            <div class="metric-value">Yes ✓</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Optimal Substructure</div>
+            <div class="metric-value">Yes ✓</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Divisible Items</div>
+            <div class="metric-value">Yes ✓</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">NP-Complete</div>
+            <div class="metric-value">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('theory', this)">📚 Theory</button>
+        <button class="tab-btn" onclick="switchTab('algorithm', this)">[CONFIG] Algorithm</button>
+        <button class="tab-btn" onclick="switchTab('animation', this)">🎬 Animation</button>
+        <button class="tab-btn" onclick="switchTab('examples', this)">💡 Examples</button>
+        <button class="tab-btn" onclick="switchTab('reference', this)">📖 Reference</button>
+      </div>
+
+      <!-- Theory Tab -->
+      <div id="theory" class="tab-panel active">
+        <div class="content-card">
+          <h3>Problem Statement</h3>
+          <p>
+            You have a knapsack with a maximum weight capacity of <code>W</code>. There are <code>n</code> items, each with:
+          </p>
+          <ul>
+            <li><strong>Weight (w<sub>i</sub>):</strong> How much the item weighs</li>
+            <li><strong>Value (v<sub>i</sub>):</strong> How much the item is worth</li>
+          </ul>
+          <p style="margin-top: 10px;">
+            <strong>Goal:</strong> Select items (you can take fractions of items) to maximize total value without exceeding weight capacity <code>W</code>.
+          </p>
+          <div class="example-highlight">
+            <strong>Real-World Example:</strong> A shopkeeper at a market can fill a bag with items. Some items can be divided (rice, flour), so you can take partial amounts. What combination maximizes value?
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Why Fractional vs 0/1 Knapsack?</h3>
+          <div class="comparison-grid">
+            <div class="comparison-box">
+              <h4>0/1 Knapsack</h4>
+              <ul>
+                <li>Either take entire item OR leave it</li>
+                <li>Cannot divide items</li>
+                <li>Greedy FAILS ❌</li>
+                <li>Use Dynamic Programming</li>
+                <li>NP-Complete</li>
+              </ul>
+            </div>
+            <div class="comparison-box">
+              <h4>Fractional Knapsack</h4>
+              <ul>
+                <li>Can take ANY fraction of item</li>
+                <li>Items are divisible</li>
+                <li>Greedy WORKS ✓</li>
+                <li>Use Greedy Algorithm</li>
+                <li>Polynomial time</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Why Greedy Works for Fractional Knapsack</h3>
+          <p>
+            Fractional knapsack has the <strong>greedy choice property</strong>:
+          </p>
+          <ul>
+            <li>At each step, the greedy choice (pick highest value-to-weight ratio) is optimal</li>
+            <li>If you can take fractions, you can always fill the knapsack completely</li>
+            <li>No waste occurs - you get items with the best value efficiency first</li>
+            <li>Unlike 0/1 knapsack, there's no situation where taking lower-ratio items helps</li>
+          </ul>
+          <div class="example-highlight">
+            <strong>Key Insight:</strong> Since you can take partial items, completely filling the knapsack is always possible. The greedy choice of taking the highest ratio item (and fractional amounts if needed) guarantees the maximum value.
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Greedy Strategy</h3>
+          <ol>
+            <li><strong>Calculate Ratio:</strong> For each item, compute value-to-weight ratio = <code>v<sub>i</sub> / w<sub>i</sub></code></li>
+            <li><strong>Sort by Ratio:</strong> Arrange items in descending order of ratios</li>
+            <li><strong>Greedy Selection:</strong> Starting from highest ratio:
+              <ul>
+                <li>If entire item fits, take it completely</li>
+                <li>If partial item fits, take only what fits</li>
+                <li>Continue until knapsack is full or items exhausted</li>
+              </ul>
+            </li>
+            <li><strong>Result:</strong> Maximum value with divisible items</li>
+          </ol>
+        </div>
+
+        <div class="content-card">
+          <h3>Mathematical Formulation</h3>
+          <p><strong>Maximize:</strong></p>
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
+            ∑(x<sub>i</sub> × v<sub>i</sub>) for i = 1 to n
+          </div>
+          <p><strong>Subject to:</strong></p>
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; margin: 8px 0; font-family: 'Fira Code', monospace; color: #86efac; font-size: 0.87rem;">
+            ∑(x<sub>i</sub> × w<sub>i</sub>) ≤ W<br/>
+            0 ≤ x<sub>i</sub> ≤ 1 for all i
+          </div>
+          <p style="margin-top: 10px; font-size: 0.85rem; color: var(--muted);">
+            Where <code>x<sub>i</sub></code> is the fraction of item <code>i</code> to take (0 = nothing, 1 = entire item)
+          </p>
+        </div>
+      </div>
+
+      <!-- Algorithm Tab -->
+      <div id="algorithm" class="tab-panel">
+        <div class="content-card">
+          <h3>Pseudocode</h3>
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📋 Algorithm Step-by-Step:</p>
+          
+          <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #86efac; line-height: 1.8;">
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                <div style="color: #60a5fa;">ALGORITHM FractionalKnapsack</div>
+              </div>
+
+              <div style="margin-bottom: 8px;"><strong style="color: #fbbf24;">INPUT:</strong> items array, knapsack capacity</div>
+              <div style="margin-bottom: 12px;"><strong style="color: #fbbf24;">OUTPUT:</strong> maximum total value</div>
+
+              <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 1:</span> <span style="color: #86efac;">totalValue ← 0</span></div>
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 2:</span> <span style="color: #86efac;">totalWeight ← 0</span></div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Initialize result variables to zero</div>
+              </div>
+
+              <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 3-4:</span> <span style="color: #86efac;">FOR each item i in items[]:</span></div>
+                <div style="margin-left: 20px; margin-bottom: 6px;"><span style="color: #86efac;">ratio[i] ← value[i] / weight[i]</span></div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Calculate efficiency (value per kg) for each item</div>
+              </div>
+
+              <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 5:</span> <span style="color: #86efac;">Sort items by ratio in DESCENDING order</span></div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Highest value-to-weight ratio comes first</div>
+              </div>
+
+              <div style="margin-bottom: 12px; padding: 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;">
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 6:</span> <span style="color: #fca5a5;">FOR each item i in sorted order:</span></div>
+                <div style="margin-bottom: 12px;">
+                  <div style="margin-left: 20px; margin-bottom: 6px;">
+                    <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 7:</span> <span style="color: #fca5a5;">IF totalWeight + weight[i] ≤ capacity:</span></div>
+                    <div style="margin-left: 20px;">
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">// Item fits completely</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalWeight ← totalWeight + weight[i]</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalValue ← totalValue + value[i]</span></div>
+                      <div style="color: var(--muted); font-size: 0.75rem;">Add entire item to knapsack</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-left: 20px; margin-top: 8px;">
+                    <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 8:</span> <span style="color: #fca5a5;">ELSE:</span></div>
+                    <div style="margin-left: 20px;">
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">// Item doesn't fit completely</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">remaining ← capacity - totalWeight</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">fraction ← remaining / weight[i]</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalValue ← totalValue + (fraction × value[i])</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">totalWeight ← capacity</span></div>
+                      <div style="margin-bottom: 6px;"><span style="color: #86efac;">BREAK</span></div>
+                      <div style="color: var(--muted); font-size: 0.75rem;">Take partial item and stop (knapsack is full)</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Keep selecting items in order until knapsack is full</div>
+              </div>
+
+              <div style="margin-bottom: 8px; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                <div style="margin-bottom: 6px;"><span style="color: #fbbf24;">Line 9:</span> <span style="color: #86efac;">RETURN totalValue</span></div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Return the maximum value achieved</div>
+              </div>
+            </div>
+          </div>
+
+          <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);"><strong style="color: var(--accent-2);">Key Points:</strong></p>
+          <ul style="font-size: 0.82rem; margin-top: 8px;">
+            <li><span style="color: #fbbf24;"><strong>Lines 1-2:</strong></span> Initialize counters</li>
+            <li><span style="color: #fbbf24;"><strong>Lines 3-4:</strong></span> Calculate value/weight ratio for efficiency</li>
+            <li><span style="color: #fbbf24;"><strong>Line 5:</strong></span> Sort by efficiency (best value first)</li>
+            <li><span style="color: #fbbf24;"><strong>Lines 6-8:</strong></span> Main loop: greedily select items</li>
+            <li><span style="color: #fbbf24;"><strong>Line 9:</strong></span> Return result</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Step-by-Step Process</h3>
+          <ol>
+            <li><strong>Input:</strong> Array of items with weights and values, capacity W</li>
+            <li><strong>Calculate Ratios:</strong> Efficiency = value ÷ weight for each item</li>
+            <li><strong>Sort Items:</strong> By ratio in descending order (best value first)</li>
+            <li><strong>Iterate Through Items:</strong>
+              <ul>
+                <li>Check if item fits completely</li>
+                <li>If yes → Add entire item to knapsack</li>
+                <li>If no → Add only the fraction that fits</li>
+                <li>Stop when knapsack is full</li>
+              </ul>
+            </li>
+            <li><strong>Output:</strong> Maximum value achieved</li>
+          </ol>
+        </div>
+
+        <div class="content-card">
+          <h3>Implementation Considerations</h3>
+          <ul>
+            <li><strong>Sorting:</strong> Must sort items by value-to-weight ratio (descending)</li>
+            <li><strong>Floating Point:</strong> Fractions may be decimal values (e.g., 2.5 kg out of 10 kg)</li>
+            <li><strong>Precision:</strong> Be careful with floating-point arithmetic edge cases</li>
+            <li><strong>Edge Cases:</strong>
+              <ul>
+                <li>Empty items list</li>
+                <li>Capacity = 0</li>
+                <li>All items heavier than capacity</li>
+                <li>Items with zero value or weight</li>
+              </ul>
+            </li>
+            <li><strong>Comparison with 0/1:</strong> Fractional's O(n log n) is much better than 0/1's exponential worst case</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Animation Tab -->
+      <div id="animation" class="tab-panel">
+        <div class="control-row">
+          <button class="control-btn" onclick="resetAnimation()">⟲ Reset</button>
+          <button class="control-btn active" id="playPauseBtn" onclick="togglePlayPause()" style="margin-left: 0;">▶ Play</button>
+          <button class="control-btn" onclick="stepAnimation()">⊳ Step</button>
+          <button class="control-btn" onclick="fastForward()">⏩ Skip</button>
+          <div class="speed-control">
+            <label>Speed:</label>
+            <input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="1" onchange="setSpeed(this.value)">
+          </div>
+        </div>
+
+        <div class="animation-container">
+          <!-- Input Data Section -->
+          <div class="items-grid">
+            <div class="items-title">📥 Input Data</div>
+            <!-- Capacity Control -->
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+              <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; font-weight: 600;">[CONFIG] KNAPSACK CAPACITY</div>
+              <div style="display: flex; gap: 8px;">
+                <input type="number" id="capacityInput" value="50" min="1" max="1000" style="flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <button onclick="updateCapacity()" style="background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s;">Update</button>
+              </div>
+            </div>
+
+            <!-- Add New Item Section -->
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid var(--good); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+              <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; font-weight: 600;">➕ ADD NEW ITEM</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;">
+                <input type="number" id="newItemValue" placeholder="Value" min="1" max="10000" style="background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <input type="number" id="newItemWeight" placeholder="Weight" min="1" max="1000" style="background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+                <button onclick="addNewItem()" style="background: var(--good); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s;">Add</button>
+              </div>
+            </div>
+
+            <!-- Current Stats -->
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px;">
+              <div style="background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+                <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 4px;">KNAPSACK CAPACITY</div>
+                <div style="font-family: 'Fira Code', monospace; font-size: 1rem; color: var(--accent-2);" id="capacityDisplay">50 kg</div>
+              </div>
+              <div style="background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+                <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 4px;">NUMBER OF ITEMS</div>
+                <div style="font-family: 'Fira Code', monospace; font-size: 1rem; color: var(--accent-2);" id="itemCountDisplay">3 items</div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Value</th>
+                  <th>Weight</th>
+                  <th>Ratio</th>
+                  <th style="width: 40px; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="inputTable">
+                <!-- Items will be populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Processing Section -->
+          <div class="items-grid">
+            <div class="items-title">[CONFIG] Processing Steps</div>
+            <div id="processingBox" style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 100px;">
+              <div style="color: var(--muted); font-size: 0.82rem; text-align: center; padding: 20px;">
+                Click <strong>▶ Play</strong> or <strong>⊳ Step</strong> to start animation
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Items Section -->
+          <div class="items-grid">
+            <div class="items-title">✓ Items in Knapsack</div>
+            <div class="items-list" id="itemsList"></div>
+          </div>
+
+          <!-- Statistics Panel -->
+          <div class="knapsack-viz">
+            <div class="knapsack-label">📊 Current Statistics</div>
+            <div class="knapsack-bar">
+              <div class="knapsack-fill" id="knapsackFill" style="width: 0%;">
+                <span id="fillPercent">0%</span>
+              </div>
+            </div>
+            <div class="knapsack-stats">
+              <div class="stat-box">
+                <div class="stat-label">Used Weight</div>
+                <div class="stat-value"><span id="usedWeight">0</span> / 50 kg</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Total Value</div>
+                <div class="stat-value"><span id="totalValue">0</span></div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Items Selected</div>
+                <div class="stat-value"><span id="itemsSelected">0</span></div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Step</div>
+                <div class="stat-value"><span id="stepCounter">0</span>/4</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Log/Trace Panel -->
+          <div class="log-panel">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📝 Algorithm Trace</div>
+            <div id="logPanel"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Examples Tab -->
+      <div id="examples" class="tab-panel">
+        <div class="content-card">
+          <h3>Complete Example Walkthrough</h3>
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">📦 Problem Setup:</p>
+          <div style="background: var(--card); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+            <div style="color: var(--muted); margin-bottom: 8px;">
+              <strong style="color: var(--accent);">Knapsack Capacity:</strong> 50 kg
+            </div>
+            <div style="color: var(--muted); margin-bottom: 4px;">
+              <strong style="color: var(--accent);">Item 1:</strong> Value = 60, Weight = 10 kg, Ratio = 6.0
+            </div>
+            <div style="color: var(--muted); margin-bottom: 4px;">
+              <strong style="color: var(--accent);">Item 2:</strong> Value = 100, Weight = 20 kg, Ratio = 5.0
+            </div>
+            <div style="color: var(--muted);">
+              <strong style="color: var(--accent);">Item 3:</strong> Value = 120, Weight = 30 kg, Ratio = 4.0
+            </div>
+          </div>
+
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1: Calculate Ratios</p>
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;">
+            <div style="color: var(--muted); margin-bottom: 4px;">Item 1: 60 ÷ 10 = <strong style="color: #86efac;">6.0</strong> [TOP] Best</div>
+            <div style="color: var(--muted); margin-bottom: 4px;">Item 2: 100 ÷ 20 = <strong style="color: #86efac;">5.0</strong></div>
+            <div style="color: var(--muted);">Item 3: 120 ÷ 30 = <strong style="color: #86efac;">4.0</strong></div>
+          </div>
+
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 2: Sort by Ratio (Descending)</p>
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;">
+            <div style="color: #86efac;">1. Item 1 (Ratio 6.0)</div>
+            <div style="color: #86efac;">2. Item 2 (Ratio 5.0)</div>
+            <div style="color: #86efac;">3. Item 3 (Ratio 4.0)</div>
+          </div>
+
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 3: Greedy Selection</p>
+          
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 1 (Entire)</strong></div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 10 kg ≤ 50 kg ✓ Take all</div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += 60 | Used: 10 kg | Remaining: 40 kg</div>
+          </div>
+
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 2 (Entire)</strong></div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 20 kg ≤ 40 kg ✓ Take all</div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += 100 (Total: 160) | Used: 30 kg | Remaining: 20 kg</div>
+          </div>
+
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+            <div style="font-size: 0.82rem; margin-bottom: 6px; color: #86efac;"><strong>Take Item 3 (Partial)</strong></div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Weight: 30 kg > 20 kg ✗ Can't take all</div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Fraction: 20 ÷ 30 = 2/3 of Item 3</div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Value += (2/3) × 120 = 80 (Total: 240)</div>
+            <div style="font-size: 0.78rem; color: var(--muted); margin-left: 12px;">Used: 50 kg | Remaining: 0 kg (FULL!)</div>
+          </div>
+
+          <div style="background: rgba(59, 130, 246, 0.15); border-left: 3px solid var(--accent); padding: 12px; border-radius: 8px; margin-top: 12px;">
+            <div style="font-size: 0.82rem; color: var(--muted);"><strong style="color: var(--accent-2);">Final Result:</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;">
+              ✓ 10 kg Item 1 (Value: 60)
+            </div>
+            <div style="font-size: 0.82rem; color: var(--muted);">
+              ✓ 20 kg Item 2 (Value: 100)
+            </div>
+            <div style="font-size: 0.82rem; color: var(--muted);">
+              ✓ 20 kg of Item 3 (Value: 80)
+            </div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-top: 6px;">
+              <strong style="color: #86efac;">Maximum Value: 60 + 100 + 80 = 240</strong>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--muted);">
+              <strong style="color: #86efac;">Total Weight: 10 + 20 + 20 = 50 kg (Perfect!)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Example 2: Different Item Set</h3>
+          <p style="margin-bottom: 10px; font-size: 0.82rem;"><strong>Capacity: 100 kg</strong></p>
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Value</th>
+                <th>Weight</th>
+                <th>Ratio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gold Bar</td>
+                <td>500</td>
+                <td>50 kg</td>
+                <td><strong>10.0</strong> [TOP]</td>
+              </tr>
+              <tr>
+                <td>Silver Bar</td>
+                <td>300</td>
+                <td>40 kg</td>
+                <td><strong>7.5</strong></td>
+              </tr>
+              <tr>
+                <td>Bronze Bar</td>
+                <td>150</td>
+                <td>60 kg</td>
+                <td><strong>2.5</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 0.82rem;">
+            <strong style="color: #86efac;">Selection:</strong>
+            <div style="color: var(--muted); margin-top: 6px;">1. Take Gold Bar (50 kg) → Value: 500, Remaining: 50 kg</div>
+            <div style="color: var(--muted);">2. Take Silver Bar (40 kg) → Value: 500 + 300 = 800, Remaining: 10 kg</div>
+            <div style="color: var(--muted);">3. Take 10/60 of Bronze Bar → Value: 800 + (10/60)×150 = 825</div>
+            <div style="color: #86efac; margin-top: 8px;"><strong>Maximum Value: 825 ✓</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Tab -->
+      <div id="reference" class="tab-panel">
+        <div class="content-card">
+          <h3>When to Use Fractional Knapsack</h3>
+          <ul>
+            <li>Items can be <strong>divided or fractioned</strong> (liquids, powders, grains)</li>
+            <li>Need <strong>optimal solution quickly</strong></li>
+            <li>Time complexity of O(n log n) is acceptable</li>
+            <li>Real-world scenarios with continuous items</li>
+            <li>Compare: 0/1 Knapsack requires DP and is NP-Complete</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Real-World Applications</h3>
+          <ul>
+            <li><strong>Liquid Tank Filling:</strong> Fill containers with different liquids to maximize value</li>
+            <li><strong>Resource Allocation:</strong> Distribute budget across projects with different ROI</li>
+            <li><strong>Cargo Loading:</strong> Load truck with materials that can be partially taken</li>
+            <li><strong>Portfolio Optimization:</strong> Allocate money across stocks/bonds with returns</li>
+            <li><strong>Food Production:</strong> Mix ingredients with different costs/nutritional values</li>
+            <li><strong>Manufacturing:</strong> Allocate materials to maximize production value</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Complexity Analysis</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>Complexity</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Time</strong></td>
+                <td>O(n log n)</td>
+                <td>Due to sorting (selection is O(n))</td>
+              </tr>
+              <tr>
+                <td><strong>Space</strong></td>
+                <td>O(n)</td>
+                <td>For storing items array</td>
+              </tr>
+              <tr>
+                <td><strong>Selection Phase</strong></td>
+                <td>O(n)</td>
+                <td>Single pass through sorted items</td>
+              </tr>
+              <tr>
+                <td><strong>Optimal?</strong></td>
+                <td>Yes</td>
+                <td>Greedy algorithm guarantees optimality</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="content-card">
+          <h3>Fractional vs 0/1 Knapsack</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Fractional</th>
+                <th>0/1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Items</strong></td>
+                <td>Divisible</td>
+                <td>Indivisible</td>
+              </tr>
+              <tr>
+                <td><strong>Algorithm</strong></td>
+                <td>Greedy</td>
+                <td>Dynamic Programming</td>
+              </tr>
+              <tr>
+                <td><strong>Optimality</strong></td>
+                <td>Always Optimal ✓</td>
+                <td>Always Optimal ✓</td>
+              </tr>
+              <tr>
+                <td><strong>Time</strong></td>
+                <td>O(n log n)</td>
+                <td>O(n × W)</td>
+              </tr>
+              <tr>
+                <td><strong>Complexity Class</strong></td>
+                <td>Polynomial</td>
+                <td>NP-Complete</td>
+              </tr>
+              <tr>
+                <td><strong>Difficulty</strong></td>
+                <td>Easy</td>
+                <td>Hard</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="content-card">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Fractional knapsack is solvable in <strong>polynomial time O(n log n)</strong></li>
+            <li>Greedy algorithm works <strong>optimally</strong> because items are divisible</li>
+            <li>Strategy: Sort by value/weight ratio, then greedily take items in order</li>
+            <li>Always ends with a full knapsack (can take partial last item)</li>
+            <li>Much easier than 0/1 knapsack (which is NP-Complete)</li>
+            <li>Practical applications abound in resource allocation problems</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Quick Decision Tree</h3>
+          <ol>
+            <li><strong>Can items be divided?</strong>
+              <ul>
+                <li>Yes → Use Fractional Knapsack (Greedy) ✓</li>
+                <li>No → Use 0/1 Knapsack (DP)</li>
+              </ul>
+            </li>
+            <li><strong>Need guarantee of optimality?</strong> → Yes, both methods work</li>
+            <li><strong>Need fast execution?</strong> → Fractional is O(n log n) vs 0/1's O(n×W)</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animation State
+    const animationData = {
+      capacity: 50,
+      items: [
+        { name: 'Item 1', value: 60, weight: 10, ratio: 6.0 },
+        { name: 'Item 2', value: 100, weight: 20, ratio: 5.0 },
+        { name: 'Item 3', value: 120, weight: 30, ratio: 4.0 }
+      ],
+      currentStep: 0,
+      isRunning: false,
+      isPaused: false,
+      speed: 1,
+      selectedItems: [],
+      usedWeight: 0,
+      totalValue: 0
+    };
+
+    // Initialize animation
+    function initAnimation() {
+      // Sort items by ratio (descending)
+      animationData.items.sort((a, b) => b.ratio - a.ratio);
+      
+      // Refresh UI displays
+      refreshInputTable();
+      renderItems();
+      updateDisplay();
+      addLog('🟢 Animation initialized. Items sorted by ratio.');
+    }
+
+    // Refresh the input data table
+    function refreshInputTable() {
+      const table = document.getElementById('inputTable');
+      table.innerHTML = '';
+      
+      animationData.items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        const isTopRatio = index === 0;
+        const cell1 = document.createElement('td');
+        cell1.textContent = item.name;
+        row.appendChild(cell1);
+        
+        const cell2 = document.createElement('td');
+        cell2.textContent = item.value;
+        row.appendChild(cell2);
+        
+        const cell3 = document.createElement('td');
+        cell3.textContent = item.weight + ' kg';
+        row.appendChild(cell3);
+        
+        const cell4 = document.createElement('td');
+        cell4.innerHTML = '<strong>' + item.ratio.toFixed(1) + '</strong> ' + (isTopRatio ? '[TOP]' : '');
+        row.appendChild(cell4);
+        
+        const cell5 = document.createElement('td');
+        cell5.style.textAlign = 'center';
+        const btn = document.createElement('button');
+        btn.textContent = 'Del';
+        btn.style.background = 'var(--danger)';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.padding = '4px 8px';
+        btn.style.borderRadius = '4px';
+        btn.style.cursor = 'pointer';
+        btn.style.fontSize = '0.75rem';
+        btn.style.fontWeight = '600';
+        btn.onclick = function() { deleteItem(index); };
+        cell5.appendChild(btn);
+        row.appendChild(cell5);
+        table.appendChild(row);
+      });
+      
+      // Update displays
+      document.getElementById('capacityDisplay').textContent = animationData.capacity + ' kg';
+      document.getElementById('itemCountDisplay').textContent = animationData.items.length + ' items';
+    }
+
+    // Update knapsack capacity
+    function updateCapacity() {
+      const input = document.getElementById('capacityInput');
+      const newCapacity = parseInt(input.value);
+      
+      if (newCapacity && newCapacity > 0) {
+        animationData.capacity = newCapacity;
+        document.getElementById('capacityDisplay').textContent = newCapacity + ' kg';
+        refreshInputTable();
+        resetAnimation();
+        addLog(`[CONFIG] Capacity updated to ${newCapacity} kg`);
+      } else {
+        alert('Please enter a valid capacity (greater than 0)');
+      }
+    }
+
+    // Add new item
+    function addNewItem() {
+      const valueInput = document.getElementById('newItemValue');
+      const weightInput = document.getElementById('newItemWeight');
+      
+      const value = parseInt(valueInput.value);
+      const weight = parseInt(weightInput.value);
+      
+      if (!value || !weight || value <= 0 || weight <= 0) {
+        alert('Please enter valid value and weight (both greater than 0)');
+        return;
+      }
+      
+      const ratio = value / weight;
+      const itemName = `Item ${animationData.items.length + 1}`;
+      
+      animationData.items.push({ name: itemName, value, weight, ratio });
+      
+      // Clear inputs
+      valueInput.value = '';
+      weightInput.value = '';
+      
+      // Refresh table and animation
+      refreshInputTable();
+      resetAnimation();
+      addLog(`[ADDED] Added ${itemName}: Value=${value}, Weight=${weight} kg, Ratio=${ratio.toFixed(2)}`);
+    }
+
+    // Delete item
+    function deleteItem(index) {
+      const itemName = animationData.items[index].name;
+      animationData.items.splice(index, 1);
+      
+      // Rename items for clarity
+      animationData.items.forEach((item, i) => {
+        item.name = `Item ${i + 1}`;
+      });
+      
+      // Refresh table and animation
+      refreshInputTable();
+      resetAnimation();
+      addLog(`[DELETE] Deleted ${itemName}`);
+    }
+
+    function renderItems() {
+      const itemsList = document.getElementById('itemsList');
+      itemsList.innerHTML = '';
+      
+      animationData.items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.id = `item-${index}`;
+        
+        // Check if already selected
+        const selected = animationData.selectedItems.find(s => s.index === index);
+        if (selected) {
+          card.classList.add(selected.partial ? 'partial' : 'selected');
+        }
+        
+        card.innerHTML = `
+          <div class="item-info">
+            <div class="item-name">${item.name}</div>
+            <div class="item-stats">Value: ${item.value} | Weight: ${item.weight} kg | Ratio: ${item.ratio.toFixed(1)}</div>
+          </div>
+          ${selected ? `<span class="item-badge ${selected.partial ? 'partial' : ''}">
+            ${selected.partial ? `${(selected.amount / item.weight * 100).toFixed(0)}% Selected` : 'Selected'}
+          </span>` : ''}
+        `;
+        
+        itemsList.appendChild(card);
+      });
+    }
+
+    function updateDisplay() {
+      const percent = (animationData.usedWeight / animationData.capacity) * 100;
+      document.getElementById('knapsackFill').style.width = percent + '%';
+      document.getElementById('fillPercent').textContent = percent.toFixed(1) + '%';
+      document.getElementById('usedWeight').textContent = animationData.usedWeight.toFixed(1);
+      document.getElementById('totalValue').textContent = animationData.totalValue.toFixed(0);
+      document.getElementById('itemsSelected').textContent = animationData.selectedItems.length;
+    }
+
+    function addLog(message) {
+      const logPanel = document.getElementById('logPanel');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const time = new Date().toLocaleTimeString().split(' ')[0];
+      entry.textContent = `[${time}] ${message}`;
+      logPanel.appendChild(entry);
+      logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    function stepAnimation() {
+      if (animationData.currentStep >= 4) return;
+      
+      const step = animationData.currentStep;
+      const capacity = animationData.capacity;
+      let remaining = capacity - animationData.usedWeight;
+      const processingBox = document.getElementById('processingBox');
+      
+      if (step === 0) {
+        addLog('📊 Step 1: Calculating value-to-weight ratio for each item');
+        processingBox.innerHTML = `
+          <div style="font-size: 0.82rem; color: var(--muted);">
+            <div style="font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 1: Calculate Efficiency Ratios</div>
+            <div style="padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+              <div>Item 1: 60 ÷ 10 = <strong style="color: #86efac;">6.0</strong> [TOP]</div>
+              <div>Item 2: 100 ÷ 20 = <strong style="color: #86efac;">5.0</strong></div>
+              <div>Item 3: 120 ÷ 30 = <strong style="color: #86efac;">4.0</strong></div>
+            </div>
+          </div>
+        `;
+        animationData.items.forEach((item, i) => {
+          addLog(`  Item ${i + 1}: ${item.value} ÷ ${item.weight} = ${item.ratio.toFixed(1)}`);
+        });
+      } else if (step === 1) {
+        addLog('📋 Step 2: Sorting items by ratio (descending)');
+        animationData.items.sort((a, b) => b.ratio - a.ratio);
+        
+        let sortedHTML = '<div style="font-size: 0.82rem; color: var(--muted);">' +
+          '<div style="font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 2: Sort by Ratio (Highest First)</div>' +
+          '<div style="padding: 8px; background: rgba(34, 197, 94, 0.1); border-radius: 6px;">';
+        
+        animationData.items.forEach((item, i) => {
+          sortedHTML += `<div>Position ${i + 1}: ${item.name} (Ratio: <strong style="color: #86efac;">${item.ratio.toFixed(1)}</strong>)</div>`;
+          addLog(`  Position ${i + 1}: ${item.name} (Ratio: ${item.ratio.toFixed(1)})`);
+        });
+        
+        sortedHTML += '</div></div>';
+        processingBox.innerHTML = sortedHTML;
+        renderItems();
+      } else if (step === 2) {
+        addLog('🎯 Step 3: Greedily selecting items');
+        let value = 0;
+        let weight = 0;
+        let selectedCount = 0;
+        let processingHTML = '<div style="font-size: 0.82rem; color: var(--muted);">' +
+          '<div style="font-weight: 600; color: var(--accent-2); margin-bottom: 8px;">Step 3: Greedy Item Selection</div>';
+        
+        for (let i = 0; i < animationData.items.length; i++) {
+          const item = animationData.items[i];
+          
+          if (weight + item.weight <= capacity) {
+            // Take entire item
+            weight += item.weight;
+            value += item.value;
+            animationData.selectedItems.push({ index: i, amount: item.weight, partial: false });
+            processingHTML += `<div style="padding: 6px; margin-top: 6px; background: rgba(34, 197, 94, 0.15); border-left: 3px solid #86efac; border-radius: 4px;">
+              ✓ Take entire ${item.name}: +${item.value} value, +${item.weight} kg
+            </div>`;
+            addLog(`  ✓ Take entire ${item.name}: +${item.value} value, +${item.weight} kg`);
+            selectedCount++;
+          } else if (weight < capacity) {
+            // Take partial
+            const remaining_space = capacity - weight;
+            const fraction = remaining_space / item.weight;
+            const partial_value = fraction * item.value;
+            weight = capacity;
+            value += partial_value;
+            animationData.selectedItems.push({ index: i, amount: remaining_space, partial: true });
+            processingHTML += `<div style="padding: 6px; margin-top: 6px; background: rgba(59, 130, 246, 0.15); border-left: 3px solid #60a5fa; border-radius: 4px;">
+              ⚠ Take ${fraction.toFixed(2)} of ${item.name}: +${partial_value.toFixed(0)} value, +${remaining_space} kg<br/>
+              <span style="color: #fbbf24; font-size: 0.75rem;">🛑 Knapsack is FULL</span>
+            </div>`;
+            addLog(`  ⚠ Take ${fraction.toFixed(2)} of ${item.name}: +${partial_value.toFixed(0)} value, +${remaining_space} kg`);
+            addLog(`  🛑 Knapsack is FULL`);
+            break;
+          } else {
+            processingHTML += `<div style="padding: 6px; margin-top: 6px; background: rgba(239, 68, 68, 0.15); border-left: 3px solid #fca5a5; border-radius: 4px;">
+              ✗ Skip ${item.name}: No space left
+            </div>`;
+            addLog(`  ✗ Skip ${item.name}: No space left`);
+          }
+        }
+        
+        processingHTML += '</div>';
+        processingBox.innerHTML = processingHTML;
+        animationData.usedWeight = weight;
+        animationData.totalValue = value;
+        renderItems();
+        updateDisplay();
+      } else if (step === 3) {
+        addLog('[ADDED] Algorithm Complete!');
+        addLog(`Final Result: Value = ${animationData.totalValue.toFixed(0)}, Weight = ${animationData.usedWeight.toFixed(1)} kg`);
+        processingBox.innerHTML = `
+          <div style="font-size: 0.82rem; color: var(--muted); text-align: center; padding: 12px;">
+            <div style="font-weight: 600; color: var(--accent-2); margin-bottom: 12px; font-size: 1rem;">[ADDED] Algorithm Complete!</div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.totalValue.toFixed(0)}</div>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Maximum Value</div>
+              </div>
+              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.usedWeight.toFixed(1)} kg</div>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Total Weight Used</div>
+              </div>
+              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">${animationData.selectedItems.length}</div>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Items Selected</div>
+              </div>
+              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px; border-radius: 8px;">
+                <div style="color: #86efac; font-weight: 600; font-size: 0.9rem;">100%</div>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Capacity Used</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      animationData.currentStep++;
+      document.getElementById('stepCounter').textContent = animationData.currentStep;
+    }
+
+    function resetAnimation() {
+      animationData.currentStep = 0;
+      animationData.selectedItems = [];
+      animationData.usedWeight = 0;
+      animationData.totalValue = 0;
+      animationData.isRunning = false;
+      animationData.isPaused = false;
+      
+      document.getElementById('stepCounter').textContent = '0';
+      document.getElementById('playPauseBtn').textContent = '▶ Play';
+      document.getElementById('playPauseBtn').classList.add('active');
+      document.getElementById('logPanel').innerHTML = '';
+      document.getElementById('processingBox').innerHTML = `
+        <div style="color: var(--muted); font-size: 0.82rem; text-align: center; padding: 20px;">
+          Click <strong>▶ Play</strong> or <strong>⊳ Step</strong> to start animation
+        </div>
+      `;
+      
+      renderItems();
+      updateDisplay();
+      addLog('🔄 Animation reset');
+    }
+
+    function togglePlayPause() {
+      if (animationData.isPaused) {
+        animationData.isPaused = false;
+        document.getElementById('playPauseBtn').textContent = '⏸ Pause';
+        addLog('▶ Resumed');
+        autoStep();
+      } else {
+        animationData.isPaused = true;
+        document.getElementById('playPauseBtn').textContent = '▶ Resume';
+        addLog('⏸ Paused');
+      }
+    }
+
+    function fastForward() {
+      while (animationData.currentStep < 4) {
+        stepAnimation();
+      }
+      addLog('⏩ Animation fast-forwarded to completion');
+    }
+
+    function setSpeed(value) {
+      animationData.speed = parseFloat(value);
+      addLog(`Speed: ${(value * 100).toFixed(0)}%`);
+    }
+
+    function autoStep() {
+      if (animationData.isPaused || animationData.currentStep >= 4) return;
+      
+      stepAnimation();
+      
+      if (animationData.currentStep < 4) {
+        const delay = Math.max(500, 2000 / animationData.speed);
+        setTimeout(autoStep, delay);
+      } else {
+        document.getElementById('playPauseBtn').textContent = '✓ Complete';
+        document.getElementById('playPauseBtn').classList.remove('active');
+      }
+    }
+
+    function switchTab(tabName, buttonElement) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.tab-panel');
+      panels.forEach(panel => panel.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(button => button.classList.remove('active'));
+      
+      // Show selected panel
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked button
+      if (buttonElement) {
+        buttonElement.classList.add('active');
+      }
+      
+      // Initialize animation when animation tab is clicked
+      if (tabName === 'animation' && animationData.currentStep === 0) {
+        initAnimation();
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load initial data into table
+      refreshInputTable();
+    });
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

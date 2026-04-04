@@ -1,0 +1,1117 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimal Merge Pattern - Interactive Visualizer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #ec4899;
+      --accent-2: #f472b6;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #be185d;
+      --accent-2: #be185d;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #2d1b2e, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.45;
+        transform: scale(0.84);
+      }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .step-box {
+      padding: 8px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 120px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      line-height: 1.45;
+      font-size: 0.77rem;
+    }
+
+    .step-num {
+      min-width: 18px;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-2);
+      font-size: 0.66rem;
+      padding-top: 1px;
+    }
+
+    .step-item.done .step-num {
+      color: var(--good);
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.active .step-text {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #42506d;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.71rem;
+      line-height: 1.55;
+      border-left: 2px solid transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .log-entry.info {
+      color: #f472b6;
+      border-color: var(--accent);
+      background: rgba(236, 72, 153, 0.08);
+    }
+
+    .log-entry.success {
+      color: #86efac;
+      border-color: var(--good);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .log-entry .ts {
+      color: #46516d;
+      margin-right: 6px;
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(236, 72, 153, 0.07), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.05), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #f472b6);
+      color: #2d1b2e;
+      border-color: transparent;
+    }
+
+    .viz-area {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px 18px;
+    }
+
+    .canvas-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .canvas-wrap {
+      flex: 1;
+      min-height: 300px;
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .info-table {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    table th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table tr:hover {
+      background: rgba(236, 72, 153, 0.08);
+    }
+
+    .theory-content {
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .theory-content h3 {
+      color: var(--accent);
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .theory-content h3:first-child {
+      margin-top: 0;
+    }
+
+    .theory-content p {
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .theory-content strong {
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .theory-content ul, .theory-content ol {
+      margin: 12px 0 12px 24px;
+      color: var(--text);
+    }
+
+    .theory-content li {
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--accent);
+      overflow-x: auto;
+      margin: 12px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <h1>Optimal <span>Merge Pattern</span></h1>
+    <p>Minimize total cost of merging k sorted arrays</p>
+  </header>
+
+  <div class="app-body">
+    <div class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Merge Status
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Summary</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Arrays</div>
+            <div class="metric-value" id="arrayCount">5</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Remaining</div>
+            <div class="metric-value" id="remaining">5</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Total Cost</div>
+            <div class="metric-value" id="totalCost">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Operations</div>
+            <div class="metric-value" id="opCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Current Operation</div>
+        <div class="step-box" id="currentOpBox">
+          <div class="step-item pending">
+            <span class="step-num">—</span>
+            <span class="step-text">Click Step or Run to start merging</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="log-scroll" id="log">
+        <div class="log-entry info"><span class="ts">[0]</span> Ready to merge arrays</div>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'visualizer')">📊 Visualizer</button>
+        <button class="tab-btn" onclick="switchTab(event, 'info')">📋 Details</button>
+        <button class="tab-btn" onclick="switchTab(event, 'theory')">📖 Theory</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pseudocode')">💻 Pseudocode</button>
+        <button class="tab-btn" onclick="switchTab(event, 'concepts')">🔍 Concepts</button>
+      </div>
+
+      <div class="tab-panel active" id="visualizer">
+        <div class="control-row">
+          <div class="button-row">
+            <button class="primary" onclick="runMerge()">▶ Run</button>
+            <button onclick="stepMerge()">⏭ Step</button>
+            <button onclick="resetMerge()">⟲ Reset</button>
+            <button onclick="loadExample1()">Example 1</button>
+            <button onclick="loadExample2()">Example 2</button>
+          </div>
+        </div>
+        <div class="viz-area">
+          <div class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Merge Process</div>
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="mergeCanvas" width="800" height="350"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="info">
+        <div class="viz-area">
+          <div class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Merge Operations</div>
+              </div>
+            </div>
+            <div class="info-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Merge</th>
+                    <th>Size</th>
+                    <th>Cost</th>
+                  </tr>
+                </thead>
+                <tbody id="opTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="theory">
+        <div class="viz-area">
+          <div class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Algorithm Theory</div>
+              </div>
+            </div>
+            <div class="theory-content">
+              <h3>Problem Overview</h3>
+              <p>Given k sorted arrays of different sizes, merge them into a single sorted array with <strong>minimum total cost</strong>. The cost of merging two arrays is the sum of their sizes.</p>
+
+              <h3>Key Insight</h3>
+              <p>This is a <strong>greedy problem</strong>. At each step, we should <strong>merge the two smallest arrays</strong> first. This minimizes the total cost because:</p>
+              <ul>
+                <li>Smaller arrays contribute less to subsequent merge operations</li>
+                <li>Merging small arrays early prevents them from being merged multiple times</li>
+                <li>This greedy choice leads to the optimal solution (proven by exchange argument)</li>
+              </ul>
+
+              <h3>Greedy Strategy</h3>
+              <p><strong>Always merge the two smallest remaining arrays.</strong> This ensures that:</p>
+              <ul>
+                <li>Small merged results are handled efficiently in future merges</li>
+                <li>We minimize the sum of all intermediate merge costs</li>
+                <li>No array is unnecessarily merged multiple times with large arrays</li>
+              </ul>
+
+              <h3>Time Complexity</h3>
+              <p><strong>O(k² log k)</strong> where k is the number of arrays</p>
+              <ul>
+                <li>We perform k-1 merge operations (each reduces array count by 1)</li>
+                <li>Each merge requires finding the 2 smallest: O(log k) with min-heap</li>
+                <li>Total: O(k log k) for heap operations + O(k²) for copying elements</li>
+              </ul>
+
+              <h3>Space Complexity</h3>
+              <p><strong>O(k)</strong> for the min-heap storing array sizes</p>
+
+              <h3>Example Trace</h3>
+              <p><strong>Arrays:</strong> [4, 3, 2, 6, 5]</p>
+              <ol>
+                <li>Min-heap: [2, 3, 4, 5, 6] → Merge 2+3=5 → Heap: [4, 5, 5, 6], Cost: 5</li>
+                <li>Merge 4+5=9 → Heap: [5, 6, 9], Cost: 9+5=14</li>
+                <li>Merge 5+6=11 → Heap: [9, 11], Cost: 14+11=25</li>
+                <li>Merge 9+11=20 → Heap: [20], Cost: 25+20=45</li>
+              </ol>
+              <p><strong>Total Cost: 45</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="pseudocode">
+        <div class="viz-area">
+          <div class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Pseudocode</div>
+              </div>
+            </div>
+            <div class="theory-content">
+              <pre class="code-block">function OptimalMergePattern(arrays[]):
+    minHeap = CreateMinHeap()
+    totalCost = 0
+    
+    // Insert all array sizes into min-heap
+    for each size in arrays:
+        minHeap.insert(size)
+    
+    // Merge until one array remains
+    while minHeap.size() > 1:
+        // Extract two smallest arrays
+        first = minHeap.extractMin()
+        second = minHeap.extractMin()
+        
+        // Calculate cost of merging
+        cost = first + second
+        totalCost += cost
+        
+        // Insert merged array back
+        minHeap.insert(cost)
+        
+        // Log the operation
+        log("Merged [" + first + "] + [" + second + "] = [" + cost + "]")
+    
+    return totalCost</pre>
+
+              <h3>Implementation Details</h3>
+              <p><strong>Data Structure: Min-Heap</strong></p>
+              <ul>
+                <li>Efficiently retrieves two smallest elements: O(log k)</li>
+                <li>Insert merged result back: O(log k)</li>
+                <li>Alternative: Use priority queue</li>
+              </ul>
+
+              <p><strong>Alternative Approach:</strong></p>
+              <ul>
+                <li>Sort array: O(k log k)</li>
+                <li>Repeatedly extract from sorted list: O(k²)</li>
+                <li>Less efficient than min-heap approach</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="concepts">
+        <div class="viz-area">
+          <div class="canvas-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Key Concepts</div>
+              </div>
+            </div>
+            <div class="theory-content">
+              <h3>🎯 Greedy Algorithm</h3>
+              <p>An algorithm that makes locally optimal choices hoping to find a global optimum. In this problem, choosing to merge the two smallest arrays at each step leads to the globally optimal solution.</p>
+
+              <h3>📚 Min-Heap (Priority Queue)</h3>
+              <p>A complete binary tree where each parent node has a value less than or equal to its children. Provides O(log n) insertion and extraction of minimum.</p>
+              <ul>
+                <li><strong>Insert:</strong> Add element at end, bubble up</li>
+                <li><strong>ExtractMin:</strong> Remove root, replace with last element, bubble down</li>
+              </ul>
+
+              <h3>💰 Cost Function</h3>
+              <p>The cost of merging two sorted arrays is the sum of their sizes. This represents the number of comparisons/operations needed.</p>
+              <p><strong>Example:</strong> Merging array of size 3 with array of size 5 costs 3+5=8</p>
+
+              <h3>🔄 Huffman Coding Connection</h3>
+              <p>This problem is identical to building an optimal Huffman tree. We're essentially creating a merge tree where leaf nodes represent input arrays and internal nodes represent merge operations.</p>
+
+              <h3>✅ Optimality Proof Sketch</h3>
+              <p><strong>Exchange Argument:</strong></p>
+              <ul>
+                <li>Suppose an optimal solution merges arrays A and B in step i, and later merges C and D in step j (where i < j)</li>
+                <li>If we swap and merge C and D first, then A and B, we can show the total cost doesn't increase</li>
+                <li>This means for any optimal solution, merging smallest arrays first is always optimal</li>
+              </ul>
+
+              <h3>🎓 Related Problems</h3>
+              <ul>
+                <li><strong>Huffman Coding:</strong> Optimal prefix-free codes</li>
+                <li><strong>Activity Selection:</strong> Select maximum non-overlapping activities</li>
+                <li><strong>Fractional Knapsack:</strong> Maximize value per weight</li>
+                <li><strong>Interval Scheduling:</strong> Schedule maximum number of tasks</li>
+              </ul>
+
+              <h3>⚡ Performance Notes</h3>
+              <ul>
+                <li><strong>Best Case:</strong> Already sorted arrays, O(k log k)</li>
+                <li><strong>Worst Case:</strong> All arrays size 1, O(k² log k)</li>
+                <li><strong>Space Optimization:</strong> Merge in-place if memory is critical</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      arrays: [4, 3, 2, 6, 5],
+      minHeap: [],
+      operations: [],
+      totalCost: 0,
+      isRunning: false,
+      stepCount: 0,
+      timestamp: 0
+    };
+
+    function initHeap() {
+      state.minHeap = [...state.arrays].sort((a, b) => a - b);
+      state.operations = [];
+      state.totalCost = 0;
+      state.stepCount = 0;
+      state.timestamp = 0;
+    }
+
+    function addLog(msg, type = 'info') {
+      state.timestamp++;
+      const log = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `<span class="ts">[${state.timestamp}]</span> ${msg}`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function mergeTwoSmallest() {
+      if (state.minHeap.length < 2) return false;
+
+      const first = state.minHeap.shift();
+      const second = state.minHeap.shift();
+      const cost = first + second;
+
+      state.operations.push({ first, second, cost, merged: cost });
+      state.totalCost += cost;
+      state.stepCount++;
+
+      state.minHeap.push(cost);
+      state.minHeap.sort((a, b) => a - b);
+
+      addLog(`Merged [${first}] + [${second}] = [${cost}] (cost: ${cost})`, 'info');
+      return true;
+    }
+
+    async function runMerge() {
+      if (state.isRunning) return;
+      state.isRunning = true;
+
+      document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+      try {
+        addLog('Starting merge process...', 'info');
+        while (state.minHeap.length > 1) {
+          await new Promise(r => setTimeout(r, 800));
+          if (!mergeTwoSmallest()) break;
+          updateUI();
+          drawMerge();
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        addLog('All arrays merged successfully!', 'success');
+      } finally {
+        state.isRunning = false;
+        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        updateUI();
+        drawMerge();
+      }
+    }
+
+    function stepMerge() {
+      if (state.isRunning || state.minHeap.length < 2) return;
+      mergeTwoSmallest();
+      updateUI();
+      drawMerge();
+    }
+
+    function resetMerge() {
+      initHeap();
+      state.timestamp = 0;
+      document.getElementById('log').innerHTML = '<div class="log-entry info"><span class="ts">[0]</span> Ready to merge arrays</div>';
+      updateUI();
+      drawMerge();
+    }
+
+    function loadExample1() {
+      state.arrays = [4, 3, 2, 6, 5];
+      resetMerge();
+    }
+
+    function loadExample2() {
+      state.arrays = [1, 10, 5, 8, 4, 7];
+      resetMerge();
+      addLog('Loaded Example 2 with 6 arrays', 'info');
+    }
+
+    function updateUI() {
+      document.getElementById('arrayCount').textContent = state.arrays.length;
+      document.getElementById('remaining').textContent = state.minHeap.length;
+      document.getElementById('totalCost').textContent = state.totalCost;
+      document.getElementById('opCount').textContent = state.stepCount;
+
+      let opBox = document.getElementById('currentOpBox');
+      if (state.operations.length > 0) {
+        const last = state.operations[state.operations.length - 1];
+        opBox.innerHTML = `<div class="step-item active">
+          <span class="step-num">${state.stepCount}</span>
+          <span class="step-text">${last.first} + ${last.second} = ${last.cost}</span>
+        </div>`;
+      }
+
+      let table = document.getElementById('opTable');
+      table.innerHTML = '';
+      state.operations.forEach((op, idx) => {
+        table.innerHTML += `<tr>
+          <td>${idx + 1}</td>
+          <td>[${op.first}] + [${op.second}]</td>
+          <td>${op.merged}</td>
+          <td style="color: var(--accent); font-weight: 700;">${op.cost}</td>
+        </tr>`;
+      });
+    }
+
+    function drawMerge() {
+      const canvas = document.getElementById('mergeCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const boxWidth = 60;
+      const boxHeight = 60;
+      const gap = 12;
+      let x = 40;
+
+      ctx.fillStyle = '#ec4899';
+      ctx.font = 'bold 12px Inter';
+      ctx.fillText('Remaining:', 40, 20);
+
+      let y = 40;
+      state.minHeap.forEach((size, idx) => {
+        const isSmallest = idx < 2 && state.minHeap.length > 1;
+
+        ctx.fillStyle = isSmallest ? 'rgba(245, 158, 11, 0.2)' : 'rgba(139, 92, 246, 0.2)';
+        ctx.fillRect(x, y, boxWidth, boxHeight);
+
+        ctx.strokeStyle = isSmallest ? '#f59e0b' : '#8b5cf6';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, boxWidth, boxHeight);
+
+        ctx.fillStyle = isSmallest ? '#f59e0b' : '#8b5cf6';
+        ctx.font = 'bold 20px Fira Code';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(size, x + boxWidth / 2, y + boxHeight / 2);
+
+        x += boxWidth + gap;
+        if (x > canvas.width - boxWidth - 20) {
+          x = 40;
+          y += boxHeight + 30;
+        }
+      });
+
+      ctx.fillStyle = '#22c55e';
+      ctx.font = 'bold 12px Inter';
+      ctx.fillText('Merged Results:', 40, canvas.height - 80);
+
+      x = 40;
+      y = canvas.height - 60;
+      state.operations.forEach((op) => {
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+        ctx.fillRect(x, y, boxWidth, boxHeight);
+
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, boxWidth, boxHeight);
+
+        ctx.fillStyle = '#22c55e';
+        ctx.font = 'bold 18px Fira Code';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(op.merged, x + boxWidth / 2, y + boxHeight / 2);
+
+        x += boxWidth + gap;
+        if (x > canvas.width - boxWidth - 20) {
+          x = 40;
+          y = canvas.height - 60;
+        }
+      });
+    }
+
+    function switchTab(e, tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      e.target.classList.add('active');
+      document.getElementById(tabName).classList.add('active');
+    }
+
+    // Expose to window
+    window.runMerge = runMerge;
+    window.stepMerge = stepMerge;
+    window.resetMerge = resetMerge;
+    window.loadExample1 = loadExample1;
+    window.loadExample2 = loadExample2;
+    window.switchTab = switchTab;
+
+    // Initialize
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initHeap();
+        updateUI();
+        drawMerge();
+      });
+    } else {
+      initHeap();
+      updateUI();
+      drawMerge();
+    }
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

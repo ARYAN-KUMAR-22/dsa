@@ -1,0 +1,512 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iterative Merge Sort Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0d1117;--panel:#12161f;--surface:#161b27;--card:#1d2436;--border:#2b3550;--text:#e2e8f0;--muted:#8b98b6;--accent:#14b8a6;--accent2:#99f6e4;--good:#22c55e;--warn:#f59e0b;--danger:#fb7185;--shadow:0 18px 45px rgba(0,0,0,.28)}
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0f766e;
+      --accent2: #0d9488;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .box {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{height:auto;min-height:100%;overflow-y:auto}
+    body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh;height:auto;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+    header{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#06251f,#0d1117)}
+    header h1{font-size:1.2rem;font-weight:700}
+    header h1 span{color:var(--accent)}
+    header p{color:var(--muted);font-size:.78rem;line-height:1.55}
+    .actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+    .actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem}
+    .actions a.primary{background:linear-gradient(135deg,#0f766e,var(--accent));color:#021513;border-color:transparent;font-weight:700}
+    .app{flex:1;display:flex;min-height:calc(100vh - 78px);height:auto;overflow:visible}
+    .left{width:340px;min-width:340px;background:var(--panel);border-right:1px solid var(--border);overflow:visible}
+    .panel-head{padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+    .sec{border-bottom:1px solid var(--border)}
+    .sec-title{padding:7px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background: var(--card);color:var(--muted);line-height:1.65;font-size:.8rem}
+    .focus{color:var(--text);font-size:.92rem;font-weight:700;line-height:1.45;margin-bottom:6px}
+    .formula{color:var(--accent2);font-family:"Fira Code",monospace}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metric{padding:8px;border:1px solid var(--border);border-radius:10px;background: var(--card)}
+    .ml{color:var(--muted);font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+    .mv{font:.8rem "Fira Code",monospace;line-height:1.45}
+    .list,.chips{padding:0 12px 12px}
+    .list{display:grid;gap:8px}
+    .list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.6}
+    .list div:before{content:"";position:absolute;left:0;top:.58rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip,.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:700}
+    .chip{border:1px solid rgba(20,184,166,.22);background:rgba(20,184,166,.08);color:#ccfbf1}
+    .badge{border:1px solid rgba(153,246,228,.18);background:rgba(153,246,228,.08);color:var(--accent2)}
+    .work{flex:1;min-width:0;min-height:0;height:auto;display:flex;flex-direction:column;overflow:visible;background:radial-gradient(circle at top right,rgba(20,184,166,.08),transparent 28%),var(--bg)}
+    .tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background: var(--card);overflow-x:auto}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:600;border-bottom:2px solid transparent}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent);background: var(--surface)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}
+    .field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background: var(--card)}
+    .field span{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+    .field select,.field input,.field button{background:transparent;border:none;color:var(--text);font:.8rem "Fira Code",monospace;outline:none}
+    .range{display:flex;align-items:center;gap:10px;min-width:220px}
+    .range input{width:100%;accent-color:var(--accent)}
+    .value{color:var(--accent2);font:.8rem "Fira Code",monospace;text-transform:none;letter-spacing:0}
+    .button-row{display:flex;gap:8px;flex-wrap:wrap}
+    .button-row button{padding:7px 12px;border:1px solid var(--border);border-radius:999px;background: var(--card);cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+    .button-row button:hover{transform:translateY(-1px);border-color:var(--accent)}
+    .button-row button.primary{background:linear-gradient(135deg,#0f766e,var(--accent));color:#031816;border-color:transparent;font-weight:700}
+    .panel{display:none;padding:12px 16px 16px;overflow:visible}
+    .panel.active{display:block}
+    .status{padding:0 16px 12px;color:var(--text);line-height:1.7;font-size:.82rem}
+    .grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,400px);gap:12px;align-items:start}
+    .grid>*{min-width:0}
+    .card{background: var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:grid;gap:14px;min-width:0;overflow:hidden}
+    .card.focus{border-color:rgba(153,246,228,.28);box-shadow:0 0 0 1px rgba(153,246,228,.14),0 20px 40px rgba(20,184,166,.12)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .card h2{font-size:1.1rem;line-height:1.45}
+    .sub{color:var(--muted);line-height:1.68}
+    .info,.pitfalls,.compare-grid{display:grid;gap:10px}
+    .info,.pitfalls,.compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .cmp,.trace-row,.run-card{border:1px solid rgba(148,163,184,.12);border-radius:14px;background: var(--card);padding:12px;display:grid;gap:6px}
+    .cmp h3,.run-card h3{font-size:.9rem}
+    .cmp p,.trace-row p,.run-card p{color:var(--muted);font-size:.82rem;line-height:1.62}
+    .array-shell,.buffer-shell{min-width:0;width:100%;overflow-x:auto;overflow-y:visible;padding-bottom:2px}
+    .array-shell::-webkit-scrollbar,.buffer-shell::-webkit-scrollbar{height:6px}
+    .array-shell::-webkit-scrollbar-thumb,.buffer-shell::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+    .bars-view{min-width:0;width:100%;display:grid;grid-template-columns:repeat(var(--cols,8),minmax(56px,1fr));gap:8px;align-items:end}
+    .bar-cell{min-width:56px;padding:10px 8px;border:1px solid rgba(148,163,184,.12);border-radius:16px;background: var(--surface);display:grid;gap:8px;align-content:end;transition:.18s}
+    .bar-cell .idx{font-size:.62rem;color:var(--muted);text-align:center}
+    .bar-cell .value{font:.74rem "Fira Code",monospace;color:var(--text);text-align:center}
+    .bar{height:calc(24px + var(--h) * 3px);border-radius:12px 12px 8px 8px;background:linear-gradient(180deg,rgba(20,184,166,.95),rgba(15,118,110,.68));display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;box-shadow:inset 0 0 0 1px rgba(204,251,241,.08)}
+    .bar span{font:700 .82rem "Fira Code",monospace;color:var(--good)}
+    .bar-cell.window{border-color:rgba(20,184,166,.28);background:rgba(20,184,166,.08)}
+    .bar-cell.left-run{box-shadow:inset 0 0 0 1px rgba(153,246,228,.18)}
+    .bar-cell.right-run{box-shadow:inset 0 0 0 1px rgba(250,204,21,.18)}
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+  <style>
+    .bar-cell.i,.bar-cell.j{transform:translateY(-4px)}
+    .bar-cell.i .bar{background:linear-gradient(180deg,#67e8f9,#14b8a6)}
+    .bar-cell.j .bar{background:linear-gradient(180deg,#fcd34d,#f59e0b)}
+    .bar-cell.commit{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.08)}
+    .bar-cell.off{opacity:.38}
+    .buffer-grid{min-width:0;width:100%;display:grid;grid-template-columns:repeat(var(--cols,8),minmax(56px,1fr));gap:8px}
+    .buffer-cell{min-width:56px;padding:10px 8px;border:1px dashed rgba(148,163,184,.2);border-radius:14px;background: var(--surface);display:grid;gap:4px;text-align:center}
+    .buffer-cell .slot{font-size:.62rem;color:var(--muted)}
+    .buffer-cell .val{font:700 .82rem "Fira Code",monospace;color:var(--text)}
+    .buffer-cell.filled{border-style:solid;border-color:rgba(20,184,166,.32);background:rgba(20,184,166,.08)}
+    .buffer-cell.target{box-shadow:0 0 0 1px rgba(153,246,228,.18)}
+    .buffer-cell.window{background:rgba(20,184,166,.04)}
+    .side-stack,.run-grid,.bars{display:grid;gap:12px}
+    .full-span{grid-column:1/-1}
+    .trace{max-height:520px;overflow:auto;display:grid;gap:8px}
+    .trace-row.active{border-color:rgba(20,184,166,.34);box-shadow:0 0 0 1px rgba(20,184,166,.14)}
+    .trace-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .trace-top strong{font-size:.8rem}
+    .trace-top span{font:.72rem "Fira Code",monospace;color:var(--accent2)}
+    .run-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .run-card.active{border-color:rgba(20,184,166,.32);box-shadow:0 0 0 1px rgba(20,184,166,.16)}
+    .bars{margin-top:12px}
+    .bar-row{display:grid;grid-template-columns:140px minmax(0,1fr) auto;gap:10px;align-items:center}
+    .bar-row strong{font-size:.78rem}
+    .bar-row span{color:var(--muted);font-size:.72rem;line-height:1.5}
+    .track{height:10px;border-radius:999px;background:rgba(148,163,184,.1);overflow:hidden;border:1px solid rgba(148,163,184,.1)}
+    .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#5eead4,var(--accent))}
+    .barv{color:var(--accent2);font:.74rem "Fira Code",monospace}
+    pre{white-space:pre-wrap;overflow-x:auto;padding:14px;border-radius:16px;border:1px solid var(--border);background: var(--card);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72}
+    .expand-fab{position:fixed;right:18px;bottom:18px;z-index:1300;border:1px solid var(--border);border-radius:999px;background: var(--card);color:var(--text);padding:9px 12px;font:700 .76rem Inter,sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:var(--shadow);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+    .expand-fab:hover{transform:translateY(-1px);border-color:var(--accent);background: var(--card)}
+    body.popup-expanded{overflow:hidden}
+    body.popup-expanded::before{content:"";position:fixed;inset:0;background: var(--surface);backdrop-filter:blur(6px);z-index:1180}
+    body.popup-expanded .app{position:fixed;inset:86px 16px 16px;z-index:1200;min-height:0;height:auto;border:1px solid var(--border);border-radius:24px;background:var(--bg);box-shadow:0 28px 70px rgba(0,0,0,.42);overflow:auto}
+    @media (max-width:1280px){.grid{grid-template-columns:1fr}.full-span{grid-column:auto}}
+    @media (max-width:1080px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.info,.pitfalls,.compare-grid{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.metrics,.info,.pitfalls,.compare-grid{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}.range{min-width:0}.bars-view,.buffer-grid{grid-template-columns:repeat(var(--cols,4),minmax(56px,1fr))}.expand-fab{right:12px;bottom:12px;padding:8px 11px}body.popup-expanded .app{inset:112px 10px 10px}}
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Iterative Merge Sort</span> Animation</h1>
+      <p>Interactive bottom-up merge sort dashboard with animated passes, buffer writes, and pass-by-pass runtime intuition.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.php">Home</a>
+      <a href="merge_sort_introduction.php">Merge Sort Intro</a>
+      <a href="recursive_merge_sort_animation.php">Recursive Merge Sort</a>
+      <a href="algorithm_strategies.php">Strategy Dashboard</a>
+      <a href="../sorting%20techniques/merge_sort_animation.php">Merge Sort Visualizer</a>
+    </div>
+  </header>
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head">Iterative Merge Snapshot</div>
+      <section class="sec">
+        <div class="sec-title">Current Phase</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="formulaText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Core Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="ml">Pass</div><div class="mv" id="metricPass"></div></div>
+          <div class="metric"><div class="ml">Run Width</div><div class="mv" id="metricWidth"></div></div>
+          <div class="metric"><div class="ml">Comparisons</div><div class="mv" id="metricComparisons"></div></div>
+          <div class="metric"><div class="ml">Writes</div><div class="mv" id="metricWrites"></div></div>
+        </div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Why Bottom-Up Helps</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">Main Caution</div>
+        <div class="box" id="cautionText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Quick Facts</div>
+        <div class="chips" id="factChips"></div>
+      </section>
+    </aside>
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="lab">Animation Lab</button>
+        <button class="tab" data-tab="trace">Pass Trace</button>
+        <button class="tab" data-tab="complexity">Complexity</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+      <div class="controls">
+        <div class="field"><span>Pattern</span><select id="patternSelect"></select></div>
+        <div class="field"><span>Input Size</span><div class="range"><input id="sizeRange" type="range" min="0" max="4" step="1" value="2" /><span class="value" id="sizeValue">16</span></div></div>
+        <div class="field"><span>Speed</span><div class="range"><input id="speedRange" type="range" min="0" max="4" step="1" value="2" /><span class="value" id="speedValue">normal</span></div></div>
+        <div class="field"><span>Step</span><div class="range"><input id="stepRange" type="range" min="0" max="0" step="1" value="0" /><span class="value" id="stepValue">0</span></div></div>
+        <div class="field"><span>Playback</span><div class="button-row"><button class="primary" id="playBtn" type="button">Play</button><button id="prevBtn" type="button">Prev</button><button id="nextBtn" type="button">Next</button><button id="resetBtn" type="button">Reset</button></div></div>
+      </div>
+      <section class="panel active" id="tab-lab">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus">
+            <div class="kick">Main Array</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="array-shell"><div class="bars-view" id="arrayView"></div></div>
+            <div class="kick">Merge Buffer</div>
+            <div class="buffer-shell"><div class="buffer-grid" id="bufferView"></div></div>
+          </article>
+          <div class="side-stack">
+            <article class="card">
+              <div class="kick">Current Decision</div>
+              <div class="info">
+                <div class="cmp"><h3>Merge Window</h3><p id="windowText"></p></div>
+                <div class="cmp"><h3>Heads</h3><p id="headsText"></p></div>
+                <div class="cmp"><h3>Write Target</h3><p id="targetText"></p></div>
+                <div class="cmp"><h3>Action</h3><p id="actionText"></p></div>
+              </div>
+            </article>
+            <article class="card">
+              <div class="kick">Bottom-Up Pseudocode</div>
+              <pre id="codeText"></pre>
+            </article>
+          </div>
+          <article class="card full-span">
+            <div class="kick">Current Pass Layout</div>
+            <div class="run-grid" id="runGrid"></div>
+          </article>
+        </div>
+      </section>
+      <section class="panel" id="tab-trace">
+        <div class="card">
+          <div class="kick">Step-by-Step Animation Trace</div>
+          <div class="trace" id="traceList"></div>
+        </div>
+      </section>
+      <section class="panel" id="tab-complexity">
+        <div class="card">
+          <div class="kick">Why Bottom-Up Merge Sort Is O(n log n)</div>
+          <div class="compare-grid">
+            <div class="cmp"><h3>Pass story</h3><p id="passStory"></p></div>
+            <div class="cmp"><h3>Run growth</h3><p id="growthText"></p></div>
+            <div class="cmp"><h3>Work per pass</h3><p id="passCostText"></p></div>
+            <div class="cmp"><h3>Recursive comparison</h3><p id="comparisonText"></p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="kick">Pass Contribution Bars</div>
+          <div class="bars" id="barList"></div>
+        </div>
+      </section>
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="pitfalls">
+            <div class="cmp"><h3>Wrong tail handling</h3><p>If the last run has no partner in a pass, it must be carried forward untouched instead of merged with invalid indices.</p></div>
+            <div class="cmp"><h3>Broken copy-back</h3><p>After filling the temporary buffer for one window, copy only that merged range back to the main array.</p></div>
+            <div class="cmp"><h3>Losing stability</h3><p>When equal values appear, taking from the left run first preserves stable ordering exactly like the recursive version.</p></div>
+            <div class="cmp"><h3>Width confusion</h3><p>The loop variable is the width of each sorted run in the current pass, not the width of the whole merge window.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <button class="expand-fab" id="expandToggle" type="button" aria-expanded="false" title="Open expanded dashboard view">Expand</button>
+  <script>
+    const patterns=[
+      {id:"distinct",name:"Distinct values",summary:"Each pass merges clean ascending runs, so the animation is easy to read.",helps:"Bottom-up merge sort removes recursion depth entirely, which is handy when you want the same O(n log n) behavior without recursive calls.",caution:"The temporary buffer is still essential. Iterative does not mean in-place.",facts:["Bottom-up","Stable","No recursion stack"],build(n){return Array.from({length:n},(_,i)=>((i*5)%n)+1)}},
+      {id:"duplicates",name:"Duplicates",summary:"Equal values make the stability rule visible because left-run values should win ties.",helps:"This is a good interview version when you want to explain stability and the merge buffer together.",caution:"If you pick from the right run first on ties, the final values may sort correctly but the order will no longer be stable.",facts:["Stable if left wins ties","Great for records","Same asymptotics"],build(n){return Array.from({length:n},(_,i)=>Math.floor(((i*5)%n)/2)+1)}},
+      {id:"nearly_sorted",name:"Nearly sorted",summary:"Even when the array starts close to sorted, the same bottom-up passes still execute.",helps:"It reinforces that merge sort is input-order independent: each pass still scans and merges by width.",caution:"Do not expect insertion-sort style linear behavior on nearly sorted input.",facts:["Input-order independent","Predictable passes","Linear merge work"],build(n){const arr=Array.from({length:n},(_,i)=>i+1);for(let i=1;i<n;i+=5){const t=arr[i-1];arr[i-1]=arr[i];arr[i]=t}return arr}}
+    ];
+    const sizeOptions=[8,12,16,20,24],speedOptions=[1100,800,500,280,140],speedLabels=["slow","calm","normal","fast","turbo"];
+    const tabs=[...document.querySelectorAll(".tab")],panels=[...document.querySelectorAll(".panel")],patternSelect=document.getElementById("patternSelect"),sizeRange=document.getElementById("sizeRange"),speedRange=document.getElementById("speedRange"),stepRange=document.getElementById("stepRange"),arrayView=document.getElementById("arrayView"),bufferView=document.getElementById("bufferView"),playBtn=document.getElementById("playBtn"),prevBtn=document.getElementById("prevBtn"),nextBtn=document.getElementById("nextBtn"),resetBtn=document.getElementById("resetBtn"),expandToggle=document.getElementById("expandToggle");
+    const fmt=n=>new Intl.NumberFormat("en-US",{notation:n>=1e6?"compact":"standard",maximumFractionDigits:n>=1000?0:2}).format(n);
+    const cur=()=>patterns.find(x=>x.id===patternSelect.value)||patterns[0];
+    let timer=null,lastKey="",cached=null;
+    function totalPasses(n){let width=1,passes=0;while(width<n){passes++;width*=2}return passes}
+    function passBlocks(n,width){const blocks=[];const run=Math.max(1,Math.min(width||1,n));for(let left=0;left<n;left+=2*run){const mid=Math.min(left+run,n),right=Math.min(left+2*run,n);blocks.push({left,mid,right,tail:mid>=right})}return blocks}
+    function buildTrace(values){
+      const arr=values.slice(),aux=Array(values.length).fill(null),events=[];
+      let width=1,pass=0,comparisons=0,writes=0;
+      const push=(type,data={})=>events.push({type,pass,width,comparisons,writes,arr:arr.slice(),aux:aux.slice(),left:data.left??null,mid:data.mid??null,right:data.right??null,i:data.i??null,j:data.j??null,k:data.k??null,commit:data.commit??null,note:data.note??"",title:data.title??"",value:data.value??null});
+      push("start",{title:"Bottom-up merge sort begins",note:"Treat each element as an already sorted run of width 1."});
+      while(width<values.length){
+        pass++;
+        push("pass_start",{title:`Pass ${pass} starts`,note:`Merge adjacent runs of width ${width}.`});
+        for(let left=0;left<values.length;left+=2*width){
+          const mid=Math.min(left+width,values.length),right=Math.min(left+2*width,values.length);
+          if(mid>=right){
+            push("tail",{left,mid,right,title:"Tail run carries forward",note:`Range [${left}, ${right-1}] has no partner in this pass, so it remains as-is.`});
+            continue;
+          }
+          aux.fill(null);
+          let i=left,j=mid,k=left;
+          push("merge_start",{left,mid,right,i,j,k,title:"Start merge window",note:`Merge [${left}, ${mid-1}] with [${mid}, ${right-1}] into the buffer.`});
+          while(i<mid&&j<right){
+            comparisons++;
+            push("compare",{left,mid,right,i,j,k,title:"Compare current heads",note:`Compare ${arr[i]} from the left run with ${arr[j]} from the right run.`});
+            if(arr[i]<=arr[j]){
+              aux[k]=arr[i];
+              writes++;
+              push("write_left",{left,mid,right,i,j,k,value:arr[i],title:"Write from left run",note:`${arr[i]} wins the comparison, so buffer[${k}] receives the left value.`});
+              i++;
+            }else{
+              aux[k]=arr[j];
+              writes++;
+              push("write_right",{left,mid,right,i,j,k,value:arr[j],title:"Write from right run",note:`${arr[j]} is smaller, so buffer[${k}] receives the right value.`});
+              j++;
+            }
+            k++;
+          }
+          while(i<mid){
+            aux[k]=arr[i];
+            writes++;
+            push("drain_left",{left,mid,right,i,j,k,value:arr[i],title:"Drain left remainder",note:`Right run is exhausted, so copy ${arr[i]} into buffer[${k}].`});
+            i++;
+            k++;
+          }
+          while(j<right){
+            aux[k]=arr[j];
+            writes++;
+            push("drain_right",{left,mid,right,i,j,k,value:arr[j],title:"Drain right remainder",note:`Left run is exhausted, so copy ${arr[j]} into buffer[${k}].`});
+            j++;
+            k++;
+          }
+          for(let idx=left;idx<right;idx++){
+            arr[idx]=aux[idx];
+            push("commit",{left,mid,right,commit:idx,title:"Copy back to main array",note:`Commit buffer[${idx}] = ${arr[idx]} back into the main array.`});
+          }
+          push("merge_done",{left,mid,right,title:"Merged run complete",note:`Range [${left}, ${right-1}] is now one sorted run.`});
+        }
+        push("pass_done",{title:`Pass ${pass} finished`,note:`Every run of width ${width} has been processed. Double the width for the next pass.`});
+        aux.fill(null);
+        width*=2;
+      }
+      push("done",{title:"Array sorted",note:"Repeated bottom-up passes produced one final sorted run without recursive calls."});
+      return events;
+    }
+    function scenario(){
+      const n=sizeOptions[Number(sizeRange.value)],key=`${patternSelect.value}|${n}`;
+      if(key!==lastKey){
+        const pattern=cur();
+        cached={pattern,n,events:buildTrace(pattern.build(n))};
+        lastKey=key;
+      }
+      return cached;
+    }
+    function stopPlayback(){if(timer){clearInterval(timer);timer=null}playBtn.textContent="Play"}
+    function startPlayback(){stopPlayback();playBtn.textContent="Pause";timer=setInterval(()=>{const max=Number(stepRange.max),current=Number(stepRange.value);if(current>=max){stopPlayback();return}stepRange.value=String(current+1);render()},speedOptions[Number(speedRange.value)])}
+    function changeStep(delta){stopPlayback();const max=Number(stepRange.max),next=Math.max(0,Math.min(max,Number(stepRange.value)+delta));stepRange.value=String(next);render()}
+    function render(){
+      const {pattern,n,events}=scenario(),maxStep=events.length-1,wanted=Math.min(Number(stepRange.value),maxStep),e=events[wanted],cols=n<=8?n:8,currentWidth=Math.min(Math.max(1,e.width||1),n),blocks=passBlocks(n,currentWidth),passes=totalPasses(n);
+      stepRange.max=maxStep;
+      stepRange.value=String(wanted);
+      document.getElementById("sizeValue").textContent=fmt(n);
+      document.getElementById("speedValue").textContent=speedLabels[Number(speedRange.value)];
+      document.getElementById("stepValue").textContent=`${wanted}/${maxStep}`;
+      document.getElementById("focusTitle").textContent=`${pattern.name} | ${e.title}`;
+      document.getElementById("focusSummary").textContent=e.note;
+      document.getElementById("formulaText").textContent="for width = 1, 2, 4, 8, ... merge adjacent runs";
+      document.getElementById("metricPass").textContent=e.type==="done"?`${passes}/${passes}`:`${Math.max(1,e.pass)}/${passes}`;
+      document.getElementById("metricWidth").textContent=e.type==="done"?"complete":`w = ${fmt(currentWidth)}`;
+      document.getElementById("metricComparisons").textContent=fmt(e.comparisons);
+      document.getElementById("metricWrites").textContent=fmt(e.writes);
+      document.getElementById("signList").innerHTML=["There is no recursive stack, only repeated passes.","The run width doubles after every completed pass.","Each merge window uses a temporary buffer then copies back."].map(x=>`<div>${x}</div>`).join("");
+      document.getElementById("helpsText").textContent=pattern.helps;
+      document.getElementById("cautionText").textContent=pattern.caution;
+      document.getElementById("factChips").innerHTML=pattern.facts.map(x=>`<span class="chip">${x}</span>`).join("");
+      document.getElementById("statusText").textContent=`${pattern.summary} Use play to animate the bottom-up passes, or scrub the step slider to inspect exactly how the buffer fills before each copy-back.`;
+      document.getElementById("heroTitle").textContent=`Step ${wanted}: ${e.title}`;
+      document.getElementById("heroSummary").textContent=e.note;
+      document.getElementById("heroBadges").innerHTML=[`pass ${Math.max(1,e.pass)}/${passes}`,`width ${currentWidth}`,`O(n log n)`].map(x=>`<span class="badge">${x}</span>`).join("");
+      arrayView.style.setProperty("--cols",String(cols));
+      bufferView.style.setProperty("--cols",String(cols));
+      arrayView.innerHTML=e.arr.map((v,i)=>{const active=e.left!==null&&i>=e.left&&i<e.right,leftRun=e.left!==null&&i>=e.left&&i<e.mid,rightRun=e.mid!==null&&i>=e.mid&&i<e.right,pointI=i===e.i,pointJ=i===e.j,commit=i===e.commit,off=e.left!==null&&!active&&e.type!=="done";return `<div class="bar-cell ${active?"window":""} ${leftRun?"left-run":""} ${rightRun?"right-run":""} ${pointI?"i":""} ${pointJ?"j":""} ${commit?"commit":""} ${off?"off":""}"><div class="idx">${i}</div><div class="bar" style="--h:${v}"><span>${v}</span></div><div class="value">${active?"in window":"idle"}</div></div>`}).join("");
+      bufferView.innerHTML=e.aux.map((v,i)=>{const active=e.left!==null&&i>=e.left&&i<e.right,target=i===e.k&&e.k!==null;return `<div class="buffer-cell ${v!==null?"filled":""} ${active?"window":""} ${target?"target":""}"><div class="slot">buf[${i}]</div><div class="val">${v===null?"-":v}</div></div>`}).join("");
+      document.getElementById("windowText").textContent=e.left===null?"No active merge window.":`[${e.left}, ${e.right-1}] split into [${e.left}, ${Math.max(e.left,e.mid-1)}] and [${e.mid}, ${e.right-1}]`;
+      document.getElementById("headsText").textContent=e.i===null&&e.j===null?"No head pointers active.":`left head: ${e.i===null||e.i>=e.mid?"-":`a[${e.i}] = ${e.arr[e.i]}`} | right head: ${e.j===null||e.j>=e.right?"-":`a[${e.j}] = ${e.arr[e.j]}`}`;
+      document.getElementById("targetText").textContent=e.k===null?"No buffer write pending.":`buffer[${e.k}]${e.value!==null?` <= ${e.value}`:""}`;
+      document.getElementById("actionText").textContent=e.note;
+      document.getElementById("codeText").textContent=`for (width = 1; width < n; width *= 2)\n  for (left = 0; left < n; left += 2 * width)\n    mid = min(left + width, n)\n    right = min(left + 2 * width, n)\n    merge(a[left:mid], a[mid:right]) into temp\n    copy temp[left:right] back into a`;
+      document.getElementById("runGrid").innerHTML=blocks.map(block=>{const active=e.left===block.left&&e.right===block.right,label=block.tail?`Tail run [${block.left}, ${block.right-1}]`:`Merge [${block.left}, ${block.mid-1}] + [${block.mid}, ${block.right-1}]`;const text=block.tail?"No partner exists in this pass, so this run survives unchanged.":"Two adjacent sorted runs are merged into one wider sorted run.";return `<div class="run-card ${active?"active":""}"><h3>${label}</h3><p>${text}</p></div>`}).join("");
+      document.getElementById("traceList").innerHTML=events.map((item,i)=>`<div class="trace-row ${i===wanted?"active":""}"><div class="trace-top"><strong>${item.title}</strong><span>step ${i} | pass ${Math.max(1,item.pass)} | width ${Math.min(Math.max(1,item.width||1),n)}</span></div><p>${item.note}</p></div>`).join("");
+      document.getElementById("passStory").textContent=`For n = ${fmt(n)}, bottom-up merge sort completes ${passes} passes because the sorted run width doubles as 1, 2, 4, 8, ... until it covers the array.`;
+      document.getElementById("growthText").textContent="After each pass, every processed run doubles in width. That is the iterative mirror of descending and returning in the recursive version.";
+      document.getElementById("passCostText").textContent="Each pass still touches each element a constant number of times across compare, write-to-buffer, and copy-back work, so one whole pass costs Theta(n).";
+      document.getElementById("comparisonText").textContent="Recursive and iterative merge sort share the same merge logic and asymptotic runtime. The difference is only control flow: recursion depth versus a width-doubling loop.";
+      document.getElementById("barList").innerHTML=Array.from({length:passes},(_,i)=>{const width=2**i,merges=Math.ceil(n/(2*width));return `<div class="bar-row"><div><strong>Pass ${i+1}</strong><br><span>run width ${fmt(width)}, about ${fmt(merges)} merge windows</span></div><div class="track"><div class="fill" style="width:100%"></div></div><div class="barv">${fmt(n)}</div></div>`}).join("");
+    }
+    function syncExpandButton(){const expanded=document.body.classList.contains("popup-expanded");expandToggle.textContent=expanded?"Collapse":"Expand";expandToggle.setAttribute("aria-expanded",String(expanded));expandToggle.title=expanded?"Close expanded dashboard view":"Open expanded dashboard view"}
+    tabs.forEach(btn=>btn.addEventListener("click",()=>{const t=btn.dataset.tab;tabs.forEach(x=>x.classList.toggle("active",x===btn));panels.forEach(p=>p.classList.toggle("active",p.id===`tab-${t}`))}));
+    playBtn.addEventListener("click",()=>{if(timer){stopPlayback()}else{startPlayback()}});
+    prevBtn.addEventListener("click",()=>changeStep(-1));
+    nextBtn.addEventListener("click",()=>changeStep(1));
+    resetBtn.addEventListener("click",()=>{stopPlayback();stepRange.value="0";render()});
+    stepRange.addEventListener("input",()=>{stopPlayback();render()});
+    speedRange.addEventListener("input",()=>{document.getElementById("speedValue").textContent=speedLabels[Number(speedRange.value)];if(timer)startPlayback()});
+    patternSelect.addEventListener("change",()=>{stopPlayback();lastKey="";stepRange.value="0";render()});
+    sizeRange.addEventListener("input",()=>{stopPlayback();lastKey="";stepRange.value="0";render()});
+    expandToggle.addEventListener("click",()=>{document.body.classList.toggle("popup-expanded");syncExpandButton()});
+    document.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&document.body.classList.contains("popup-expanded")){document.body.classList.remove("popup-expanded");syncExpandButton()}});
+    patternSelect.innerHTML=patterns.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");
+    patternSelect.value="distinct";
+    syncExpandButton();
+    render();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

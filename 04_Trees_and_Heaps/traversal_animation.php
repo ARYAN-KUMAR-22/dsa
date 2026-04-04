@@ -1,0 +1,992 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="description" content="Interactive Tree Traversal visualizer — animate Inorder, Preorder, Postorder, and Level-Order traversals step by step." />
+  <title>Tree Traversals – Animated Visualizer | DSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1e2438;
+      --border: #2a3050;
+      --accent: #a78bfa;
+      --accent2: #c4b5fd;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --yellow: #f1c40f;
+      --blue: #38bdf8;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --panel: #12161f;
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #6d28d9;
+      --accent2: #6d28d9;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #12001a, #0d1117);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .speed-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-left: auto;
+    }
+
+    .speed-label input {
+      accent-color: var(--accent);
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 280px;
+      min-width: 280px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.8)
+      }
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section-title {
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 7px 14px 4px;
+    }
+
+    .visit-order {
+      padding: 8px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 60px;
+    }
+
+    .visit-cell {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+      color: var(--text);
+      transition: all .3s;
+    }
+
+    .visit-cell.new {
+      background: var(--accent);
+      color: #0d1117;
+      border-color: var(--accent);
+    }
+
+    .step-box {
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 80px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      font-size: .76rem;
+      line-height: 1.5;
+    }
+
+    .step-num {
+      font-family: 'Fira Code', monospace;
+      font-size: .66rem;
+      color: var(--accent2);
+      min-width: 18px;
+    }
+
+    .step-item.done .step-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .step-item.done .step-num {
+      color: var(--green);
+    }
+
+    .step-item.active .step-text {
+      color: var(--yellow);
+      font-weight: 600;
+    }
+
+    .step-item.pending .step-text {
+      color: #3a4060;
+    }
+
+    .log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .log-entry {
+      font-family: 'Fira Code', monospace;
+      font-size: .71rem;
+      line-height: 1.55;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+    }
+
+    .log-entry.info {
+      color: #a78bfa;
+      border-color: #a78bfa;
+      background: #a78bfa08;
+    }
+
+    .log-entry.success {
+      color: var(--green);
+      border-color: var(--green);
+      background: #2ecc7108;
+    }
+
+    .log-entry.warn {
+      color: var(--yellow);
+      border-color: var(--yellow);
+      background: #f1c40f08;
+    }
+
+    .log-entry .ts {
+      color: #3a4060;
+      margin-right: 5px;
+    }
+
+    .right-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 20px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: .82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all .2s;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--card);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all .18s;
+    }
+
+    .btn-inorder {
+      background: #a78bfa;
+      color: #0d1117;
+    }
+
+    .btn-inorder:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-preorder {
+      background: #38bdf8;
+      color: #0d1117;
+    }
+
+    .btn-preorder:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-postorder {
+      background: #fb923c;
+      color: #0d1117;
+    }
+
+    .btn-postorder:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-level {
+      background: #2ecc71;
+      color: #0d1117;
+    }
+
+    .btn-level:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-neutral {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-neutral:hover {
+      background: var(--card);
+    }
+
+    .btn-warn {
+      background: var(--yellow);
+      color: #0d1117;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .74rem;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .canvas-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .tgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .t-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .t-card h3 {
+      font-size: .9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .t-card p,
+    .t-card li {
+      font-size: .81rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .t-card ul {
+      padding-left: 14px;
+    }
+
+    .t-card code {
+      background: var(--bg);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: .77rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: .68rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .b-in {
+      background: #a78bfa22;
+      color: #a78bfa;
+    }
+
+    .b-pre {
+      background: #38bdf822;
+      color: #38bdf8;
+    }
+
+    .b-post {
+      background: #fb923c22;
+      color: #fb923c;
+    }
+
+    .b-lvl {
+      background: #2ecc7122;
+      color: #2ecc71;
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+
+<body>
+  <header>
+    <div style="font-size:1.6rem">🔄</div>
+    <div>
+      <h1>Tree Traversals <span>Visualizer</span></h1>
+      <p>Animate all 4 traversal types — watch the visit order build step by step</p>
+    </div>
+    <a href="../index.php" style="margin-left:auto;margin-right:12px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Home</a>
+    <div class="speed-label">Speed:<input type="range" id="speedSlider" min="1" max="10" value="5" style="width:80px">
+    </div>
+  </header>
+  <div class="app-body">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="pulse-dot"></div>Debug Panel
+      </div>
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">📋 Visit Order</div>
+        <div class="visit-order" id="visitOrder"><span style="color:#3a4060;font-size:.75rem;padding:4px 0">Run a
+            traversal to see order…</span></div>
+      </div>
+      <div class="panel-section" style="flex-shrink:0">
+        <div class="panel-section-title">⚡ Current Step</div>
+        <div class="step-box" id="stepBox">
+          <div class="step-item pending">
+            <div class="step-num">–</div>
+            <div class="step-text">Idle…</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-section" style="flex:1;overflow:hidden;">
+        <div class="panel-section-title">📝 Process Log</div>
+        <div class="log-scroll" id="logBox"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-content">
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="showTab('t-trav',this)">🔄 Traversal Demo</button>
+        <button class="tab-btn" onclick="showTab('t-theory',this)">📚 Theory</button>
+      </nav>
+
+      <div id="t-trav" class="tab-panel active">
+        <div class="controls">
+          <button class="btn btn-inorder" onclick="runTraversal('inorder')">▶ Inorder (L-N-R)</button>
+          <button class="btn btn-preorder" onclick="runTraversal('preorder')">▶ Preorder (N-L-R)</button>
+          <button class="btn btn-postorder" onclick="runTraversal('postorder')">▶ Postorder (L-R-N)</button>
+          <button class="btn btn-level" onclick="runTraversal('level')">▶ Level-Order (BFS)</button>
+          <button class="btn btn-neutral" onclick="doReset()">Reset Tree</button>
+          <button class="btn btn-warn" onclick="loadCustom()">Load New Tree</button>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="dot" style="background:#a78bfa"></div>Inorder color
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#38bdf8"></div>Preorder
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#fb923c"></div>Postorder
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#2ecc71"></div>Level-order
+          </div>
+          <div class="legend-item">
+            <div class="dot" style="background:#1e2438"></div>Unvisited
+          </div>
+        </div>
+        <div class="canvas-wrap"><canvas id="travCanvas" height="360"></canvas></div>
+      </div>
+
+      <div id="t-theory" class="tab-panel">
+        <div class="tgrid">
+          <div class="t-card"><span class="badge b-in">Inorder</span>
+            <h3>Left → Node → Right</h3>
+            <ul>
+              <li>Visits nodes in <strong>sorted order</strong> (for BST)</li>
+              <li>Used to: print BST in order, expression evaluation</li>
+              <li><code>inorder(L); visit(N); inorder(R);</code></li>
+            </ul>
+          </div>
+          <div class="t-card"><span class="badge b-pre">Preorder</span>
+            <h3>Node → Left → Right</h3>
+            <ul>
+              <li>Root is visited <strong>first</strong></li>
+              <li>Used to: copy/serialize a tree, prefix expressions</li>
+              <li><code>visit(N); preorder(L); preorder(R);</code></li>
+            </ul>
+          </div>
+          <div class="t-card"><span class="badge b-post">Postorder</span>
+            <h3>Left → Right → Node</h3>
+            <ul>
+              <li>Root is visited <strong>last</strong></li>
+              <li>Used to: delete tree, postfix expressions, folder size</li>
+              <li><code>postorder(L); postorder(R); visit(N);</code></li>
+            </ul>
+          </div>
+          <div class="t-card"><span class="badge b-lvl">Level-Order</span>
+            <h3>Level by Level (BFS)</h3>
+            <ul>
+              <li>Uses a <strong>Queue</strong>, not recursion</li>
+              <li>Used to: level-by-level print, shortest path, AVL height</li>
+              <li><code>queue.push(root); while(!empty) dequeue&amp;enqueue-children</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="t-card">
+          <h3>📊 Complexity Comparison</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Traversal</th>
+                <th>Data Structure</th>
+                <th>Time</th>
+                <th>Space</th>
+                <th>Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Inorder</td>
+                <td>Call Stack</td>
+                <td class="good">O(n)</td>
+                <td>O(h)</td>
+                <td>Sorted output from BST</td>
+              </tr>
+              <tr>
+                <td>Preorder</td>
+                <td>Call Stack</td>
+                <td class="good">O(n)</td>
+                <td>O(h)</td>
+                <td>Tree serialization / copy</td>
+              </tr>
+              <tr>
+                <td>Postorder</td>
+                <td>Call Stack</td>
+                <td class="good">O(n)</td>
+                <td>O(h)</td>
+                <td>Deletion / folder sizes</td>
+              </tr>
+              <tr>
+                <td>Level-order</td>
+                <td>Queue</td>
+                <td class="good">O(n)</td>
+                <td>O(w)</td>
+                <td>BFS / shortest path</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top:8px;font-size:.78rem;color:var(--muted)">h = height, w = max width of tree</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // ── TREE NODE ──
+    class TN { constructor(v) { this.v = v; this.l = null; this.r = null; this.x = 0; this.y = 0; this.tx = 0; this.ty = 0; this.placed = false; this.col = '#1e2438'; } }
+
+    const DEFAULT_TREE = [50, 30, 70, 20, 40, 60, 80, 10, 25];
+
+    let root = null;
+    let running = false;
+    let activeCol = '#a78bfa';
+    let currentTree = [];
+
+    // Build a tree
+    function buildTree(vals = DEFAULT_TREE) {
+      currentTree = [...vals];
+      root = null;
+      vals.forEach(v => { root = bstIns(root, v); });
+    }
+    function bstIns(nd, v) { if (!nd) return new TN(v); if (v < nd.v) nd.l = bstIns(nd.l, v); else nd.r = bstIns(nd.r, v); return nd; }
+    function resetColors(nd) { if (!nd) return; nd.col = '#1e2438'; resetColors(nd.l); resetColors(nd.r); }
+
+    function randomTreeValues(count = 9, min = 10, max = 99) {
+      const vals = new Set();
+      while (vals.size < count) vals.add(Math.floor(Math.random() * (max - min + 1)) + min);
+      return Array.from(vals);
+    }
+
+    // ── POSITIONING ──
+    function pos(nd, x, y, gap) { if (!nd) return; nd.tx = x; nd.ty = y; if (!nd.placed) { nd.x = x; nd.y = y; nd.placed = true; } pos(nd.l, x - gap, y + 65, gap / 1.65); pos(nd.r, x + gap, y + 65, gap / 1.65); }
+    function lerp(nd) { if (!nd) return; nd.x += (nd.tx - nd.x) * .2; nd.y += (nd.ty - nd.y) * .2; lerp(nd.l); lerp(nd.r); }
+
+    // ── DRAW ──
+    function drawTree() {
+      const cvs = document.getElementById('travCanvas'); cvs.width = cvs.clientWidth || 800;
+      const ctx = cvs.getContext('2d'); ctx.clearRect(0, 0, cvs.width, cvs.height);
+      if (!root) { ctx.fillStyle = '#2a3050'; ctx.font = '13px Inter'; ctx.textAlign = 'center'; ctx.fillText('No tree — click Reset', cvs.width / 2, cvs.height / 2); return; }
+      pos(root, cvs.width / 2, 44, cvs.width / 4.5); lerp(root); drawNode(ctx, root, null);
+    }
+    function drawNode(ctx, nd, par) {
+      if (!nd) return;
+      if (par) { ctx.beginPath(); ctx.moveTo(par.x, par.y); ctx.lineTo(nd.x, nd.y); ctx.strokeStyle = '#2a3050'; ctx.lineWidth = 1.8; ctx.stroke(); }
+      drawNode(ctx, nd.l, nd); drawNode(ctx, nd.r, nd);
+      const r = 21, col = nd.col || '#1e2438';
+      ctx.save(); if (col !== '#1e2438') { ctx.shadowBlur = 14; ctx.shadowColor = col; }
+      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+      ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, 6.28); ctx.strokeStyle = col === '#1e2438' ? '#2a3050' : 'rgba(255,255,255,.15)'; ctx.lineWidth = 1.5; ctx.stroke();
+      const textCol = col === '#1e2438' ? '#8892b0' : '#0d1117';
+      ctx.fillStyle = textCol; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(nd.v, nd.x, nd.y);
+    }
+
+    let raf;
+    function loop() { drawTree(); raf = requestAnimationFrame(loop); }
+
+    // ── LOG / VISIT ──
+    function log(msg, t = 'info') { const b = document.getElementById('logBox'), d = document.createElement('div'); d.className = 'log-entry ' + t; const now = new Date(); d.innerHTML = `<span class='ts'>[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]</span>${msg}`; b.prepend(d); }
+
+    function addVisit(v) {
+      const d = document.getElementById('visitOrder');
+      if (d.querySelector('span')) d.innerHTML = '';
+      const c = document.createElement('div'); c.className = 'visit-cell new'; c.textContent = v;
+      d.appendChild(c);
+      setTimeout(() => c.classList.remove('new'), 400);
+    }
+    function clearVisit(msg = 'Run a traversal to see order…') { const d = document.getElementById('visitOrder'); d.innerHTML = `<span style="color:#3a4060;font-size:.75rem;padding:4px 0">${msg}</span>`; }
+
+    function setSteps(steps, idx) { const b = document.getElementById('stepBox'); b.innerHTML = ''; steps.forEach((s, i) => { const d = document.createElement('div'); d.className = 'step-item ' + (i < idx ? 'done' : (i === idx ? 'active' : 'pending')); d.innerHTML = `<div class="step-num">${i + 1}.</div><div class="step-text">${s}</div>`; b.appendChild(d); }); }
+    function clearSteps() { document.getElementById('stepBox').innerHTML = '<div class="step-item pending"><div class="step-num">–</div><div class="step-text">Idle…</div></div>'; }
+    function spd() { return Math.max(200, 1200 - parseInt(document.getElementById('speedSlider').value) * 100); }
+    async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function pulseNode(nd, ms = Math.max(120, Math.floor(spd() * .45))) {
+      if (!nd) return;
+      const old = nd.col;
+      if (old === activeCol) {
+        await sleep(ms);
+        return;
+      }
+      nd.col = '#f1c40f';
+      await sleep(ms);
+      if (nd.col === '#f1c40f') nd.col = old;
+    }
+
+    // ── TRAVERSALS ──
+    const TRAV_INFO = {
+      inorder: { label: 'Inorder (L→N→R)', col: '#a78bfa', steps: ['Go to leftmost node', 'Visit node', 'Go right', 'Repeat — gives sorted output ✓'] },
+      preorder: { label: 'Preorder (N→L→R)', col: '#38bdf8', steps: ['Visit root first', 'Recurse into left subtree', 'Recurse into right subtree', 'Root always visited first ✓'] },
+      postorder: { label: 'Postorder (L→R→N)', col: '#fb923c', steps: ['Recurse into left subtree', 'Recurse into right subtree', 'Visit node last', 'Root always visited last ✓'] },
+      level: { label: 'Level-Order (BFS)', col: '#2ecc71', steps: ['Enqueue root', 'Dequeue node, visit it', 'Enqueue left child (if any)', 'Enqueue right child (if any)', 'Repeat until queue empty ✓'] }
+    };
+
+    function buildTraversalPlan(type, nd) {
+      const actions = [];
+      const order = [];
+
+      function addVisit(node, step, text) {
+        actions.push({ kind: 'visit', node, step, text });
+        order.push(node.v);
+      }
+
+      function inorder(node) {
+        if (!node) return;
+        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 0, text: `Move left from ${node.v} to ${node.l.v}` });
+        inorder(node.l);
+        addVisit(node, 1, `Visit ${node.v}`);
+        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 2, text: `Move right from ${node.v} to ${node.r.v}` });
+        inorder(node.r);
+      }
+
+      function preorder(node) {
+        if (!node) return;
+        addVisit(node, 0, `Visit ${node.v}`);
+        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 1, text: `Go left from ${node.v} to ${node.l.v}` });
+        preorder(node.l);
+        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 2, text: `Go right from ${node.v} to ${node.r.v}` });
+        preorder(node.r);
+      }
+
+      function postorder(node) {
+        if (!node) return;
+        if (node.l) actions.push({ kind: 'focus', node: node.l, step: 0, text: `Go left from ${node.v} to ${node.l.v}` });
+        postorder(node.l);
+        if (node.r) actions.push({ kind: 'focus', node: node.r, step: 1, text: `Go right from ${node.v} to ${node.r.v}` });
+        postorder(node.r);
+        addVisit(node, 2, `Visit ${node.v}`);
+      }
+
+      function levelOrder(node) {
+        const q = [node];
+        actions.push({ kind: 'queue', node, step: 0, text: `Enqueue root ${node.v}` });
+        while (q.length) {
+          const cur = q.shift();
+          addVisit(cur, 1, `Dequeue and visit ${cur.v}`);
+          if (cur.l) {
+            actions.push({ kind: 'queue', node: cur.l, step: 2, text: `Enqueue left child ${cur.l.v}` });
+            q.push(cur.l);
+          }
+          if (cur.r) {
+            actions.push({ kind: 'queue', node: cur.r, step: 3, text: `Enqueue right child ${cur.r.v}` });
+            q.push(cur.r);
+          }
+        }
+      }
+
+      if (type === 'inorder') inorder(nd);
+      else if (type === 'preorder') preorder(nd);
+      else if (type === 'postorder') postorder(nd);
+      else if (type === 'level' && nd) levelOrder(nd);
+
+      return { actions, order };
+    }
+
+    async function playAction(action) {
+      if (action.kind === 'visit') {
+        action.node.col = activeCol;
+        addVisit(action.node.v);
+        log(action.text, 'info');
+        await sleep(spd());
+        return;
+      }
+
+      log(action.text, action.kind === 'queue' ? 'success' : 'warn');
+      await pulseNode(action.node);
+    }
+
+    async function runTraversal(type) {
+      if (running) return;
+      if (!root) { log('No tree! Click Reset to build one.', 'warn'); return; }
+      running = true;
+      const info = TRAV_INFO[type];
+      activeCol = info.col;
+      resetColors(root);
+      clearVisit('Running…');
+      setSteps(info.steps, 0);
+      log(`▶ Starting ${info.label}…`, 'info');
+
+      const plan = buildTraversalPlan(type, root);
+      for (const action of plan.actions) {
+        setSteps(info.steps, Math.min(action.step, info.steps.length - 1));
+        await playAction(action);
+      }
+
+      setSteps(info.steps, info.steps.length);
+      log(`✅ ${info.label} complete: [${plan.order.join(' → ')}]`, 'success');
+      running = false;
+      clearSteps();
+    }
+
+    // ── CONTROLS ──
+    function doReset() {
+      if (running) return;
+      buildTree(currentTree.length ? currentTree : DEFAULT_TREE);
+      resetColors(root);
+      clearVisit();
+      clearSteps();
+      log('Tree reset', 'info');
+    }
+    function loadCustom(initial = false) {
+      if (running) return;
+      buildTree(randomTreeValues());
+      resetColors(root);
+      clearVisit();
+      clearSteps();
+      log(`${initial ? 'Random tree ready' : 'Loaded random tree'}: [${currentTree.join(', ')}]`, 'info');
+    }
+    function showTab(id, btn) { document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
+
+    // ── INIT ──
+    window.onload = () => {
+      loadCustom(true); loop();
+      log('Tree ready. Click a traversal button to animate!', 'info');
+    };
+    window.addEventListener('resize', () => { const c = document.getElementById('travCanvas'); c.width = c.clientWidth || 800; });
+    window.runTraversal = runTraversal;
+    window.doReset = doReset;
+    window.loadCustom = loadCustom;
+    window.showTab = showTab;
+    window.buildTraversalPlan = buildTraversalPlan;
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+
+</html>

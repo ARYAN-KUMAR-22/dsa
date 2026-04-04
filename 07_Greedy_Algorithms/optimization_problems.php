@@ -1,0 +1,833 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimization Problems - Interactive Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b27;
+      --card: #1d2436;
+      --panel: #12161f;
+      --border: #2b3550;
+      --accent: #10b981;
+      --accent-2: #34d399;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8b98b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #059669;
+      --accent-2: #059669;
+      --good: #15803d;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
+
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #051810, #0d1117);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .app-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 290px;
+      min-width: 290px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.3s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.84); }
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section-title {
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 14px 4px;
+    }
+
+    .summary-grid {
+      padding: 8px 14px 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(52, 211, 153, 0.06), transparent 30%),
+        var(--bg);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 18px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--card);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .tab-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .content-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .content-card h3 {
+      color: var(--accent-2);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .content-card p, .content-card li {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .content-card ul, .content-card ol {
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .concept-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .concept-box h4 {
+      color: var(--accent-2);
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+
+    .concept-box p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    code {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    .example-highlight {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .example-highlight strong {
+      color: var(--accent-2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.82rem;
+    }
+
+    table th {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-2);
+      padding: 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .left-panel { width: 240px; }
+      .concept-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .app-body { flex-direction: column; }
+      .left-panel { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <h1><span>Optimization</span> Problems</h1>
+    <p>Understanding optimization problems and solution techniques</p>
+  </header>
+
+  <div class="app-body">
+    <div class="left-panel">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        Problem Overview
+      </div>
+      
+      <div class="panel-section">
+        <div class="panel-section-title">Core Components</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Objective</div>
+            <div class="metric-value">Min or Max</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Variables</div>
+            <div class="metric-value">Decision X</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Constraints</div>
+            <div class="metric-value">Feasible</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Solution</div>
+            <div class="metric-value">Optimal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Problem Types</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Linear</div>
+            <div class="metric-value">LP</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Non-Linear</div>
+            <div class="metric-value">NLP</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Integer</div>
+            <div class="metric-value">IP</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Combinatorial</div>
+            <div class="metric-value">CO</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Solution Methods</div>
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="metric-label">Exact</div>
+            <div class="metric-value">Optimal</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Greedy</div>
+            <div class="metric-value">Fast</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Heuristic</div>
+            <div class="metric-value">Near-opt</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Approximation</div>
+            <div class="metric-value">Bound</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('theory')">📚 Theory</button>
+        <button class="tab-btn" onclick="switchTab('examples')">💡 Examples</button>
+        <button class="tab-btn" onclick="switchTab('reference')">📖 Reference</button>
+      </div>
+
+      <!-- Theory Tab -->
+      <div id="theory" class="tab-panel active">
+        <div class="content-card">
+          <h3>Definition & Core Concept</h3>
+          <p>
+            An optimization problem is a mathematical problem where we seek to find the best solution from all feasible 
+            solutions. The goal is to either maximize or minimize an objective function while satisfying a set of constraints.
+          </p>
+          <p style="margin-top: 10px;">An optimization problem consists of:</p>
+          <ul>
+            <li><strong>Objective Function:</strong> A function f(x) that we want to maximize or minimize</li>
+            <li><strong>Decision Variables:</strong> The variables we can control (represented as x)</li>
+            <li><strong>Constraints:</strong> Limitations or restrictions that the solution must satisfy</li>
+            <li><strong>Feasible Region:</strong> The set of all solutions that satisfy the constraints</li>
+            <li><strong>Optimal Solution:</strong> The best feasible solution that optimizes the objective function</li>
+          </ul>
+          <div class="example-highlight">
+            <strong>Example:</strong> Minimize cost while delivering packages on time following truck capacity limits.
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Types of Optimization Problems</h3>
+          <div class="concept-grid">
+            <div class="concept-box">
+              <h4>Linear Programming</h4>
+              <p>Both objective function and constraints are linear equations/inequalities.</p>
+            </div>
+            <div class="concept-box">
+              <h4>Non-Linear Programming</h4>
+              <p>Objective function or constraints contain non-linear terms.</p>
+            </div>
+            <div class="concept-box">
+              <h4>Integer Programming</h4>
+              <p>Decision variables must be integers. Useful for discrete choices.</p>
+            </div>
+            <div class="concept-box">
+              <h4>Combinatorial Optimization</h4>
+              <p>Finding optimal solution from a finite set of possible solutions.</p>
+            </div>
+            <div class="concept-box">
+              <h4>Convex Optimization</h4>
+              <p>Objective and constraint functions are convex. Guarantees global optimum.</p>
+            </div>
+            <div class="concept-box">
+              <h4>Non-Convex Optimization</h4>
+              <p>May have multiple local optima. Finding global optimum is harder.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Maximization vs Minimization</h3>
+          <ul>
+            <li><strong>Maximization:</strong> Find the highest value (e.g., maximize profit, efficiency)</li>
+            <li><strong>Minimization:</strong> Find the lowest value (e.g., minimize cost, time, distance)</li>
+            <li>Any maximization problem can be converted to a minimization problem by negating the objective function</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Key Characteristics</h3>
+          <ul>
+            <li><strong>Feasibility:</strong> A problem is feasible if at least one solution satisfies all constraints</li>
+            <li><strong>Boundedness:</strong> A minimization problem is unbounded if the objective can decrease indefinitely</li>
+            <li><strong>Uniqueness:</strong> An optimal solution may be unique or there may be multiple optimal solutions</li>
+            <li><strong>Sensitivity:</strong> How much the optimal solution changes when problem parameters change</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Solution Approaches</h3>
+          <p>Different approaches exist depending on problem complexity:</p>
+          <ul>
+            <li><strong>Exact Algorithms:</strong> Guarantee optimal solution (may take exponential time for large instances)</li>
+            <li><strong>Greedy Algorithms:</strong> Make locally optimal choices (fast but not always optimal)</li>
+            <li><strong>Dynamic Programming:</strong> Break problem into overlapping subproblems</li>
+            <li><strong>Heuristics & Metaheuristics:</strong> Approximation techniques like simulated annealing, genetic algorithms</li>
+            <li><strong>Approximation Algorithms:</strong> Find near-optimal solutions with proven quality guarantees</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Optimization Problems & Greedy Algorithms</h3>
+          <p>Greedy algorithms are a popular approach for solving optimization problems. A greedy algorithm works by:</p>
+          <ol>
+            <li>Making the locally optimal choice at each step</li>
+            <li>Hoping that this leads to a globally optimal solution</li>
+            <li>Never reconsidering previous choices</li>
+          </ol>
+          <p style="margin-top: 10px;">
+            Greedy algorithms are <strong>fast and simple</strong> but don't always produce optimal solutions. They work 
+            well for problems with <code>greedy choice property</code> and <code>optimal substructure</code>.
+          </p>
+          <div class="example-highlight">
+            <strong>Example:</strong> The activity selection problem uses a greedy approach: always select the activity that 
+            finishes earliest. This maximizes the number of non-overlapping activities.
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>NP-Hardness</h3>
+          <p>Some optimization problems are classified as <code>NP-Hard</code>:</p>
+          <ul>
+            <li>No known polynomial-time algorithm exists to find the optimal solution</li>
+            <li>Verification of a solution can be done in polynomial time</li>
+            <li>Examples: Traveling Salesman Problem, Knapsack Problem, Vertex Cover</li>
+            <li>For NP-Hard problems, use approximation algorithms or heuristics instead of exact algorithms</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Examples Tab -->
+      <div id="examples" class="tab-panel">
+        <div class="content-card">
+          <h3>Real-World Examples</h3>
+          <ul>
+            <li><strong>Knapsack Problem:</strong> Maximize total value while keeping total weight within a limit</li>
+            <li><strong>Traveling Salesman Problem (TSP):</strong> Find the shortest route visiting all cities exactly once</li>
+            <li><strong>Activity Selection:</strong> Select maximum number of non-overlapping activities</li>
+            <li><strong>Scheduling:</strong> Minimize task completion time or machine setup costs</li>
+            <li><strong>Portfolio Optimization:</strong> Maximize returns while minimizing investment risk</li>
+            <li><strong>Network Flow:</strong> Maximize flow through a network with capacity constraints</li>
+            <li><strong>Resource Allocation:</strong> Distribute limited resources to maximize total benefit</li>
+            <li><strong>Job Sequencing:</strong> Schedule jobs to maximize profit before deadlines</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Algorithm Comparison</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Technique</th>
+                <th>When to Use</th>
+                <th>Guarantee</th>
+                <th>Complexity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Greedy</strong></td>
+                <td>Fast solution needed, greedy choice property</td>
+                <td>Near-optimal (not always)</td>
+                <td>Polynomial</td>
+              </tr>
+              <tr>
+                <td><strong>Dynamic Programming</strong></td>
+                <td>Optimal substructure, overlapping subproblems</td>
+                <td>Optimal solution</td>
+                <td>Depends on problem</td>
+              </tr>
+              <tr>
+                <td><strong>Exact Algorithms</strong></td>
+                <td>Small instance size, optimal solution required</td>
+                <td>Optimal solution</td>
+                <td>Exponential</td>
+              </tr>
+              <tr>
+                <td><strong>Approximation</strong></td>
+                <td>Large NP-Hard instances, guarantee needed</td>
+                <td>Approximate with ratio bound</td>
+                <td>Polynomial</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="content-card">
+          <h3>Greedy vs Dynamic Programming</h3>
+          <div class="concept-grid">
+            <div class="concept-box">
+              <h4>Greedy Algorithm</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>Makes local optimal choice</li>
+                <li>Never backtracks</li>
+                <li>Fast (usually O(n) or O(n log n))</li>
+                <li>Not always optimal</li>
+                <li>Good for specific problem types</li>
+              </ul>
+            </div>
+            <div class="concept-box">
+              <h4>Dynamic Programming</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>Explores multiple choices</li>
+                <li>Can backtrack via memoization</li>
+                <li>Slower (often O(n²) or more)</li>
+                <li>Always optimal</li>
+                <li>Works for many problem types</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Tab -->
+      <div id="reference" class="tab-panel">
+        <div class="content-card">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Optimization problems seek the best solution from all feasible solutions</li>
+            <li>They consist of an objective function, variables, and constraints</li>
+            <li>No single approach works for all optimization problems</li>
+            <li>Greedy algorithms are fast but not always optimal</li>
+            <li>Some problems (NP-Hard) require approximation or heuristic approaches</li>
+            <li>Choosing the right algorithm depends on problem size, solution quality, and time constraints</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Problem Classification</h3>
+          <div class="concept-grid">
+            <div class="concept-box">
+              <h4>By Structure</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>Linear vs Non-linear</li>
+                <li>Convex vs Non-convex</li>
+                <li>Continuous vs Discrete</li>
+              </ul>
+            </div>
+            <div class="concept-box">
+              <h4>By Complexity</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>P (Polynomial solvable)</li>
+                <li>NP (Verifiable in polynomial)</li>
+                <li>NP-Hard (hardest NP)</li>
+              </ul>
+            </div>
+            <div class="concept-box">
+              <h4>By Objective</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>Maximization</li>
+                <li>Minimization</li>
+                <li>Multi-objective</li>
+              </ul>
+            </div>
+            <div class="concept-box">
+              <h4>By Variables</h4>
+              <ul style="font-size: 0.78rem; padding-left: 15px;">
+                <li>Integer Programming</li>
+                <li>Real-valued</li>
+                <li>Mixed (integer+real)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>When to Choose Each Approach</h3>
+          <ul>
+            <li><strong>Greedy:</strong> Problem has greedy choice property, fast solution needed, optimal substructure exists</li>
+            <li><strong>Dynamic Programming:</strong> Optimal substructure, overlapping subproblems, small to medium problem size</li>
+            <li><strong>Exact Algorithms:</strong> Small instance size, can afford exponential time, need guaranteed optimal</li>
+            <li><strong>Approximation:</strong> Large NP-Hard instances, need polynomial-time guarantee with quality bound</li>
+            <li><strong>Heuristics:</strong> Very large instances, any reasonable solution acceptable, time critical</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Optimization in Computer Science</h3>
+          <p>Optimization problems appear everywhere:</p>
+          <ul>
+            <li><strong>Machine Learning:</strong> Minimizing loss functions, training neural networks</li>
+            <li><strong>Operations Research:</strong> Resource allocation, scheduling, routing</li>
+            <li><strong>Database Systems:</strong> Query optimization, index selection</li>
+            <li><strong>Compiler Design:</strong> Code optimization, register allocation</li>
+            <li><strong>Game Development:</strong> Pathfinding, resource management</li>
+            <li><strong>Networking:</strong> Routing protocols, load balancing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.tab-panel');
+      panels.forEach(panel => panel.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(button => button.classList.remove('active'));
+      
+      // Show selected panel
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>

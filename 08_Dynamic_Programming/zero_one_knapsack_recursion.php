@@ -1,0 +1,1056 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>0/1 Knapsack Using Recursion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0b1020;--panel:#11192b;--surface:#18233a;--card:#1d2943;--border:#334760;--text:#edf5ff;--muted:#97abc6;--accent:#60a5fa;--accent2:#a78bfa;--accent3:#bfdbfe;--good:#22c55e;--warn:#f59e0b;--shadow:0 22px 48px rgba(0,0,0,.3)}
+
+    body.light-mode {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --surface: #eef2ff;
+      --card: #e8effe;
+      --border: rgba(99, 102, 241, 0.20);
+      --text: #1e2a45;
+      --muted: #52637a;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+      --glow: rgba(99, 102, 241, 0.10);
+      --focus: rgba(99, 102, 241, 0.20);
+      --accent: #1d4ed8;
+      --accent2: #6d28d9;
+      --accent3: #1d4ed8;
+      --good: #15803d;
+      --warn: #b45309;
+    }
+
+    body.light-mode header {
+      background: var(--panel);
+      border-bottom-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .box {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode .mini,
+    body.light-mode .cmp,
+    body.light-mode .ex {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .sim-btn {
+      background: var(--surface);
+    }
+    body.light-mode .table-wrap {
+      background: var(--surface);
+    }
+    body.light-mode .editor-field input,
+    body.light-mode .editor-field textarea {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top right,rgba(96,165,250,.12),transparent 25%),radial-gradient(circle at bottom left,rgba(167,139,250,.1),transparent 28%),var(--bg);color:var(--text);font-family:Inter,sans-serif}
+    header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#111b3a,#0b1020)}
+    header h1{font-size:1.2rem;font-weight:800}
+    header h1 span{color:var(--accent)}
+    header p{color:var(--muted);font-size:.8rem;line-height:1.6}
+    .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:10px}
+    .actions a{text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}
+    .actions a:hover{transform:translateY(-1px);border-color:rgba(96,165,250,.36);color:var(--text)}
+    .actions a.primary{background:linear-gradient(135deg,#60a5fa,var(--accent2));border-color:transparent;color:#101625;font-weight:800}
+    .app{flex:1;display:flex;min-height:calc(100vh - 80px)}
+    .left{width:320px;min-width:320px;background:var(--panel);border-right:1px solid var(--border)}
+    .panel-head{padding:9px 12px 7px;border-bottom:1px solid var(--border);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 10px rgba(34,197,94,.7);animation:pulse 1.3s infinite;flex-shrink:0}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.84);opacity:.5}}
+    .sec{border-bottom:1px solid var(--border)}
+    .sec-title{padding:8px 12px 4px;color:var(--muted);font-size:.67rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .box{margin:0 12px 10px;padding:12px;border-radius:14px;border:1px solid var(--border);background: var(--card);color:var(--muted);font-size:.8rem;line-height:1.65}
+    .focus{color:var(--text);font-size:.94rem;font-weight:800;line-height:1.5;margin-bottom:6px}
+    .formula{color:var(--accent3);font-family:"Fira Code",monospace;white-space:pre-wrap}
+    .metrics{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metric{border:1px solid var(--border);border-radius:12px;background: var(--card);padding:10px;box-shadow:var(--shadow)}
+    .metric-label{color:var(--muted);font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+    .metric-value{font-size:.8rem;line-height:1.45;font-family:"Fira Code",monospace}
+    .list{padding:0 12px 12px;display:grid;gap:8px}
+    .list div{position:relative;padding-left:14px;color:var(--muted);font-size:.8rem;line-height:1.58}
+    .list div:before{content:"";position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .chips{padding:0 12px 12px;display:flex;flex-wrap:wrap;gap:8px}
+    .chip,.badge,.pick,.call{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:800}
+    .chip{color:var(--accent2);background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.24)}
+    .badge{color:var(--accent2);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.24)}
+    .pick{color:var(--good);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22)}
+    .call{color:var(--good);background:rgba(14,116,144,.16);border:1px solid rgba(96,165,250,.22);font-family:"Fira Code",monospace}
+    .call.active{border-color:rgba(245,158,11,.34);background:rgba(245,158,11,.12);color:var(--warn)}
+    .work{flex:1;min-width:0;display:flex;flex-direction:column}
+    .tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--border);background: var(--surface);overflow-x:auto}
+    .tabs::-webkit-scrollbar{height:5px}
+    .tabs::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+    .tab{padding:9px 18px;border:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:700;border-bottom:2px solid transparent;transition:color .18s ease,background .18s ease;white-space:nowrap}
+    .tab:hover{color:var(--text);background: var(--surface)}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent);background: var(--card)}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center}
+    .field{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background: var(--card)}
+    .field span{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .field select,.field input{border:none;background:transparent;color:var(--text);outline:none;font:.8rem "Fira Code",monospace}
+    .range{display:flex;align-items:center;gap:10px;min-width:220px}
+    .range input{width:100%;accent-color:var(--accent)}
+    .value{color:var(--accent2);font:.8rem "Fira Code",monospace;letter-spacing:0;text-transform:none}
+    .panel{display:none;padding:12px 16px 16px;overflow-y:auto}
+    .panel.active{display:block}
+    .status{padding:0 0 12px;color:var(--text);line-height:1.7;font-size:.84rem}
+    .grid{display:grid;grid-template-columns:1.04fr .96fr;gap:12px;align-items:start}
+    .card{display:grid;gap:14px;padding:18px;border-radius:20px;border:1px solid var(--border);background: var(--card);box-shadow:var(--shadow)}
+    .focus-card{border-color:rgba(96,165,250,.3);box-shadow:0 0 0 1px rgba(96,165,250,.12),0 20px 42px rgba(0,0,0,.28)}
+    .kick{color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .card h2{font-size:1.1rem;line-height:1.45}
+    .sub{color:var(--muted);line-height:1.7;font-size:.9rem}
+    .stage,.compare,.result-grid,.examples,.editor-grid{display:grid;gap:10px}
+    .stage{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .compare,.result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .examples,.editor-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mini,.cmp,.ex,.result{display:grid;gap:6px;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,.12);background: var(--surface)}
+    .mini h3,.cmp h3,.ex h3,.result h3{font-size:.92rem}
+    .mini p,.cmp p,.ex p,.result p{color:var(--muted);font-size:.82rem;line-height:1.62}
+    .step{color:var(--accent3);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    pre{padding:14px;border-radius:16px;border:1px solid var(--border);background: var(--card);color:var(--text);font:.82rem "Fira Code",monospace;line-height:1.72;white-space:pre-wrap;overflow-x:auto}
+    .bars{display:grid;gap:10px}
+    .bar{display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:10px;align-items:center}
+    .bar strong{font-size:.78rem}
+    .bar span{color:var(--muted);font-size:.72rem;line-height:1.5}
+    .track{height:10px;border-radius:999px;overflow:hidden;border:1px solid rgba(148,163,184,.12);background:rgba(148,163,184,.08)}
+    .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .barv{color:var(--accent2);font:.76rem "Fira Code",monospace}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;background: var(--card)}
+    table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:720px}
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(148,163,184,.12);border-right:1px solid rgba(148,163,184,.08)}
+    th{background:rgba(96,165,250,.08);color:var(--accent3)}
+    .sim-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .sim-btn{padding:9px 14px;border-radius:12px;border:1px solid var(--border);background: var(--card);color:var(--text);font:600 .78rem "Inter",sans-serif;cursor:pointer}
+    .sim-btn:hover{border-color:rgba(96,165,250,.34)}
+    .editor-field{display:grid;gap:6px}
+    .editor-field strong{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .editor-field input,.editor-field textarea{width:100%;border:1px solid var(--border);border-radius:12px;background: var(--card);color:var(--text);padding:10px 12px;font:0.8rem "Fira Code",monospace;outline:none}
+    .editor-field textarea{min-height:140px;resize:vertical}
+    .log-list{display:grid;gap:8px}
+    .log{padding:10px 12px;border-radius:12px;border:1px solid rgba(148,163,184,.12);background: var(--surface);color:var(--muted);font-size:.8rem;line-height:1.55}
+    .log strong{color:var(--text)}
+    .note{color:var(--muted);font-size:.82rem;line-height:1.7}
+    code{padding:2px 6px;border-radius:8px;background:rgba(96,165,250,.08);color:var(--text);font-family:"Fira Code",monospace;font-size:.9em}
+    @media (max-width:1120px){.app{flex-direction:column}.left{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}.grid,.stage,.compare,.result-grid{grid-template-columns:1fr}}
+    @media (max-width:760px){header{padding:12px 16px;flex-wrap:wrap}.actions{margin-left:0}.compare,.result-grid{grid-template-columns:1fr}.bar{grid-template-columns:1fr}.range{min-width:0}}
+  
+    .dsa-theme-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel, #fff);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .dsa-theme-toggle:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #7dd3fc);
+      background: var(--surface, #f0f4ff);
+    }
+
+  </style>
+
+<script>if(window.self !== window.top) { document.write('<style>header, .left-panel { display: none !important; }</style>'); }</script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>0/1 Knapsack</span> Using Recursion</h1>
+      <p>Follow the pure take-or-skip recurrence, watch the call tree expand, and see why memoization and tabulation save so much repeated work.</p>
+    </div>
+    <div class="actions">
+      <a class="primary" href="../index.php">Home</a>
+      <a href="dynamic_programming_introduction.php">DP Intro</a>
+      <a href="recursion_and_dynamic_programming.php">Recursion + DP</a>
+      <a href="zero_one_knapsack_problem.php">0/1 Knapsack DP</a>
+      <a href="zero_one_knapsack_using_set_method.php">Set Method</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="left">
+      <div class="panel-head"><span class="pulse"></span>Recursion Snapshot</div>
+      <section class="sec">
+        <div class="sec-title">Core Idea</div>
+        <div class="box"><div class="focus" id="focusTitle"></div><div id="focusSummary"></div></div>
+        <div class="box formula" id="flowFormula"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Quick Metrics</div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Scenario</div><div class="metric-value" id="metricScenario"></div></div>
+          <div class="metric"><div class="metric-label">Capacity</div><div class="metric-value" id="metricCapacity"></div></div>
+          <div class="metric"><div class="metric-label">Best Value</div><div class="metric-value" id="metricBest"></div></div>
+          <div class="metric"><div class="metric-label">Calls</div><div class="metric-value" id="metricCalls"></div></div>
+        </div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Recognition Signs</div>
+        <div class="list" id="signList"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Why Start Here</div>
+        <div class="box" id="helpsText"></div>
+        <div class="sec-title">Why It Becomes DP</div>
+        <div class="box" id="contrastText"></div>
+      </section>
+      <section class="sec">
+        <div class="sec-title">Current Items</div>
+        <div class="chips" id="itemChips"></div>
+      </section>
+    </aside>
+
+    <main class="work">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="recurrence">Recursive Formula</button>
+        <button class="tab" data-tab="simulation">Simulation</button>
+        <button class="tab" data-tab="pitfalls">Pitfalls</button>
+      </div>
+      <div class="controls">
+        <div class="field"><span>Scenario</span><select id="scenarioSelect"></select></div>
+        <div class="field"><span>Capacity</span><div class="range"><input id="capacityRange" type="range" min="1" max="12" step="1" value="7" /><span class="value" id="capacityValue"></span></div></div>
+      </div>
+
+      <section class="panel active" id="tab-overview">
+        <div class="status" id="statusText"></div>
+        <div class="grid">
+          <article class="card focus-card">
+            <div class="kick">How Recursion Frames the Problem</div>
+            <h2 id="heroTitle"></h2>
+            <p class="sub" id="heroSummary"></p>
+            <div class="chips" style="padding:0" id="heroBadges"></div>
+            <div class="stage">
+              <div class="mini"><div class="step">1. State</div><h3>Suffix + capacity</h3><p id="stateText"></p></div>
+              <div class="mini"><div class="step">2. Choice</div><h3>Take or skip</h3><p id="choiceText"></p></div>
+              <div class="mini"><div class="step">3. Base</div><h3>Stop conditions</h3><p id="baseText"></p></div>
+              <div class="mini"><div class="step">4. Overlap</div><h3>Repeated states</h3><p id="repeatText"></p></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kick">Current Outcome</div>
+            <div class="result-grid">
+              <div class="result"><h3>Recursive optimum</h3><p id="bestResult"></p><div class="chips" style="padding:0" id="bestPicks"></div></div>
+              <div class="result"><h3>Call tree size</h3><p id="callResult"></p><div class="chips" style="padding:0" id="callBadges"></div></div>
+              <div class="result"><h3>Overlap insight</h3><p id="overlapResult"></p><div class="chips" style="padding:0" id="overlapBadges"></div></div>
+              <div class="result"><h3>DP contrast</h3><p id="dpResult"></p><div class="chips" style="padding:0" id="decisionBadges"></div></div>
+            </div>
+          </article>
+          <article class="card" style="grid-column:1/span 2">
+            <div class="kick">Work Preview</div>
+            <div class="bars" id="barList"></div>
+            <p class="note" id="previewNote"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-recurrence">
+        <div class="grid">
+          <article class="card">
+            <div class="kick">Take-Or-Skip Recurrence</div>
+            <h2>The recursive version is the clean derivation of the DP idea.</h2>
+            <pre id="formulaCode"></pre>
+            <div class="compare">
+              <div class="cmp"><h3>State meaning</h3><p id="stateExplain"></p></div>
+              <div class="cmp"><h3>Branch meaning</h3><p id="branchExplain"></p></div>
+              <div class="cmp"><h3>Base cases</h3><p id="baseExplain"></p></div>
+              <div class="cmp"><h3>Overlap signal</h3><p id="overlapExplain"></p></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kick">States Worth Noticing</div>
+            <div class="examples" id="sampleGrid"></div>
+          </article>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="kick">Resolved Calls</div>
+          <div class="table-wrap" id="traceTable"></div>
+          <p class="note">Each row shows a recursive call after both branches, or the forced/base case, have finished.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-simulation">
+        <div class="card">
+          <div class="kick">Animated Recursion Trace</div>
+          <div class="sim-controls">
+            <button class="sim-btn" id="simPlayBtn">Play</button>
+            <button class="sim-btn" id="simStepBtn">Step</button>
+            <button class="sim-btn" id="simResetBtn">Reset</button>
+            <span class="badge" id="simProgress"></span>
+          </div>
+          <h2 id="simTitle"></h2>
+          <p class="sub" id="simSummary"></p>
+          <div class="compare">
+            <div class="cmp"><h3>Current Event</h3><p id="simExplain"></p></div>
+            <div class="cmp"><h3>Running Totals</h3><p id="simStats"></p></div>
+          </div>
+          <div class="card" style="padding:14px">
+            <div class="kick">Custom Scenario Input</div>
+            <div class="editor-grid">
+              <label class="editor-field">
+                <strong>Scenario Name</strong>
+                <input id="customScenarioName" type="text" value="Custom Recursion Scenario" />
+              </label>
+              <label class="editor-field">
+                <strong>Capacity</strong>
+                <input id="customScenarioCapacity" type="number" min="1" max="30" value="7" />
+              </label>
+              <label class="editor-field" style="grid-column:1/-1">
+                <strong>Items</strong>
+                <textarea id="customScenarioItems">A,1,1
+B,3,4
+C,4,5
+D,5,7</textarea>
+              </label>
+            </div>
+            <div class="sim-controls" style="margin-top:12px">
+              <button class="sim-btn" id="applyCustomScenarioBtn">Apply Custom Scenario</button>
+              <button class="sim-btn" id="resetCustomScenarioBtn">Reset Editor</button>
+              <span class="badge" id="customScenarioMode"></span>
+            </div>
+            <p class="note">Use one item per line as <code>Name,Weight,Value</code>. Keep it to at most 6 items so the recursion tree stays readable during animation.</p>
+          </div>
+          <div class="examples">
+            <article class="card"><div class="kick">Call Stack</div><div class="chips" style="padding:0" id="simStack"></div></article>
+            <article class="card"><div class="kick">Current Choices</div><div class="chips" style="padding:0" id="simChoices"></div></article>
+            <article class="card"><div class="kick">Recent Events</div><div class="log-list" id="simEvents"></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="tab-pitfalls">
+        <div class="card">
+          <div class="kick">Common Mistakes</div>
+          <div class="compare">
+            <div class="cmp"><h3>Wrong state meaning</h3><p><code>solve(i, w)</code> means the best value from item <code>i</code> onward with remaining capacity <code>w</code>, not the whole problem from scratch again.</p></div>
+            <div class="cmp"><h3>Trying invalid take branches</h3><p>If an item does not fit, recursion should skip it instead of creating negative-capacity calls.</p></div>
+            <div class="cmp"><h3>Missing base cases</h3><p>When <code>i == n</code> or <code>w == 0</code>, return <code>0</code> immediately.</p></div>
+            <div class="cmp"><h3>Ignoring overlap</h3><p>Repeated states are the reason memoization works. Plain recursion is the explanation, not the efficient endpoint.</p></div>
+            <div class="cmp"><h3>Losing reconstruction details</h3><p>The numeric answer is not enough if you also want the chosen items. That information must be tracked separately.</p></div>
+            <div class="cmp"><h3>Assuming recursion is fast enough</h3><p>The decision tree can grow exponentially with the number of items even when the number of distinct states is much smaller.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const fmt = (value) => new Intl.NumberFormat("en-US").format(value);
+    const escapeHtml = (value) => String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+    const stateLabel = (index, remaining) => "(i=" + index + ", w=" + remaining + ")";
+
+    function solveDP(items, capacity) {
+      const n = items.length;
+      const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
+      for (let i = n - 1; i >= 0; i -= 1) {
+        for (let w = 0; w <= capacity; w += 1) {
+          const skip = dp[i + 1][w];
+          const take = items[i].weight <= w ? items[i].value + dp[i + 1][w - items[i].weight] : Number.NEGATIVE_INFINITY;
+          dp[i][w] = Math.max(skip, take);
+        }
+      }
+      const picks = [];
+      let w = capacity;
+      for (let i = 0; i < n; i += 1) {
+        if (items[i].weight <= w && dp[i][w] === items[i].value + dp[i + 1][w - items[i].weight]) {
+          picks.push(items[i].name);
+          w -= items[i].weight;
+        }
+      }
+      return { bestValue: dp[0][capacity], picks, cells: (n + 1) * (capacity + 1) };
+    }
+
+    function solveRecursive(items, capacity) {
+      let callCounter = 0;
+      let maxDepth = 0;
+      const visitMap = new Map();
+      const records = [];
+      const events = [];
+
+      function snapshot(stack) {
+        return stack.map((node) => ({ index: node.index, remaining: node.remaining, callId: node.callId }));
+      }
+
+      function dfs(index, remaining, chosen, depth, stack) {
+        callCounter += 1;
+        const callId = callCounter;
+        maxDepth = Math.max(maxDepth, depth);
+        const key = index + "|" + remaining;
+        const visits = (visitMap.get(key) || 0) + 1;
+        visitMap.set(key, visits);
+        const callStack = stack.concat([{ index, remaining, callId }]);
+        const eventBase = { callId, index, remaining, depth, stack: snapshot(callStack), chosen: chosen.slice(), visits };
+
+        events.push({
+          ...eventBase,
+          type: visits > 1 ? "enter-repeat" : "enter",
+          message: visits > 1 ? "Revisit " + stateLabel(index, remaining) + "." : "Enter " + stateLabel(index, remaining) + "."
+        });
+
+        if (index === items.length || remaining === 0) {
+          records.push({
+            callId,
+            index,
+            remaining,
+            depth,
+            visits,
+            decision: "base",
+            takeValue: "-",
+            skipValue: "-",
+            returnValue: 0
+          });
+          events.push({
+            ...eventBase,
+            type: "return",
+            decision: "base",
+            bestValue: 0,
+            message: index === items.length ? "Base case: no items left, return 0." : "Base case: capacity is 0, return 0."
+          });
+          return { value: 0, picks: [] };
+        }
+
+        const item = items[index];
+        if (item.weight > remaining) {
+          events.push({
+            ...eventBase,
+            type: "forced-skip",
+            itemName: item.name,
+            itemWeight: item.weight,
+            itemValue: item.value,
+            message: item.name + " is too heavy for remaining capacity " + remaining + ", so recursion can only skip it."
+          });
+          const skipResult = dfs(index + 1, remaining, chosen, depth + 1, callStack);
+          records.push({
+            callId,
+            index,
+            remaining,
+            depth,
+            visits,
+            decision: "skip-only",
+            takeValue: "blocked",
+            skipValue: skipResult.value,
+            returnValue: skipResult.value
+          });
+          events.push({
+            ...eventBase,
+            type: "resolve",
+            itemName: item.name,
+            decision: "skip-only",
+            takeValue: null,
+            skipValue: skipResult.value,
+            bestValue: skipResult.value,
+            chosenPicks: skipResult.picks.slice(),
+            message: "Forced skip returns " + skipResult.value + " from " + stateLabel(index, remaining) + "."
+          });
+          return { value: skipResult.value, picks: skipResult.picks };
+        }
+
+        events.push({
+          ...eventBase,
+          type: "branch",
+          itemName: item.name,
+          itemWeight: item.weight,
+          itemValue: item.value,
+          message: "Branch on " + item.name + ": take adds " + item.value + " value, skip leaves the capacity unchanged."
+        });
+
+        const takeChild = dfs(index + 1, remaining - item.weight, chosen.concat(item.name), depth + 1, callStack);
+        const takeValue = item.value + takeChild.value;
+        const skipChild = dfs(index + 1, remaining, chosen, depth + 1, callStack);
+        const skipValue = skipChild.value;
+
+        let decision = "skip";
+        let bestValue = skipValue;
+        let bestPicks = skipChild.picks;
+        if (takeValue >= skipValue) {
+          decision = "take";
+          bestValue = takeValue;
+          bestPicks = [item.name].concat(takeChild.picks);
+        }
+
+        records.push({
+          callId,
+          index,
+          remaining,
+          depth,
+          visits,
+          decision,
+          takeValue,
+          skipValue,
+          returnValue: bestValue
+        });
+        events.push({
+          ...eventBase,
+          type: "resolve",
+          itemName: item.name,
+          decision,
+          takeValue,
+          skipValue,
+          bestValue,
+          chosenPicks: bestPicks.slice(),
+          message: decision === "take"
+            ? "Take wins at " + stateLabel(index, remaining) + ": " + takeValue + " beats " + skipValue + "."
+            : "Skip wins at " + stateLabel(index, remaining) + ": " + skipValue + " beats " + takeValue + "."
+        });
+        return { value: bestValue, picks: bestPicks };
+      }
+
+      const best = dfs(0, capacity, [], 0, []);
+      const visits = Array.from(visitMap.entries()).map(([key, count]) => {
+        const parts = key.split("|").map(Number);
+        return { key, count, index: parts[0], remaining: parts[1] };
+      });
+      const repeatedStates = visits.filter((entry) => entry.count > 1).length;
+      const repeatedCalls = visits.reduce((sum, entry) => sum + Math.max(0, entry.count - 1), 0);
+      return {
+        bestValue: best.value,
+        picks: best.picks,
+        callCount: callCounter,
+        maxDepth,
+        uniqueStates: visitMap.size,
+        repeatedStates,
+        repeatedCalls,
+        visits,
+        records: records.sort((a, b) => a.callId - b.callId),
+        events
+      };
+    }
+
+    const scenarios = [
+      {
+        key: "classic",
+        label: "Classic Bag",
+        capacity: 7,
+        hook: "This textbook example is small enough to trace by hand and large enough to show repeated subproblems.",
+        summary: "A compact instance where the recursion tree cleanly exposes the include-or-exclude rule.",
+        items: [
+          { name: "A", weight: 1, value: 1 },
+          { name: "B", weight: 3, value: 4 },
+          { name: "C", weight: 4, value: 5 },
+          { name: "D", weight: 5, value: 7 }
+        ]
+      },
+      {
+        key: "backpack",
+        label: "Weekend Backpack",
+        capacity: 5,
+        hook: "Packing choices feel intuitive, which makes it easier to see why a greedy feeling is not enough.",
+        summary: "Several different branch histories collide on the same remaining-capacity states.",
+        items: [
+          { name: "Map", weight: 1, value: 15 },
+          { name: "Jacket", weight: 2, value: 20 },
+          { name: "Camera", weight: 3, value: 35 },
+          { name: "Snacks", weight: 2, value: 18 },
+          { name: "Light", weight: 1, value: 9 }
+        ]
+      },
+      {
+        key: "lab",
+        label: "Student Lab Kit",
+        capacity: 6,
+        hook: "A denser item set makes the recursive tree wider and the overlap easier to notice.",
+        summary: "Good for comparing a growing call tree against a much smaller set of distinct states.",
+        items: [
+          { name: "Notes", weight: 1, value: 12 },
+          { name: "Tablet", weight: 2, value: 32 },
+          { name: "Book", weight: 3, value: 40 },
+          { name: "Charger", weight: 2, value: 26 },
+          { name: "Stand", weight: 4, value: 58 }
+        ]
+      }
+    ];
+
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    const scenarioSelect = document.getElementById("scenarioSelect");
+    const capacityRange = document.getElementById("capacityRange");
+    const capacityValue = document.getElementById("capacityValue");
+    const simPlayBtn = document.getElementById("simPlayBtn");
+    const simStepBtn = document.getElementById("simStepBtn");
+    const simResetBtn = document.getElementById("simResetBtn");
+    const customScenarioName = document.getElementById("customScenarioName");
+    const customScenarioCapacity = document.getElementById("customScenarioCapacity");
+    const customScenarioItems = document.getElementById("customScenarioItems");
+    const applyCustomScenarioBtn = document.getElementById("applyCustomScenarioBtn");
+    const resetCustomScenarioBtn = document.getElementById("resetCustomScenarioBtn");
+    const customScenarioMode = document.getElementById("customScenarioMode");
+
+    let customScenario = null;
+    let currentView = null;
+    let recursionSimulation = { steps: [], index: 0, timer: null };
+
+    function selectedPreset() {
+      return scenarios.find((scenario) => scenario.key === scenarioSelect.value) || scenarios[0];
+    }
+
+    function currentScenario() {
+      if (scenarioSelect.value === "custom") {
+        if (!customScenario) {
+          customScenario = buildCustomScenario();
+        }
+        return customScenario;
+      }
+      return selectedPreset();
+    }
+
+    function scenarioItemsToText(items) {
+      return items.map((item) => item.name + "," + item.weight + "," + item.value).join("\n");
+    }
+
+    function parseItems(raw) {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      if (!lines.length) {
+        throw new Error("Add at least one item.");
+      }
+      if (lines.length > 6) {
+        throw new Error("Use up to 6 items so the recursion tree stays readable.");
+      }
+      return lines.map((line, index) => {
+        const parts = line.split(",").map((part) => part.trim());
+        if (parts.length !== 3) {
+          throw new Error("Line " + (index + 1) + " must be Name,Weight,Value.");
+        }
+        const name = parts[0];
+        const weight = Number(parts[1]);
+        const value = Number(parts[2]);
+        if (!name) {
+          throw new Error("Line " + (index + 1) + " needs an item name.");
+        }
+        if (!Number.isInteger(weight) || weight <= 0 || weight > 30) {
+          throw new Error("Line " + (index + 1) + " needs a positive integer weight up to 30.");
+        }
+        if (!Number.isInteger(value) || value < 0 || value > 9999) {
+          throw new Error("Line " + (index + 1) + " needs a non-negative integer value up to 9999.");
+        }
+        return { name, weight, value };
+      });
+    }
+
+    function buildCustomScenario() {
+      const label = customScenarioName.value.trim() || "Custom Recursion Scenario";
+      const capacity = Number(customScenarioCapacity.value);
+      if (!Number.isInteger(capacity) || capacity < 1 || capacity > 30) {
+        throw new Error("Capacity must be an integer between 1 and 30.");
+      }
+      return {
+        key: "custom",
+        label,
+        capacity,
+        hook: "Custom input lets you watch the include-or-exclude tree for your own item set.",
+        summary: "The custom scenario updates the overview, recurrence trace, and animation together.",
+        items: parseItems(customScenarioItems.value)
+      };
+    }
+
+    function loadScenarioEditor() {
+      const scenario = scenarioSelect.value === "custom" && customScenario ? customScenario : selectedPreset();
+      customScenarioName.value = scenario.label;
+      customScenarioCapacity.value = scenario.capacity;
+      customScenarioItems.value = scenarioItemsToText(scenario.items);
+      customScenarioMode.textContent = scenarioSelect.value === "custom" && customScenario ? "Custom scenario active" : "Preset loaded in editor";
+    }
+
+    function stopSimulation() {
+      if (recursionSimulation.timer) {
+        clearInterval(recursionSimulation.timer);
+        recursionSimulation.timer = null;
+      }
+      simPlayBtn.textContent = "Play";
+    }
+
+    function syncRangeForScenario(resetValue) {
+      const scenario = currentScenario();
+      const totalWeight = scenario.items.reduce((sum, item) => sum + item.weight, 0);
+      capacityRange.min = "1";
+      capacityRange.max = String(Math.min(30, Math.max(scenario.capacity + 3, totalWeight, 4)));
+      if (resetValue || Number(capacityRange.value) > Number(capacityRange.max) || Number(capacityRange.value) < 1) {
+        capacityRange.value = String(Math.min(Number(capacityRange.max), scenario.capacity));
+      }
+      capacityValue.textContent = capacityRange.value;
+    }
+
+    function renderBars(metrics) {
+      const max = Math.max(...metrics.map((metric) => metric.value), 1);
+      return metrics.map((metric) => {
+        const width = Math.max(8, Math.round((metric.value / max) * 100));
+        return "<div class=\"bar\"><div><strong>" + escapeHtml(metric.label) + "</strong><span>" + escapeHtml(metric.note) + "</span></div><div class=\"track\"><div class=\"fill\" style=\"width:" + width + "%\"></div></div><div class=\"barv\">" + escapeHtml(fmt(metric.value)) + "</div></div>";
+      }).join("");
+    }
+
+    function renderPickChips(items) {
+      if (!items.length) {
+        return "<span class=\"badge\">No items selected</span>";
+      }
+      return items.map((item) => "<span class=\"pick\">" + escapeHtml(item) + "</span>").join("");
+    }
+
+    function topStates(result) {
+      return result.visits
+        .slice()
+        .sort((a, b) => (b.count - a.count) || (a.index - b.index) || (a.remaining - b.remaining))
+        .slice(0, 4);
+    }
+
+    function buildSimulation(view) {
+      return {
+        steps: view.recursive.events.map((event, index) => ({ ...event, order: index + 1 })),
+        index: 0,
+        timer: null
+      };
+    }
+
+    function renderSimulation() {
+      if (!recursionSimulation.steps.length || !currentView) {
+        document.getElementById("simProgress").textContent = "No events";
+        document.getElementById("simTitle").textContent = "No simulation data";
+        document.getElementById("simSummary").textContent = "Choose a scenario to generate the recursion trace.";
+        document.getElementById("simExplain").textContent = "";
+        document.getElementById("simStats").textContent = "";
+        document.getElementById("simStack").innerHTML = "<span class=\"badge\">Call stack is empty</span>";
+        document.getElementById("simChoices").innerHTML = "<span class=\"badge\">No current choices</span>";
+        document.getElementById("simEvents").innerHTML = "<div class=\"log\">No recent events yet.</div>";
+        return;
+      }
+
+      const event = recursionSimulation.steps[recursionSimulation.index];
+      const prefix = recursionSimulation.steps.slice(0, recursionSimulation.index + 1);
+      const entered = prefix.filter((step) => step.type === "enter" || step.type === "enter-repeat").length;
+      const resolved = prefix.filter((step) => step.type === "resolve" || step.type === "return").length;
+      const uniqueSeen = new Set(prefix.filter((step) => step.type === "enter" || step.type === "enter-repeat").map((step) => step.index + "|" + step.remaining)).size;
+      const currentItem = currentView.scenario.items[event.index];
+
+      document.getElementById("simProgress").textContent = "Event " + event.order + " / " + recursionSimulation.steps.length;
+      document.getElementById("simTitle").textContent = "Call " + event.callId + " at " + stateLabel(event.index, event.remaining);
+      document.getElementById("simSummary").textContent = "Depth " + event.depth + " in the recursion tree for " + currentView.scenario.label + ".";
+      document.getElementById("simExplain").textContent = event.message;
+      document.getElementById("simStats").textContent = "Calls entered so far: " + fmt(entered) + ". Calls resolved so far: " + fmt(resolved) + ". Unique states seen so far: " + fmt(uniqueSeen) + ".";
+
+      document.getElementById("simStack").innerHTML = event.stack.length
+        ? event.stack.map((node, index) => "<span class=\"call" + (index === event.stack.length - 1 ? " active" : "") + "\">" + escapeHtml(stateLabel(node.index, node.remaining)) + "</span>").join("")
+        : "<span class=\"badge\">Call stack is empty</span>";
+
+      let choiceHtml = "";
+      if ((event.type === "enter" || event.type === "enter-repeat") && currentItem) {
+        if (currentItem.weight <= event.remaining) {
+          choiceHtml = "<span class=\"chip\">Current item: " + escapeHtml(currentItem.name) + " (" + currentItem.weight + "," + currentItem.value + ")</span><span class=\"badge\">Both take and skip are available</span>";
+        } else {
+          choiceHtml = "<span class=\"chip\">Current item: " + escapeHtml(currentItem.name) + " (" + currentItem.weight + "," + currentItem.value + ")</span><span class=\"badge\">Too heavy right now, so skip is forced</span>";
+        }
+      } else if (event.type === "branch") {
+        choiceHtml = "<span class=\"pick\">Take " + escapeHtml(event.itemName) + " -> solve(" + (event.index + 1) + ", " + (event.remaining - event.itemWeight) + ") + " + event.itemValue + "</span><span class=\"chip\">Skip " + escapeHtml(event.itemName) + " -> solve(" + (event.index + 1) + ", " + event.remaining + ")</span>";
+      } else if (event.type === "forced-skip") {
+        choiceHtml = "<span class=\"badge\">" + escapeHtml(event.itemName) + " does not fit, so recursion follows only the skip branch.</span>";
+      } else if (event.type === "resolve") {
+        if (event.decision === "skip-only") {
+          choiceHtml = "<span class=\"badge\">Forced skip returns " + fmt(event.bestValue) + "</span>" + renderPickChips(event.chosenPicks || []);
+        } else {
+          choiceHtml = "<span class=\"pick\">Chosen branch: " + escapeHtml(event.decision) + "</span><span class=\"chip\">take = " + fmt(event.takeValue) + "</span><span class=\"chip\">skip = " + fmt(event.skipValue) + "</span>" + renderPickChips(event.chosenPicks || []);
+        }
+      } else {
+        choiceHtml = "<span class=\"badge\">Base case reached, so the function returns 0.</span>";
+      }
+      document.getElementById("simChoices").innerHTML = choiceHtml;
+
+      const recent = prefix.slice(Math.max(0, prefix.length - 5)).map((step) => "<div class=\"log\"><strong>#" + step.order + "</strong> " + escapeHtml(step.message) + "</div>").join("");
+      document.getElementById("simEvents").innerHTML = recent || "<div class=\"log\">No recent events yet.</div>";
+    }
+
+    function resetSimulation() {
+      stopSimulation();
+      recursionSimulation = buildSimulation(currentView);
+      renderSimulation();
+    }
+
+    function render() {
+      const scenario = currentScenario();
+      const capacity = Number(capacityRange.value);
+      const recursive = solveRecursive(scenario.items, capacity);
+      const dp = solveDP(scenario.items, capacity);
+      currentView = { scenario, capacity, recursive, dp };
+
+      document.getElementById("focusTitle").textContent = "Plain recursion defines the knapsack problem before any optimization is added.";
+      document.getElementById("focusSummary").textContent = "At each item, the solver decides whether to take it or skip it, then recurses on the remaining suffix of items.";
+      document.getElementById("flowFormula").textContent = [
+        "solve(i, w) = 0                                 if i == n or w == 0",
+        "solve(i, w) = solve(i + 1, w)                  if weight[i] > w",
+        "solve(i, w) = max(",
+        "  value[i] + solve(i + 1, w - weight[i]),",
+        "  solve(i + 1, w)",
+        ")"
+      ].join("\n");
+
+      document.getElementById("metricScenario").textContent = scenario.label;
+      document.getElementById("metricCapacity").textContent = String(capacity);
+      document.getElementById("metricBest").textContent = String(recursive.bestValue);
+      document.getElementById("metricCalls").textContent = fmt(recursive.callCount);
+
+      const signs = [
+        "Each subproblem is described by a pair: current item index and remaining capacity.",
+        "Every item creates an include-or-exclude branch.",
+        "Different paths can still land on the same later state.",
+        "Memoization naturally uses (index, remainingCapacity) as the cache key."
+      ];
+      document.getElementById("signList").innerHTML = signs.map((sign) => "<div>" + escapeHtml(sign) + "</div>").join("");
+
+      const topRepeated = topStates(recursive).find((entry) => entry.count > 1);
+      document.getElementById("helpsText").textContent = scenario.hook + " This is the clearest way to see why the state is exactly (index, remaining capacity).";
+      document.getElementById("contrastText").textContent = topRepeated
+        ? "In this run, " + stateLabel(topRepeated.index, topRepeated.remaining) + " appears " + topRepeated.count + " times. Memoization would compute it once and reuse it."
+        : "Even when overlap is mild in a small example, the recursive state still tells you how a memo table or DP table should be organized.";
+      document.getElementById("itemChips").innerHTML = scenario.items.map((item) => "<span class=\"chip\">" + escapeHtml(item.name) + " (" + item.weight + "," + item.value + ")</span>").join("");
+
+      document.getElementById("statusText").textContent = scenario.summary + " With capacity " + capacity + ", recursion reaches value " + recursive.bestValue + " after " + fmt(recursive.callCount) + " function calls.";
+      document.getElementById("heroTitle").textContent = "Recursive 0/1 knapsack on " + scenario.label;
+      document.getElementById("heroSummary").textContent = "This page keeps the original recurrence front and center so the later DP optimization feels motivated instead of magical.";
+      document.getElementById("heroBadges").innerHTML = [
+        "<span class=\"chip\">Items: " + scenario.items.length + "</span>",
+        "<span class=\"badge\">Unique states: " + fmt(recursive.uniqueStates) + "</span>",
+        "<span class=\"badge\">Worst-case nodes: " + fmt(Math.pow(2, scenario.items.length + 1) - 1) + "</span>"
+      ].join("");
+
+      document.getElementById("stateText").textContent = "Use solve(i, w) to mean the best value obtainable from items i..n-1 with remaining capacity w.";
+      document.getElementById("choiceText").textContent = "If the current item fits, recursion evaluates both branches. Otherwise it skips the item and moves on.";
+      document.getElementById("baseText").textContent = "When no items remain, or remaining capacity becomes 0, the function returns 0 and the branch ends.";
+      document.getElementById("repeatText").textContent = recursive.repeatedCalls
+        ? "This run repeats " + fmt(recursive.repeatedCalls) + " calls across only " + fmt(recursive.uniqueStates) + " distinct states."
+        : "This run is small, but the branching rule still exposes where repeated work begins to appear.";
+
+      document.getElementById("bestResult").textContent = "Best value = " + recursive.bestValue + ". The recursive decisions also reconstruct one optimal item set.";
+      document.getElementById("bestPicks").innerHTML = renderPickChips(recursive.picks);
+      document.getElementById("callResult").textContent = "The plain recursive solver made " + fmt(recursive.callCount) + " calls and reached maximum depth " + fmt(recursive.maxDepth) + ".";
+      document.getElementById("callBadges").innerHTML = "<span class=\"badge\">Depth: " + fmt(recursive.maxDepth) + "</span><span class=\"chip\">Leaves end at base cases</span>";
+      document.getElementById("overlapResult").textContent = recursive.repeatedCalls
+        ? "Only " + fmt(recursive.uniqueStates) + " states were distinct, but recursion performed " + fmt(recursive.repeatedCalls) + " extra repeated calls."
+        : "The tree stays manageable here, but the gap between calls and unique states grows quickly as items increase.";
+      document.getElementById("overlapBadges").innerHTML = "<span class=\"badge\">Repeated states: " + fmt(recursive.repeatedStates) + "</span><span class=\"chip\">Repeated calls: " + fmt(recursive.repeatedCalls) + "</span>";
+      document.getElementById("dpResult").textContent = "A DP version reaches the same optimum of " + dp.bestValue + " while filling just " + fmt(dp.cells) + " table cells.";
+      document.getElementById("decisionBadges").innerHTML = "<span class=\"pick\">DP optimum matches recursion</span><span class=\"badge\">Memo key: (i, w)</span>";
+
+      document.getElementById("barList").innerHTML = renderBars([
+        { label: "Recursive calls", value: recursive.callCount, note: "Every branch is executed directly." },
+        { label: "Unique states", value: recursive.uniqueStates, note: "These are the states memoization keeps." },
+        { label: "DP table cells", value: dp.cells, note: "Tabulation writes each state once." },
+        { label: "Repeated calls", value: recursive.repeatedCalls, note: "This is the avoidable extra work." }
+      ]);
+      document.getElementById("previewNote").textContent = "Recursion is the right conceptual starting point, but dynamic programming wins because the number of distinct states is usually much smaller than the raw number of recursive calls.";
+
+      document.getElementById("formulaCode").textContent = [
+        "solve(i, w):",
+        "  if i == n or w == 0:",
+        "    return 0",
+        "",
+        "  if weight[i] > w:",
+        "    return solve(i + 1, w)",
+        "",
+        "  take = value[i] + solve(i + 1, w - weight[i])",
+        "  skip = solve(i + 1, w)",
+        "  return max(take, skip)"
+      ].join("\n");
+      document.getElementById("stateExplain").textContent = "The recursive state is a suffix of the item list plus the remaining capacity, not the full problem all over again.";
+      document.getElementById("branchExplain").textContent = "The two branches directly model the 0/1 rule: either the item is fully taken or fully skipped.";
+      document.getElementById("baseExplain").textContent = "Returning 0 at the leaves gives every larger call a simple numeric base to build on.";
+      document.getElementById("overlapExplain").textContent = topRepeated
+        ? "State " + stateLabel(topRepeated.index, topRepeated.remaining) + " was revisited " + topRepeated.count + " times in this run."
+        : "Small examples may show limited overlap, but the state space already reveals exactly what would be cached.";
+
+      const samples = topStates(recursive);
+      document.getElementById("sampleGrid").innerHTML = samples.map((entry, index) => {
+        const note = entry.count > 1
+          ? "Visited " + entry.count + " times, so this state is an obvious memoization target."
+          : "Visited once in this run, but still part of the same DP state space.";
+        return "<article class=\"ex\"><div class=\"step\">State " + (index + 1) + "</div><h3>" + escapeHtml(stateLabel(entry.index, entry.remaining)) + "</h3><p>" + escapeHtml(note) + "</p></article>";
+      }).join("");
+
+      document.getElementById("traceTable").innerHTML = "<table><thead><tr><th>Call</th><th>State</th><th>Depth</th><th>Visits</th><th>Take</th><th>Skip</th><th>Decision</th><th>Return</th></tr></thead><tbody>" + recursive.records.map((record) => "<tr><td>" + record.callId + "</td><td>" + escapeHtml(stateLabel(record.index, record.remaining)) + "</td><td>" + record.depth + "</td><td>" + record.visits + "</td><td>" + escapeHtml(String(record.takeValue)) + "</td><td>" + escapeHtml(String(record.skipValue)) + "</td><td>" + escapeHtml(record.decision) + "</td><td>" + record.returnValue + "</td></tr>").join("") + "</tbody></table>";
+
+      stopSimulation();
+      recursionSimulation = buildSimulation(currentView);
+      renderSimulation();
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((item) => item.classList.remove("active"));
+        panels.forEach((panel) => panel.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+      });
+    });
+
+    scenarioSelect.innerHTML = scenarios.map((scenario) => "<option value=\"" + scenario.key + "\">" + escapeHtml(scenario.label) + "</option>").join("") + "<option value=\"custom\">Custom Scenario</option>";
+    scenarioSelect.value = scenarios[0].key;
+
+    scenarioSelect.addEventListener("change", () => {
+      try {
+        if (scenarioSelect.value === "custom" && !customScenario) {
+          customScenario = buildCustomScenario();
+        }
+        syncRangeForScenario(true);
+        loadScenarioEditor();
+        render();
+      } catch (error) {
+        customScenarioMode.textContent = error.message;
+        scenarioSelect.value = scenarios[0].key;
+        syncRangeForScenario(true);
+        loadScenarioEditor();
+        render();
+      }
+    });
+
+    capacityRange.addEventListener("input", () => {
+      capacityValue.textContent = capacityRange.value;
+      render();
+    });
+
+    applyCustomScenarioBtn.addEventListener("click", () => {
+      try {
+        customScenario = buildCustomScenario();
+        scenarioSelect.value = "custom";
+        customScenarioMode.textContent = "Custom scenario active";
+        syncRangeForScenario(true);
+        render();
+      } catch (error) {
+        stopSimulation();
+        customScenarioMode.textContent = error.message;
+      }
+    });
+
+    resetCustomScenarioBtn.addEventListener("click", () => {
+      stopSimulation();
+      customScenario = null;
+      scenarioSelect.value = scenarios[0].key;
+      loadScenarioEditor();
+      syncRangeForScenario(true);
+      customScenarioMode.textContent = "Editor reset to preset";
+      render();
+    });
+
+    simPlayBtn.addEventListener("click", () => {
+      if (!recursionSimulation.steps.length) {
+        return;
+      }
+      if (recursionSimulation.timer) {
+        stopSimulation();
+        return;
+      }
+      simPlayBtn.textContent = "Pause";
+      recursionSimulation.timer = setInterval(() => {
+        if (recursionSimulation.index >= recursionSimulation.steps.length - 1) {
+          stopSimulation();
+          return;
+        }
+        recursionSimulation.index += 1;
+        renderSimulation();
+      }, 900);
+    });
+
+    simStepBtn.addEventListener("click", () => {
+      stopSimulation();
+      if (!recursionSimulation.steps.length) {
+        return;
+      }
+      recursionSimulation.index = Math.min(recursionSimulation.index + 1, recursionSimulation.steps.length - 1);
+      renderSimulation();
+    });
+
+    simResetBtn.addEventListener("click", () => {
+      resetSimulation();
+    });
+
+    loadScenarioEditor();
+    syncRangeForScenario(true);
+    render();
+  </script>
+  <button class="dsa-theme-toggle" id="dsaThemeToggle" aria-label="Switch theme">
+    <span id="dsaToggleIcon">☀️</span>
+    <span id="dsaToggleLabel">Light</span>
+  </button>
+  <script>
+    (function () {
+      var btn = document.getElementById('dsaThemeToggle');
+      var icon = document.getElementById('dsaToggleIcon');
+      var label = document.getElementById('dsaToggleLabel');
+      var body = document.body;
+      var KEY = 'dsa-theme';
+      function apply(mode) {
+        if (mode === 'light') {
+          body.classList.add('light-mode');
+          icon.textContent = '🌙';
+          label.textContent = 'Dark';
+        } else {
+          body.classList.remove('light-mode');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+        }
+      }
+      var saved = localStorage.getItem(KEY);
+      if (saved) apply(saved);
+      btn.addEventListener('click', function () {
+        var next = body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+        localStorage.setItem(KEY, next);
+      });
+    })();
+  </script>
+</body>
+</html>
