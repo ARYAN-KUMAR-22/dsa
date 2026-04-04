@@ -36,11 +36,51 @@
       --shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
       --glow: rgba(99, 102, 241, 0.10);
       --focus: rgba(99, 102, 241, 0.20);
+      --accent: #0e7490;
+      --accent-2: #0e7490;
+      --good: #15803d;
+      --warn: #b45309;
     }
     body.light-mode header {
       background: var(--panel);
       border-bottom-color: var(--border);
     }
+
+    body.light-mode .left-panel {
+      background: var(--panel);
+      border-right-color: var(--border);
+    }
+    body.light-mode .tabs {
+      background: var(--panel);
+    }
+    body.light-mode .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    body.light-mode .tab.active {
+      background: var(--surface);
+    }
+    body.light-mode .metric {
+      background: var(--surface);
+    }
+    body.light-mode .field {
+      background: var(--surface);
+    }
+    body.light-mode .card {
+      background: var(--card);
+    }
+    body.light-mode pre {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    body.light-mode code {
+      color: var(--text);
+    }
+    body.light-mode .panel-section {
+      border-bottom-color: var(--border);
+    }
+
 
 
 
